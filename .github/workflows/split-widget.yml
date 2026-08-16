@@ -19,20 +19,26 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
+
           p = Path('index.html')
           html = p.read_text(encoding='utf-8')
-          style = re.search(r'<style>(.*?)</style>', html, re.S)
-          script = re.search(r'<script>(.*?)</script>', html, re.S)
-          if not style or not script:
-              raise SystemExit('Could not find inline style/script blocks')
-          Path('assets/style.css').write_text(style.group(1).strip() + '\n', encoding='utf-8')
-          Path('assets/script.js').write_text(script.group(1).strip() + '\n', encoding='utf-8')
-          html = html[:style.start()] + '<link rel="stylesheet" href="assets/style.css">' + html[style.end():]
-          script2 = re.search(r'<script>(.*?)</script>', html, re.S)
-          if not script2:
-              raise SystemExit('Could not find script block after style replacement')
-          html = html[:script2.start()] + '<script src="assets/script.js"></script>' + html[script2.end():]
+
+          style_open = html.index('<style>') + len('<style>')
+          style_close = html.index('</style>', style_open)
+          script_open = html.index('<script>') + len('<script>')
+          script_close = html.index('</script>', script_open)
+
+          style = html[style_open:style_close].strip() + '\n'
+          script = html[script_open:script_close].strip() + '\n'
+
+          Path('assets/style.css').parent.mkdir(parents=True, exist_ok=True)
+          Path('assets/style.css').write_text(style, encoding='utf-8')
+          Path('assets/script.js').write_text(script, encoding='utf-8')
+
+          html = html[:style_open-len('<style>')] + '<link rel="stylesheet" href="assets/style.css">' + html[style_close+len('</style>'):]
+          script_open = html.index('<script>')
+          script_close = html.index('</script>', script_open) + len('</script>')
+          html = html[:script_open] + '<script src="assets/script.js"></script>' + html[script_close:]
           p.write_text(html, encoding='utf-8')
 
       - name: Remove one-time workflow
