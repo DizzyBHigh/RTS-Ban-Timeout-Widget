@@ -42,7 +42,7 @@ body{font-family:Arial,Helvetica,sans-serif}
 <body><div id="stage"></div><div id="status"></div>
 <script>
 const CFG={host:"127.0.0.1",port:8080,reconnectMs:3000,sounds:true,maxDocked:4};const stage=document.getElementById("stage"),status=document.getElementById("status");const active=new Map();let audio=null;let barSound=null;
-const BAR_SOUND="assets/sounds/395920__locontrario23__closing-door.wav";
+const BAR_SOUND="assets/audio/395920__locontrario23__closing-door.wav";
 const rootStyle=document.documentElement.style;
 function updateStackSize(){const scale=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--stack-scale"))||.333333;rootStyle.setProperty("--stack-h",(310*scale)+"px")}
 updateStackSize();
