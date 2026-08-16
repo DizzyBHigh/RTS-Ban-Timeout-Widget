@@ -1,0 +1,53 @@
+name: Split widget files
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Split index.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          html = p.read_text(encoding='utf-8')
+
+          style = re.search(r'<style>(.*?)</style>', html, re.S)
+          script = re.search(r'<script>(.*?)</script>', html, re.S)
+          if not style or not script:
+              raise SystemExit('Could not find inline style/script blocks')
+
+          Path('assets/style.css').write_text(style.group(1).strip() + '\n', encoding='utf-8')
+          Path('assets/script.js').write_text(script.group(1).strip() + '\n', encoding='utf-8')
+
+          html = html[:style.start()] + '<link rel="stylesheet" href="assets/style.css">' + html[style.end():]
+          # Find the script block again after replacing the style block.
+          script2 = re.search(r'<script>(.*?)</script>', html, re.S)
+          if not script2:
+              raise SystemExit('Could not find script block after style replacement')
+          html = html[:script2.start()] + '<script src="assets/script.js"></script>' + html[script2.end():]
+          p.write_text(html, encoding='utf-8')
+
+      - name: Remove one-time workflow
+        run: rm -f .github/workflows/split-widget.yml
+
+      - name: Commit split
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/style.css assets/script.js .github/workflows/split-widget.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "Split widget into standard files"
+          git push
