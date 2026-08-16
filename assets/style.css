@@ -56,10 +56,9 @@ body {
     will-change: transform
 }
 
-/* Keep the jailed avatar restless without moving the cell, frame or bars. */
-.cell.locking .avatar,
-.cell.locked:not(.releasing) .avatar {
-    animation: angryAvatar .24s steps(2, end) infinite;
+/* The avatar is given the .angry class by script.js only during its brief shake. */
+.cell .avatar.angry {
+    animation: angryAvatar 2s steps(2, end) infinite
 }
 
 @keyframes angryAvatar {
