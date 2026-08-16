@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ban Widget V4</title>
 <style>
-:root{--cell-w:331px;--cell-h:310px;--edge:28px;--stack-gap:18px;--ink:#111;--gold:#ffd72f}
+:root{--cell-w:331px;--cell-h:310px;--edge:28px;--stack-gap:18px;--stack-scale:.25;--stack-h:77.5px;--ink:#111;--gold:#ffd72f}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
 body{font-family:Arial,Helvetica,sans-serif}
@@ -17,18 +17,18 @@ body{font-family:Arial,Helvetica,sans-serif}
 .cell .avatar{position:absolute;z-index:2;left:37px;top:42px;width:258px;height:227px;object-fit:cover;border-radius:50%;background:#182028}
 .cell .frame{position:absolute;inset:0;width:331px;height:310px;object-fit:fill;z-index:5;pointer-events:none}
 
-/* EXACTLY the transparent opening of cell_frame_final.png. No percentage offsets. */
-.cell .bars{position:absolute;z-index:8;left:37px;top:42px;width:258px;height:227px;overflow:hidden;pointer-events:none}
-.cell .bar{position:absolute;top:0;height:227px;width:12px;opacity:1;transform:scaleY(1);transform-origin:top center;background:linear-gradient(90deg,#050505 0%,#2d2d2d 22%,#8a8a8a 43%,#242424 61%,#050505 100%);border:2px solid #030303;border-radius:2px;box-shadow:3px 0 4px rgba(0,0,0,.75),inset 1px 0 1px rgba(255,255,255,.35)}
+/* Match the actual 258x227 opening, with a tiny top overlap hidden by the frame rail. */
+.cell .bars{position:absolute;z-index:4;left:37px;top:40px;width:258px;height:231px;overflow:hidden;pointer-events:none}
+.cell .bar{position:absolute;top:0;height:231px;width:12px;opacity:1;transform:scaleY(1);transform-origin:top center;background:linear-gradient(90deg,#050505 0%,#2d2d2d 22%,#8a8a8a 43%,#242424 61%,#050505 100%);border:2px solid #030303;border-radius:2px;box-shadow:3px 0 4px rgba(0,0,0,.75),inset 1px 0 1px rgba(255,255,255,.35)}
 .cell .bar::after{content:"";position:absolute;left:2px;right:2px;top:0;bottom:0;background:linear-gradient(90deg,rgba(255,255,255,.18),transparent 28%,transparent 72%,rgba(0,0,0,.28))}
-/* Bars are spread across the full 258px opening. */
-.cell .bar:nth-child(1){left:0}
-.cell .bar:nth-child(2){left:41px}
-.cell .bar:nth-child(3){left:82px}
-.cell .bar:nth-child(4){left:123px}
-.cell .bar:nth-child(5){left:164px}
-.cell .bar:nth-child(6){left:205px}
-.cell .bar:nth-child(7){left:246px}
+/* Seven bars fitted to the reference opening, inset from both side rails. */
+.cell .bar:nth-child(1){left:35px}
+.cell .bar:nth-child(2){left:68px}
+.cell .bar:nth-child(3){left:102px}
+.cell .bar:nth-child(4){left:135px}
+.cell .bar:nth-child(5){left:169px}
+.cell .bar:nth-child(6){left:202px}
+.cell .bar:nth-child(7){left:236px}
 .cell:not(.locking):not(.locked) .bar{transform:scaleY(0)}
 .cell.locking .bar{animation:barsDown .62s cubic-bezier(.15,.85,.2,1) forwards}
 .cell.locking .bar:nth-child(2){animation-delay:.04s}.cell.locking .bar:nth-child(3){animation-delay:.08s}.cell.locking .bar:nth-child(4){animation-delay:.12s}.cell.locking .bar:nth-child(5){animation-delay:.16s}.cell.locking .bar:nth-child(6){animation-delay:.20s}.cell.locking .bar:nth-child(7){animation-delay:.24s}
@@ -41,10 +41,10 @@ body{font-family:Arial,Helvetica,sans-serif}
 .reason span{display:block;white-space:nowrap}.reason.scrolling{justify-content:flex-start}.reason.scrolling span{min-width:max-content;padding-left:100%;animation:reasonScroll var(--scroll-time,7s) linear infinite}
 @keyframes reasonScroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
-/* Docking changes only the position of the existing cell. Nothing inside it is restyled. */
-.cell.docked{left:auto;top:auto;right:var(--edge);bottom:var(--edge);transform:none;animation:dockIn .5s cubic-bezier(.2,.9,.2,1) forwards}
-.cell.stack1{bottom:calc(var(--edge) + var(--cell-h) + var(--stack-gap))}.cell.stack2{bottom:calc(var(--edge) + 2 * (var(--cell-h) + var(--stack-gap)))}.cell.stack3{bottom:calc(var(--edge) + 3 * (var(--cell-h) + var(--stack-gap)))}
-@keyframes dockIn{from{opacity:0;transform:translate(170px,130px) scale(.65)}to{opacity:1;transform:none}}
+/* The SAME cell is scaled to 1/4 when it enters the stack. Internal geometry is unchanged. */
+.cell.docked{left:auto;top:auto;right:var(--edge);bottom:var(--edge);transform:scale(var(--stack-scale));transform-origin:bottom right;animation:dockIn .5s cubic-bezier(.2,.9,.2,1) forwards}
+.cell.stack1{bottom:calc(var(--edge) + var(--stack-h) + var(--stack-gap))}.cell.stack2{bottom:calc(var(--edge) + 2 * (var(--stack-h) + var(--stack-gap)))}.cell.stack3{bottom:calc(var(--edge) + 3 * (var(--stack-h) + var(--stack-gap)))}
+@keyframes dockIn{from{opacity:0;transform:translate(170px,130px) scale(.65)}to{opacity:1;transform:scale(var(--stack-scale))}}
 .cell.releasing .avatar{animation:avatarOut .7s cubic-bezier(.2,.8,.2,1) .08s forwards}.cell.releasing .timer,.cell.releasing .reason{animation:fade .28s ease forwards}.cell.releasing{animation:removeInPlace .75s .5s ease forwards}
 @keyframes avatarOut{0%{transform:translateY(0) scale(1);opacity:1}55%{transform:translateY(-45px) scale(1.04);opacity:1}100%{transform:translateY(-170px) scale(.78);opacity:0}}
 @keyframes fade{to{opacity:0}}@keyframes removeInPlace{to{opacity:0;transform:scale(.82)}}
