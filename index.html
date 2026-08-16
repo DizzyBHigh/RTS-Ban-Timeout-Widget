@@ -44,7 +44,7 @@ body{font-family:Arial,Helvetica,sans-serif}
   width:100%;
   height:100%;
   object-fit:fill;
-  z-index:5;
+  z-index:10;
   pointer-events:none;
 }
 
@@ -53,11 +53,11 @@ body{font-family:Arial,Helvetica,sans-serif}
 .cell .bars{
   position:absolute;
   z-index:8;
-  left:7%;
-  right:7%;
+  left:0;
+  right:0;
   top:17%;
   height:72%;
-  overflow:hidden;
+  overflow:visible;
   pointer-events:none;
 }
 .cell .bar{
@@ -73,22 +73,7 @@ body{font-family:Arial,Helvetica,sans-serif}
   border-radius:2px;
   box-shadow:3px 0 4px rgba(0,0,0,.75),inset 1px 0 1px rgba(255,255,255,.35);
 }
-.cell:not(.locking):not(.locked) .bar{
-  transform:scaleY(0);
-}
-.cell .bar::after{
-  content:"";
-  position:absolute;
-  left:2px;right:2px;top:0;bottom:0;
-  background:linear-gradient(90deg,rgba(255,255,255,.18),transparent 28%,transparent 72%,rgba(0,0,0,.28));
-}
-.cell .bar:nth-child(1){left:2%}
-.cell .bar:nth-child(2){left:17%}
-.cell .bar:nth-child(3){left:32%}
-.cell .bar:nth-child(4){left:47%}
-.cell .bar:nth-child(5){left:62%}
-.cell .bar:nth-child(6){left:77%}
-.cell .bar:nth-child(7){left:92%}
+.cell:not(.locking):not(.locked) .bar{transform:scaleY(0)}
 .cell.locking .bar{animation:barsDown .62s cubic-bezier(.15,.85,.2,1) forwards}
 .cell.locking .bar:nth-child(2){animation-delay:.04s}
 .cell.locking .bar:nth-child(3){animation-delay:.08s}
@@ -96,6 +81,19 @@ body{font-family:Arial,Helvetica,sans-serif}
 .cell.locking .bar:nth-child(5){animation-delay:.16s}
 .cell.locking .bar:nth-child(6){animation-delay:.20s}
 .cell.locking .bar:nth-child(7){animation-delay:.24s}
+.cell .bar::after{
+  content:"";
+  position:absolute;
+  left:2px;right:2px;top:0;bottom:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.18),transparent 28%,transparent 72%,rgba(0,0,0,.28));
+}
+.cell .bar:nth-child(1){left:17%}
+.cell .bar:nth-child(2){left:29%}
+.cell .bar:nth-child(3){left:41%}
+.cell .bar:nth-child(4){left:53%}
+.cell .bar:nth-child(5){left:65%}
+.cell .bar:nth-child(6){left:77%}
+.cell .bar:nth-child(7){left:89%}
 @keyframes barsDown{from{transform:scaleY(0);opacity:1}to{transform:scaleY(1);opacity:1}}
 
 /* Top timer — lives in the same cell and moves with it. */
@@ -131,26 +129,9 @@ body{font-family:Arial,Helvetica,sans-serif}
   min-width:max-content;padding-left:100%;
   animation:reasonScroll var(--scroll-time,7s) linear infinite;
 }
-@keyframes reasonScroll{
-  from{transform:translateX(0)}to{transform:translateX(-100%)}
-}
+@keyframes reasonScroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
-/* Lock appears only after bars have finished dropping. */
-.lock{
-  position:absolute;z-index:11;left:50%;top:50%;
-  width:64px;height:64px;
-  transform:translate(-50%,-50%) scale(0);
-  border-radius:50%;display:grid;place-items:center;
-  background:var(--gold);border:5px solid var(--ink);
-  box-shadow:0 6px 0 #a77b00;
-  font-size:28px;
-}
-.cell.locked .lock{
-  animation:lockIn .34s .08s cubic-bezier(.2,1.5,.35,1) forwards;
-}
-@keyframes lockIn{
-  to{transform:translate(-50%,-50%) scale(1)}
-}
+/* The center lock icon has been removed. The bars themselves are the lock state. */
 
 /* ---- The exact same cell moves to the stack. ----
    Docking changes ONLY the cell's screen position. */
@@ -165,74 +146,31 @@ body{font-family:Arial,Helvetica,sans-serif}
 .cell.stack1{bottom:calc(var(--edge) + var(--cell-h) + var(--stack-gap))}
 .cell.stack2{bottom:calc(var(--edge) + 2 * (var(--cell-h) + var(--stack-gap)))}
 .cell.stack3{bottom:calc(var(--edge) + 3 * (var(--cell-h) + var(--stack-gap)))}
-@keyframes dockIn{
-  from{opacity:0;transform:translate(170px,130px) scale(.65)}
-  to{opacity:1;transform:none}
-}
+@keyframes dockIn{from{opacity:0;transform:translate(170px,130px) scale(.65)}to{opacity:1;transform:none}}
 
 /* Release: lift bars, let avatar leave, then remove in place. */
-}
- .cell.releasing .bar{animation:barsUp .5s ease forwards}
+.cell.releasing .bar{animation:barsUp .5s ease forwards}
 @keyframes barsUp{to{transform:scaleY(0);opacity:1}}
 .cell.releasing .avatar{animation:avatarOut .7s cubic-bezier(.2,.8,.2,1) .08s forwards}
 .cell.releasing .timer,.cell.releasing .reason{animation:fade .28s ease forwards}
 .cell.releasing{animation:removeInPlace .75s .5s ease forwards}
-}
-@keyframes avatarOut{
-  0%{transform:translateY(0) scale(1);opacity:1}
-  55%{transform:translateY(-45px) scale(1.04);opacity:1}
-  100%{transform:translateY(-170px) scale(.78);opacity:0}
-}
+@keyframes avatarOut{0%{transform:translateY(0) scale(1);opacity:1}55%{transform:translateY(-45px) scale(1.04);opacity:1}100%{transform:translateY(-170px) scale(.78);opacity:0}}
 @keyframes fade{to{opacity:0}}
-@keyframes removeInPlace{
-  to{opacity:0;transform:scale(.82)}
-}
+@keyframes removeInPlace{to{opacity:0;transform:scale(.82)}}
 
 /* ---- Ban truck ---- */
 .ban-scene{position:absolute;inset:0;overflow:hidden;z-index:60}
-.truck{
-  position:absolute;left:-700px;bottom:7%;width:640px;height:320px;
-  background:url("assets/truck_full.png") center/100% 100% no-repeat;
-  animation:truckDrive 4.5s cubic-bezier(.18,.62,.1,1) forwards;
-  filter:drop-shadow(0 18px 10px #0008);
-}
-.truck-avatar{
-  position:absolute;left:48%;top:25%;width:14%;height:27%;
-  object-fit:cover;border-radius:4px;z-index:2;
-}
-.truck-bars{
-  position:absolute;left:45.6%;top:22%;width:19%;height:36%;z-index:3;
-}
-.truck-bars i{
-  position:absolute;top:0;bottom:0;width:8px;
-  background:linear-gradient(90deg,#050505,#686868 34%,#111 62%,#020202);
-  border:1px solid #050505;
-}
-.truck-bars i:nth-child(1){left:2%}.truck-bars i:nth-child(2){left:17%}
-.truck-bars i:nth-child(3){left:32%}.truck-bars i:nth-child(4){left:47%}
-.truck-bars i:nth-child(5){left:62%}.truck-bars i:nth-child(6){left:77%}
-.truck-bars i:nth-child(7){left:92%}
-@keyframes truckDrive{
-  0%{transform:translateX(0)}
-  30%{transform:translateX(720px)}
-  58%{transform:translateX(1000px)}
-  100%{transform:translateX(1940px)}
-}
-.court{
-  position:absolute;z-index:80;left:50%;top:74%;
-  transform:translate(-50%,-50%) scale(.8);opacity:0;
-  background:#f0dfb8;border:5px solid #111;border-radius:10px;
-  padding:9px 20px;text-align:center;color:#111;
-  box-shadow:0 9px 0 #0005;
-}
+.truck{position:absolute;left:-700px;bottom:7%;width:640px;height:320px;background:url("assets/truck_full.png") center/100% 100% no-repeat;animation:truckDrive 4.5s cubic-bezier(.18,.62,.1,1) forwards;filter:drop-shadow(0 18px 10px #0008)}
+.truck-avatar{position:absolute;left:48%;top:25%;width:14%;height:27%;object-fit:cover;border-radius:4px;z-index:2}
+.truck-bars{position:absolute;left:45.6%;top:22%;width:19%;height:36%;z-index:3}
+.truck-bars i{position:absolute;top:0;bottom:0;width:8px;background:linear-gradient(90deg,#050505,#686868 34%,#111 62%,#020202);border:1px solid #050505}
+.truck-bars i:nth-child(1){left:0%}.truck-bars i:nth-child(2){left:16%}.truck-bars i:nth-child(3){left:32%}.truck-bars i:nth-child(4){left:48%}.truck-bars i:nth-child(5){left:64%}.truck-bars i:nth-child(6){left:80%}.truck-bars i:nth-child(7){left:96%}
+@keyframes truckDrive{0%{transform:translateX(0)}30%{transform:translateX(720px)}58%{transform:translateX(1000px)}100%{transform:translateX(1940px)}}
+.court{position:absolute;z-index:80;left:50%;top:74%;transform:translate(-50%,-50%) scale(.8);opacity:0;background:#f0dfb8;border:5px solid #111;border-radius:10px;padding:9px 20px;text-align:center;color:#111;box-shadow:0 9px 0 #0005}
 .court.show{animation:courtIn .4s cubic-bezier(.2,1.3,.3,1) forwards}
-.court .small{font:900 11px Arial;letter-spacing:2px}
-.court .big{font:1000 24px Impact,Arial}
+.court .small{font:900 11px Arial;letter-spacing:2px}.court .big{font:1000 24px Impact,Arial}
 @keyframes courtIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-
-#status{position:absolute;left:14px;top:14px;z-index:100;
-background:#000b;color:#fff;padding:6px 9px;border-radius:5px;
-font:700 11px monospace;opacity:0;transition:opacity .2s}
+#status{position:absolute;left:14px;top:14px;z-index:100;background:#000b;color:#fff;padding:6px 9px;border-radius:5px;font:700 11px monospace;opacity:0;transition:opacity .2s}
 #status.show{opacity:1}
 </style>
 </head>
@@ -242,198 +180,24 @@ font:700 11px monospace;opacity:0;transition:opacity .2s}
 const CFG={host:"127.0.0.1",port:8080,reconnectMs:3000,sounds:true,maxDocked:4};
 const stage=document.getElementById("stage"),status=document.getElementById("status");
 const active=new Map();let audio=null;
-
 function say(s){status.textContent=s;status.classList.add("show");clearTimeout(status.t);status.t=setTimeout(()=>status.classList.remove("show"),1200)}
 function unlock(){if(!CFG.sounds)return;if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume()}
-function tone(f,d,t="square",g=.04,delay=0){
- if(!CFG.sounds)return;unlock();if(!audio)return;
- const o=audio.createOscillator(),a=audio.createGain();o.type=t;o.frequency.value=f;
- a.gain.setValueAtTime(g,audio.currentTime+delay);a.gain.exponentialRampToValueAtTime(.001,audio.currentTime+delay+d);
- o.connect(a).connect(audio.destination);o.start(audio.currentTime+delay);o.stop(audio.currentTime+delay+d+.03)
-}
+function tone(f,d,t="square",g=.04,delay=0){if(!CFG.sounds)return;unlock();if(!audio)return;const o=audio.createOscillator(),a=audio.createGain();o.type=t;o.frequency.value=f;a.gain.setValueAtTime(g,audio.currentTime+delay);a.gain.exponentialRampToValueAtTime(.001,audio.currentTime+delay+d);o.connect(a).connect(audio.destination);o.start(audio.currentTime+delay);o.stop(audio.currentTime+delay+d+.03)}
 function clang(){tone(90,.17,"square",.08);tone(440,.08,"triangle",.04,.02);tone(210,.12,"square",.03,.09)}
 function releaseSound(){tone(520,.08,"triangle",.03)}
 function siren(){tone(650,.18,"sawtooth",.025);tone(900,.18,"sawtooth",.025,.19);tone(650,.18,"sawtooth",.025,.38);tone(900,.18,"sawtooth",.025,.57)}
 function fmt(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 function key(d){return d.id||d.username||d.displayName||crypto.randomUUID()}
-
-function setReason(e,text){
- const box=e.querySelector(".reason"),span=box.querySelector("span");
- span.textContent=text||"TIMEOUT";
- requestAnimationFrame(()=>{
-   box.classList.remove("scrolling");span.style.removeProperty("--scroll-time");
-   if(span.scrollWidth>box.clientWidth){
-     const sec=Math.max(5,Math.min(14,span.scrollWidth/35));
-     box.style.setProperty("--scroll-time",sec+"s");
-     box.classList.add("scrolling");
-   }
- });
-}
-
-/* Create ONE cell. It is never destroyed/recreated when docking. */
-function createCell(d){
- const e=document.createElement("div");
- e.className="cell";
- e.innerHTML=`
-   <img class="avatar" alt="">
-   <div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
-   <img class="frame" src="assets/cell_frame_final.png" alt="">
-   <div class="timer">00:00</div>
-   <div class="reason"><span></span></div>
-   <div class="lock">🔒</div>`;
- const avatar=e.querySelector(".avatar");
- avatar.src=d.avatar||"";
- avatar.onerror=()=>{avatar.style.opacity=".12"};
- setReason(e,d.reason||d.timeoutReason||d.message||"TIMEOUT");
- return e;
-}
-
-function dockSameCell(e){
- e.classList.remove("locking");
- e.classList.add("docked");
- const cards=[...stage.querySelectorAll(".cell.docked")];
- cards.forEach((x,i)=>{
-   x.classList.remove("stack1","stack2","stack3");
-   if(i>0)x.classList.add("stack"+Math.min(i,3));
- });
- if(cards.length>CFG.maxDocked){
-   const oldest=cards[0];
-   const ent=[...active.entries()].find(([,v])=>v.el===oldest);
-   if(ent)release(ent[0]);
- }
-}
-
-function timeout(d){
- unlock();
- const k=key(d);
- if(active.has(k))release(k);
- const duration=Math.max(1,Number(d.duration)||1);
- const e=createCell(d);
- stage.appendChild(e);
- active.set(k,{el:e,end:Date.now()+duration*1000,type:"timeout"});
- e.classList.add("locking");
- setTimeout(()=>{if(active.get(k)?.el!==e)return;e.classList.add("locked");clang()},700);
-
- const tick=()=>{
-  const x=active.get(k);if(!x||x.el!==e)return;
-  const left=(x.end-Date.now())/1000;
-  e.querySelector(".timer").textContent=fmt(left);
-  if(left<=0){release(k);return}
-  requestAnimationFrame(tick);
- };
- tick();
-
- // Move the SAME DOM element to the stack.
- setTimeout(()=>{if(active.get(k)?.el===e)e.classList.add("docked");dockSameCell(e)},1000);
-}
-
-function release(k){
- const x=active.get(k);if(!x)return;
- x.el.classList.remove("docked","stack1","stack2","stack3");
- x.el.classList.add("releasing");
- releaseSound();
- setTimeout(()=>{
-   x.el.remove();active.delete(k);
-   const cards=[...stage.querySelectorAll(".cell.docked")];
-   cards.forEach((c,i)=>{c.classList.remove("stack1","stack2","stack3");if(i>0)c.classList.add("stack"+Math.min(i,3))});
- },1250);
-}
-
-function ban(d){
- unlock();const k=key(d);
- if(active.has(k))release(k);
- const e=createCell(d);stage.appendChild(e);active.set(k,{el:e,type:"ban"});
- e.classList.add("locking");
- setTimeout(()=>{e.classList.add("locked");clang()},700);
- setTimeout(()=>{
-   const court=document.createElement("div");court.className="court";
-   court.innerHTML="<div class='small'>ORDER OF THE COURT</div><div class='big'>YOU ARE BANNED!</div>";
-   stage.appendChild(court);requestAnimationFrame(()=>court.classList.add("show"));
-
-   const scene=document.createElement("div");scene.className="ban-scene";
-   scene.innerHTML=`<div class="truck">
-     <img class="truck-avatar" src="${d.avatar||""}">
-     <div class="truck-bars">${Array.from({length:7},()=>"<i></i>").join("")}</div>
-   </div>`;
-   stage.appendChild(scene);siren();
-
-   setTimeout(()=>{e.remove();active.delete(k)},850);
-   setTimeout(()=>{scene.remove();court.remove()},4550);
- },1250);
-}
-
-function handle(d){
- if(typeof d==="string"){try{d=JSON.parse(d)}catch{return}}
- if(d?.data&&typeof d.data==="string"){try{d=JSON.parse(d.data)}catch{}}
- if(d?.data&&!d.action&&!d.type)d=d.data;
- if(d?.payload)d=d.payload;
- if(!d||typeof d!=="object")return;
- const a=(d.action||d.type||"").toLowerCase();
- if(a==="timeout"||a==="timedout"||a==="timed-out")timeout(d);
- else if(a==="ban"||a==="banned")ban(d);
-}
-function nativeHandle(m){
- const src=(m.event?.source||"").toLowerCase(),typ=(m.event?.type||"").toLowerCase(),d=m.data||{};
- if(src!=="twitch")return;
- const u=d.targetUser||{};
- if(typ==="usertimedout")timeout({
-   action:"timeout",id:u.id,username:u.login,displayName:u.name,
-   avatar:u.profileImageUrl||"",duration:d.duration,reason:d.reason||d.timeoutReason||"TIMEOUT"
- });
- if(typ==="userbanned")ban({
-   action:"ban",id:u.id,username:u.login,displayName:u.name,
-   avatar:u.profileImageUrl||""
- });
- if(typ==="useruntimedout")release(u.id||u.login);
-}
-function connect(){
- const ws=new WebSocket(`ws://${CFG.host}:${CFG.port}/`);
- ws.onopen=()=>{
-  say("BAN WIDGET V4 REBUILD ONLINE");
-  ws.send(JSON.stringify({
-   request:"Subscribe",id:"ban-widget-v4-rebuild",
-   events:{General:["Custom"],Twitch:["UserTimedOut","UserBanned","UserUntimedOut"]}
-  }));
- };
- ws.onmessage=e=>{
-  try{
-   const m=JSON.parse(e.data);
-   if(m.event?.source==="General"&&m.event?.type==="Custom")handle(m.data?.data??m.data);
-   else nativeHandle(m);
-  }catch(err){console.warn(err)}
- };
- ws.onclose=()=>setTimeout(connect,CFG.reconnectMs);
- ws.onerror=()=>ws.close();
-}
-
-/* Tests */
-function demoTimeout(name="DEMO_VIEWER",duration=59,reason="BACKSEAT GAMING",instant=false){
- timeout({
-  action:"timeout",id:name,username:name,displayName:name,
-  avatar:"https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png",
-  duration,reason
- });
- if(instant){
-   const x=active.get(name);
-   if(x){x.el.classList.remove("locking");x.el.classList.add("locked");x.el.querySelectorAll(".bar").forEach(b=>b.style.transform="scaleY(1)");}
- }
-}
-function demoStack(){
- [["ALPHA","NO SPOILERS"],["BRAVO","BACKSEAT GAMING"],["CHARLIE","BE RESPECTFUL"],["DELTA","NO CAPS"]]
- .forEach((x,i)=>setTimeout(()=>demoTimeout(x[0],75+i*15,x[1]),i*700));
-}
-function demoLong(){demoTimeout("LONG_MESSAGE",59,"PLEASE RESPECT EVERYONE IN CHAT AND KEEP IT POSITIVE AND FOLLOW THE RULES")}
-function demoBan(){ban({action:"ban",id:"DEMO_BANNED",username:"DEMO_BANNED",displayName:"DEMO_BANNED",
- avatar:"https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png"})}
-window.testTimeout=demoTimeout;window.testStack=demoStack;window.testLong=demoLong;window.testBan=demoBan;
-const q=new URLSearchParams(location.search);
-if(q.get("test")==="timeout")setTimeout(demoTimeout,300);
-if(q.get("test")==="instant")setTimeout(()=>demoTimeout("BAR_TEST",59,"BACKSEAT GAMING",true),300);
-if(q.get("test")==="stack")setTimeout(demoStack,300);
-if(q.get("test")==="long")setTimeout(demoLong,300);
-if(q.get("test")==="ban")setTimeout(demoBan,300);
-document.addEventListener("pointerdown",unlock,{once:true});
-connect();
+function setReason(e,text){const box=e.querySelector(".reason"),span=box.querySelector("span");span.textContent=text||"TIMEOUT";requestAnimationFrame(()=>{box.classList.remove("scrolling");span.style.removeProperty("--scroll-time");if(span.scrollWidth>box.clientWidth){const sec=Math.max(5,Math.min(14,span.scrollWidth/35));box.style.setProperty("--scroll-time",sec+"s");box.classList.add("scrolling")}})}
+function createCell(d){const e=document.createElement("div");e.className="cell";e.innerHTML=`<img class="avatar" alt=""><div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div><img class="frame" src="assets/cell_frame_final.png" alt=""><div class="timer">00:00</div><div class="reason"><span></span></div>`;const avatar=e.querySelector(".avatar");avatar.src=d.avatar||"";avatar.onerror=()=>{avatar.style.opacity=".12"};setReason(e,d.reason||d.timeoutReason||d.message||"TIMEOUT");return e}
+function dockSameCell(e){e.classList.remove("locking");e.classList.add("docked");const cards=[...stage.querySelectorAll(".cell.docked")];cards.forEach((x,i)=>{x.classList.remove("stack1","stack2","stack3");if(i>0)x.classList.add("stack"+Math.min(i,3))});if(cards.length>CFG.maxDocked){const oldest=cards[0];const ent=[...active.entries()].find(([,v])=>v.el===oldest);if(ent)release(ent[0])}}
+function timeout(d){unlock();const k=key(d);if(active.has(k))release(k);const duration=Math.max(1,Number(d.duration)||1);const e=createCell(d);stage.appendChild(e);active.set(k,{el:e,end:Date.now()+duration*1000,type:"timeout"});e.classList.add("locking");setTimeout(()=>{if(active.get(k)?.el!==e)return;e.classList.add("locked");clang()},700);const tick=()=>{const x=active.get(k);if(!x||x.el!==e)return;const left=(x.end-Date.now())/1000;e.querySelector(".timer").textContent=fmt(left);if(left<=0){release(k);return}requestAnimationFrame(tick)};tick();setTimeout(()=>{if(active.get(k)?.el===e)dockSameCell(e)},1000)}
+function release(k){const x=active.get(k);if(!x)return;x.el.classList.remove("docked","stack1","stack2","stack3");x.el.classList.add("releasing");releaseSound();setTimeout(()=>{x.el.remove();active.delete(k);reflow()},900)}
+function reflow(){const cards=[...stage.querySelectorAll(".cell.docked")];cards.forEach((x,i)=>{x.classList.remove("stack1","stack2","stack3");if(i>0)x.classList.add("stack"+Math.min(i,3))})}
+function ban(d){unlock();const e=document.createElement("div");e.className="ban-scene";e.innerHTML=`<div class="truck"><img class="truck-avatar" alt=""><div class="truck-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>`;const a=e.querySelector(".truck-avatar");a.src=d.avatar||"";stage.appendChild(e);siren();setTimeout(()=>e.remove(),5000)}
+function handle(d){if(!d)return;say(d.action||"event");if(d.action==="timeout")timeout(d);else if(d.action==="untimeout"||d.action==="release")release(key(d));else if(d.action==="ban")ban(d)}
+function parse(){const p=new URLSearchParams(location.search),t=p.get("test");if(!t)return false;if(t==="timeout")handle({action:"timeout",id:"demo",avatar:"assets/reference_initial.png",duration:35,reason:"BACKSEAT GAMING"});if(t==="stack")handle({action:"timeout",id:"demo",avatar:"assets/reference_initial.png",duration:90,reason:"EXPECT EVERYONE IN CHAT A"});if(t==="long")handle({action:"timeout",id:"demo",avatar:"assets/reference_initial.png",duration:90,reason:"PLEASE FOLLOW THE RULES — THIS IS A LONG MESSAGE THAT SHOULD SCROLL"});if(t==="ban")handle({action:"ban",id:"demo",avatar:"assets/reference_initial.png"});return true}
+if(!parse())say("Ban Widget V4 ready");
 </script>
 </body>
 </html>
