@@ -134,6 +134,34 @@ function setReason(e, text) {
     }
   });
 }
+function scheduleAngryAvatar(e) {
+  const avatar = e.querySelector(".avatar");
+  let startTimer = null;
+  let endTimer = null;
+  let stopped = false;
+
+  function scheduleNext() {
+    if (stopped || !e.isConnected || e.classList.contains("releasing")) return;
+    const delay = 10000 + Math.random() * 10000;
+    startTimer = setTimeout(() => {
+      if (stopped || !e.isConnected || e.classList.contains("releasing")) return;
+      avatar.classList.add("angry");
+      endTimer = setTimeout(() => {
+        avatar.classList.remove("angry");
+        scheduleNext();
+      }, 2000);
+    }, delay);
+  }
+
+  scheduleNext();
+
+  return () => {
+    stopped = true;
+    if (startTimer) clearTimeout(startTimer);
+    if (endTimer) clearTimeout(endTimer);
+    avatar.classList.remove("angry");
+  };
+}
 function createCell(d) {
   const e = document.createElement("div");
   e.className = "cell";
@@ -157,6 +185,7 @@ function createCell(d) {
       "UNKNOWN USER",
   );
   setReason(e, d.reason || d.timeoutReason || d.message || "TIMEOUT");
+  e.stopAngryAvatar = scheduleAngryAvatar(e);
   return e;
 }
 function restack() {
@@ -234,6 +263,7 @@ function release(k) {
   }
   if (!x.el) return;
   const e = x.el;
+  if (e.stopAngryAvatar) e.stopAngryAvatar();
   e.classList.add("releasing");
   releaseSound();
   setTimeout(() => {
