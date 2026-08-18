@@ -1,6 +1,6 @@
-# Ban Widget Settings — first integration milestone
+# Ban Widget Settings — stack layout milestone
 
-This milestone proves the settings round trip with `duhBuhUI.dll` using one setting: `Stack Scale (%)`.
+This milestone expands the `duhBuhUI.dll` settings round trip from one setting to the complete timeout-stack layout configuration.
 
 ## Architecture
 
@@ -11,11 +11,9 @@ Setup Settings C# action
     ↓
 duhBuhUI.dll
     ↓
-Save
+Persisted globals
     ↓
-Persisted global: duhbuh.banwidget.stackScalePercent
-    ↓
-BanWidget C# action
+TimeoutWidget C# action
     ↓
 Custom Event: BanWidget
     ↓
@@ -23,71 +21,83 @@ Browser WebSocket
     ↓
 assets/script.js
     ↓
---stack-scale
+CSS/runtime stack layout
 ```
 
-## 1. Add the DLL
+## Settings
 
-The `duhBuhUI` project targets .NET Framework 4.8 and builds `duhBuhUI.dll` as a library. Add the compiled DLL as a custom assembly reference in the Streamer.bot C# editor using **Find Refs** / the custom DLL reference mechanism.
-
-The public settings entry point is the `DuhBuhUI` class.
-
-## 2. Create the setup action
-
-Create a Streamer.bot action named something like:
-
-`duhbuh - Ban - Settings`
-
-Add an **Execute C# Code** sub-action and use:
-
-`streamerbot/SetupSettings.cs`
-
-The action opens the `duhBuhUI` settings window.
-
-## 3. Save the setting
-
-The settings window contains:
-
-- `Stack Scale (%)`
-- Range: 10–100
-- Default: 33
-
-Saving writes the persisted Streamer.bot global variable:
-
-`duhbuh.banwidget.stackScalePercent`
+| Setting | Persisted global | Range | Default |
+|---|---|---:|---:|
+| Stack Scale (%) | `duhbuh.banwidget.stackScalePercent` | 10–100 | 33 |
+| Max Docked | `duhbuh.banwidget.maxDocked` | 1–4 | 4 |
+| Edge Offset (px) | `duhbuh.banwidget.edgeOffset` | 0–200 | 28 |
+| Stack Gap (px) | `duhbuh.banwidget.stackGap` | 0–100 | 18 |
 
 Streamer.bot persisted globals survive application restarts.
 
-## 4. Keep the existing BanWidget action
+## Streamer.bot actions
 
-The existing timeout/ban action should continue to call the `BanWidget` Custom Event.
+The timeout action is now:
 
-`streamerbot/BanWidget.cs` now reads the persisted stack-scale setting and places it into the event arguments as:
+`duhbuh - Ban - Timeout Widget`
 
-`banWidgetStackScalePercent`
+Its C# source is:
 
-The existing `CPH.TriggerEvent("BanWidget", true)` path remains unchanged.
+`streamerbot/TimeoutWidget.cs`
 
-## 5. Overlay behaviour
+The banning action remains separate:
 
-`assets/script.js` reads `banWidgetStackScalePercent` when a WebSocket Custom Event arrives.
+`BanWidget`
 
-It clamps the value to 10–100, converts it to a CSS scale, and updates:
+The Custom Event name remains `BanWidget`; this is intentionally separate from the timeout action filename/name.
 
-`--stack-scale`
+## Settings action
 
-The existing `updateStackSize()` function then recalculates the stack height.
+Create/use:
 
-If the event does not contain the setting, the overlay keeps its existing default of approximately one-third scale.
+`duhbuh - Ban - Settings`
+
+with `streamerbot/SetupSettings.cs` as its Execute C# Code sub-action.
+
+The settings window exposes all four stack-layout controls.
+
+## Event payload
+
+`TimeoutWidget.cs` reads the persisted values and forwards them with the existing Custom Event:
+
+```json
+{
+  "banWidgetStackScalePercent": 33,
+  "banWidgetMaxDocked": 4,
+  "banWidgetEdgeOffset": 28,
+  "banWidgetStackGap": 18
+}
+```
+
+The existing moderation arguments remain in the same argument stack.
+
+## Overlay behaviour
+
+`assets/script.js` normalizes the Custom Event payload and applies any supplied settings.
+
+- `banWidgetStackScalePercent` updates `--stack-scale` and recalculates `--stack-h`.
+- `banWidgetMaxDocked` updates the runtime maximum used when a cell docks.
+- `banWidgetEdgeOffset` updates `--edge`.
+- `banWidgetStackGap` updates `--stack-gap`.
+
+Values are clamped in the overlay as well as in the Streamer.bot action so malformed event data cannot produce extreme layout values.
+
+Changing the maximum does not immediately destroy existing cells. The new maximum is enforced on subsequent docking operations, preserving the current visible stack until the normal stack lifecycle changes it.
 
 ## Test
 
-1. Open the Ban Widget settings action.
-2. Change `Stack Scale (%)` from 33 to another value.
+1. Open `duhbuh - Ban - Settings`.
+2. Change all four stack-layout settings.
 3. Click **Save & Exit**.
-4. Confirm the persisted global exists in Streamer.bot.
-5. Trigger a timeout through the existing `BanWidget` action.
-6. Confirm the timeout cell docks at the new scale.
-7. Trigger a second timeout to confirm stacking still works.
-
-Do not change the ban/timeout animation architecture as part of this test.
+4. Confirm the four persisted globals exist in Streamer.bot.
+5. Trigger a timeout through `duhbuh - Ban - Timeout Widget`.
+6. Confirm the timeout cell uses the new scale and edge offset.
+7. Trigger multiple timeouts and confirm the new stack gap and maximum are respected.
+8. Change Max Docked downward while cells are already visible and confirm the existing cells remain intact.
+9. Trigger another timeout and confirm the new maximum is enforced.
+10. Trigger a ban and confirm the separate ban animation still works.
