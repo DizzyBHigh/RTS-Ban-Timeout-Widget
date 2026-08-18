@@ -1,0 +1,145 @@
+/* Independent Ban Truck message layer.
+   The message is deliberately separate from .ban-trail so the skid reveal
+   can never move or clip BANNED:. */
+.ban-scene .ban-trail > .ban-reason {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* The original truck animation fades .ban-trail after the 4.3s reveal.
+   Long reasons must be allowed to finish scrolling first. */
+.ban-scene .ban-trail.fading {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* The skids now fade only when the message lifecycle says it is complete. */
+.ban-scene .ban-trail.message-complete {
+  animation: banSkidsFade 1.2s ease forwards !important;
+}
+
+.ban-scene .ban-message-layer {
+  position: absolute;
+  left: 512px;
+  top: 480px;
+  width: calc(100vw - 512px);
+  height: 32px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ban-scene .ban-message-label {
+  flex: 0 0 auto;
+  margin: 0 6px 0 0;
+  white-space: nowrap;
+  color: var(--ban-accent);
+  text-shadow: 0 3px 4px #000, 0 0 7px #000;
+  font: 1000 20px Arial, sans-serif;
+  opacity: 0;
+}
+
+.ban-scene .ban-message-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0);
+}
+
+.ban-scene .ban-message-text {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 3px 4px #000, 0 0 7px #000;
+  font: 1000 20px Arial, sans-serif;
+  transform: translateX(0);
+}
+
+.ban-scene .ban-message-layer.revealing .ban-message-label {
+  animation: banMessageLabelIn .18s ease-out forwards;
+}
+
+.ban-scene .ban-message-layer.revealing .ban-message-viewport {
+  animation: banMessageReveal 4.3s linear forwards;
+}
+
+.ban-scene .ban-message-layer.scrolling .ban-message-text {
+  animation: banMessageScroll var(--ban-message-scroll-time, 7s) linear forwards;
+}
+
+.ban-scene .ban-message-layer.fading {
+  animation: banMessageFade 1.2s ease forwards;
+}
+
+/* Alternate style: the message is anchored on the left from the start. */
+.ban-scene.arrival-message-style .ban-message-layer {
+  left: 28px;
+  width: calc(100vw - 56px);
+}
+
+.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-label {
+  opacity: 1;
+  animation: none;
+}
+
+.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-viewport {
+  clip-path: none;
+  animation: none;
+}
+
+.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-text {
+  transform: translateX(0);
+}
+
+/* Alternate skid geometry: start at the left edge and build toward the
+   truck's calibrated rear point during arrival, then continue to the right
+   edge during departure. JS owns the exact scale/timing. */
+.ban-scene.arrival-message-style .ban-trail {
+  left: 0;
+  right: auto;
+  width: calc(100vw + 1400px);
+  overflow: visible;
+}
+
+.ban-scene.arrival-message-style .ban-trail .skid {
+  left: 0;
+  right: auto;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: none !important;
+}
+
+@keyframes banMessageLabelIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes banMessageReveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes banMessageScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--ban-message-scroll-distance, 0px)); }
+}
+
+@keyframes banMessageFade {
+  to { opacity: 0; }
+}
+
+@keyframes banSkidsFade {
+  to { opacity: 0; }
+}
