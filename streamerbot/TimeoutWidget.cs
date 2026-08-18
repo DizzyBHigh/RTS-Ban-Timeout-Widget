@@ -34,16 +34,29 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
-        // Preserve an initiator supplied by the action/event that launched the
-        // timeout. The overlay accepts these standardized names and will show
-        // the initiator avatar in the animated key when they are available.
+        // Twitch User Timed Out supplies the creator of the timeout as
+        // createdByUsername / createdByDisplayName / createdById.
         string initiatorName = FirstArg(
             "timeoutInitiatorName",
-            "initiatorName",
+            "createdByDisplayName",
             "moderatorDisplayName",
             "moderatorName",
+            "initiatorName",
             "performedByName",
             "senderName"
+        );
+        string initiatorUsername = FirstArg(
+            "timeoutInitiatorUsername",
+            "createdByUsername",
+            "moderatorUsername",
+            "moderatorLogin",
+            "initiatorUsername"
+        );
+        string initiatorId = FirstArg(
+            "timeoutInitiatorId",
+            "createdById",
+            "moderatorId",
+            "initiatorId"
         );
         string initiatorAvatar = FirstArg(
             "timeoutInitiatorAvatar",
@@ -54,10 +67,32 @@ public class CPHInline
             "senderAvatar"
         );
 
-        if (!string.IsNullOrWhiteSpace(initiatorName))
-            CPH.SetArgument("timeoutInitiatorName", initiatorName);
-        if (!string.IsNullOrWhiteSpace(initiatorAvatar))
-            CPH.SetArgument("timeoutInitiatorAvatar", initiatorAvatar);
+        // Resolve the initiator's current Twitch profile image when the event
+        // gives us their login but no avatar URL.
+        if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
+        {
+            try
+            {
+                var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername);
+                if (initiator != null)
+                {
+                    initiatorAvatar = initiator.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(initiatorName))
+                        initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId))
+                        initiatorId = initiator.UserId;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve timeout initiator avatar: {ex.Message}");
+            }
+        }
+
+        CPH.SetArgument("timeoutInitiatorName", initiatorName ?? "");
+        CPH.SetArgument("timeoutInitiatorUsername", initiatorUsername ?? "");
+        CPH.SetArgument("timeoutInitiatorId", initiatorId ?? "");
+        CPH.SetArgument("timeoutInitiatorAvatar", initiatorAvatar ?? "");
 
         CPH.TriggerEvent("BanWidget", true);
         return true;
