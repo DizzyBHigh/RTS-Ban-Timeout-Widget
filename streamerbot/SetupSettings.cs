@@ -19,7 +19,6 @@ public class CPHInline
             message => CPH.LogInfo(message)
         );
 
-        ui.AddHeader();
         ui.AddTitle("Overlay Settings", "Ban Widget");
         ui.AddSlider(
             "Stack Scale (%)",
