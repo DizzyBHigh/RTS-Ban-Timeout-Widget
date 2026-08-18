@@ -207,6 +207,7 @@ function scheduleAngryAvatar(e) {
 function createCell(d) {
   const e = document.createElement("div");
   e.className = "cell";
+  e.dataset.platform = d.banWidgetPlatform || "unknown";
   e.innerHTML =
     '<img class="avatar" alt=""><div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div><img class="frame" src="assets/cell_frame_final.png" alt=""><div class="timer">00:00</div><div class="nameplate"><span></span></div><div class="reason"><span></span></div>';
   const a = e.querySelector(".avatar");
