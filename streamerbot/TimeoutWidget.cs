@@ -56,9 +56,6 @@ public class CPHInline
         CPH.SetArgument("banWidgetEventType", eventTypeName);
         CPH.SetArgument("banWidgetAction", "timeout");
 
-        // Normalize the target identity. Twitch timeout events provide the
-        // target id/name directly. The profile image is resolved here so the
-        // overlay does not need Twitch-specific targetUser* arguments.
         string targetId = FirstArg(
             "banWidgetTargetId",
             "userId",
@@ -94,9 +91,6 @@ public class CPHInline
             "userProfileImageUrl"
         );
 
-        // Twitch exposes the timed-out user's id on the moderation event.
-        // Resolve the profile image directly in C# so Twitch Add Target Info
-        // can be removed from the action after this has been verified.
         if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
         {
             try
@@ -142,14 +136,6 @@ public class CPHInline
         CPH.SetArgument("banWidgetTargetName", targetDisplayName ?? "");
         CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
 
-        // Backwards-compatible aliases for the current overlay while the
-        // browser payload is being migrated to the normalized BanWidget fields.
-        CPH.SetArgument("avatar", targetAvatar ?? "");
-        CPH.SetArgument("profileImageUrl", targetAvatar ?? "");
-        CPH.SetArgument("targetUserProfileImageUrl", targetAvatar ?? "");
-
-        // Twitch User Timed Out supplies the moderator/creator as
-        // createdByUsername, createdByDisplayName and createdById.
         string initiatorName = FirstArg(
             "timeoutInitiatorName",
             "createdByDisplayName",
@@ -181,8 +167,6 @@ public class CPHInline
             "senderAvatar"
         );
 
-        // The Twitch timeout trigger provides createdById. Prefer the ID
-        // lookup because it is unambiguous and returns ProfileImageUrl.
         if (string.IsNullOrWhiteSpace(initiatorAvatar))
         {
             try
@@ -208,7 +192,6 @@ public class CPHInline
             }
         }
 
-        // Fallback to login lookup if the event did not provide a usable ID.
         if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
         {
             try
