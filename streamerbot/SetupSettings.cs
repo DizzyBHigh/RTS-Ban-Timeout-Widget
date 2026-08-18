@@ -47,7 +47,7 @@ public class CPHInline
             4
         );
 
-        ui.AddToggle(
+        ui.AddToggleSwitch(
             "Always Show Stack",
             "Keep the bottom-right stack permanently visible. When disabled, the stack can be shown temporarily.",
             "Ban Widget",
@@ -65,7 +65,7 @@ public class CPHInline
             10
         );
 
-        ui.AddToggle(
+        ui.AddToggleSwitch(
             "Show Stack When Item Leaves",
             "Temporarily show the stack when a timeout card leaves the stack, but only when Always Show Stack is disabled.",
             "Ban Widget",
