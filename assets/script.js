@@ -46,6 +46,7 @@ function applyOverlaySettings(d) {
   if (Number.isFinite(maxDocked)) {
     overlaySettings.maxDocked = Math.max(1, Math.min(25, Math.round(maxDocked)));
     CFG.maxDocked = overlaySettings.maxDocked;
+    trimDockedToLimit();
   }
 
   const edgeOffset = Number(d.banWidgetEdgeOffset);
@@ -229,6 +230,17 @@ function createCell(d) {
   e.stopAngryAvatar = scheduleAngryAvatar(e);
   return e;
 }
+function trimDockedToLimit() {
+  const maxDocked = Math.max(1, Math.min(25, Number(CFG.maxDocked) || 1));
+  const cards = [...stage.querySelectorAll(".cell.docked")];
+
+  while (cards.length > maxDocked) {
+    const oldest = cards.shift();
+    const ent = [...active.entries()].find(([, v]) => v.el === oldest);
+    if (ent) release(ent[0], true);
+    else oldest.remove();
+  }
+}
 function restack() {
   [...stage.querySelectorAll(".cell.docked")].forEach((x, i) => {
     x.classList.remove("stack1", "stack2", "stack3");
@@ -237,14 +249,20 @@ function restack() {
 }
 function dockSameCell(e) {
   e.classList.remove("locking");
-  e.classList.add("locked", "docked");
-  restack();
+
+  // Enforce Max Docked before adding the new card. Capacity eviction is
+  // immediate so the stack never visibly exceeds the configured limit.
+  trimDockedToLimit();
   const cards = [...stage.querySelectorAll(".cell.docked")];
-  if (cards.length > CFG.maxDocked) {
+  if (cards.length >= CFG.maxDocked) {
     const oldest = cards[0],
       ent = [...active.entries()].find(([, v]) => v.el === oldest);
-    if (ent) release(ent[0]);
+    if (ent) release(ent[0], true);
+    else oldest.remove();
   }
+
+  e.classList.add("locked", "docked");
+  restack();
 }
 function processLockQueue() {
   if (lockBusy || !lockQueue.length) return;
@@ -292,7 +310,7 @@ function timeout(d) {
   lockQueue.push(item);
   processLockQueue();
 }
-function release(k) {
+function release(k, immediate = false) {
   const x = active.get(k);
   if (!x) return;
   if (x.item && !x.el) {
@@ -305,6 +323,14 @@ function release(k) {
   if (!x.el) return;
   const e = x.el;
   if (e.stopAngryAvatar) e.stopAngryAvatar();
+
+  if (immediate) {
+    e.remove();
+    active.delete(k);
+    restack();
+    return;
+  }
+
   e.classList.add("releasing");
   releaseSound();
   setTimeout(() => {
@@ -502,42 +528,17 @@ function demoTimeout(
     reason,
   });
 }
-function demoStack() {
-  [
-    ["ALPHA", "NO SPOILERS"],
-    ["BRAVO", "BACKSEAT GAMING"],
-    ["CHARLIE", "BE RESPECTFUL"],
-    ["DELTA", "NO CAPS"],
-  ].forEach((x, i) =>
-    setTimeout(() => demoTimeout(x[0], 75 + i * 15, x[1]), i * 700),
-  );
-}
-function demoLong() {
-  demoTimeout(
-    "LONG_MESSAGE",
-    59,
-    "PLEASE RESPECT EVERYONE IN CHAT AND KEEP IT POSITIVE AND FOLLOW THE RULES",
-  );
-}
-function demoBan() {
+function demoBan(name = "DEMO_VIEWER", reason = "RULE BREAKING") {
   ban({
     action: "ban",
-    id: "DEMO_BANNED",
-    username: "DEMO_BANNED",
-    displayName: "DEMO_BANNED",
+    id: name,
+    username: name,
+    displayName: name,
     avatar:
       "https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png",
-    reason: "Repeated backseat gaming after multiple warnings",
+    reason,
   });
 }
-window.testTimeout = demoTimeout;
-window.testStack = demoStack;
-window.testLong = demoLong;
-window.testBan = demoBan;
-const q = new URLSearchParams(location.search);
-if (q.get("test") === "timeout") setTimeout(demoTimeout, 300);
-if (q.get("test") === "stack") setTimeout(demoStack, 300);
-if (q.get("test") === "long") setTimeout(demoLong, 300);
-if (q.get("test") === "ban") setTimeout(demoBan, 300);
-document.addEventListener("pointerdown", unlock, { once: true });
+window.demoTimeout = demoTimeout;
+window.demoBan = demoBan;
 connect();
