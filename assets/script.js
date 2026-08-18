@@ -292,12 +292,15 @@ function processLockQueue() {
     requestAnimationFrame(tick);
   };
   tick();
-  Promise.all([new Promise((r) => setTimeout(r, 2500)), clang()]).then(() => {
-    const x = active.get(item.k);
-    if (x?.el === e) dockSameCell(e);
-    lockBusy = false;
-    processLockQueue();
-  });
+  new Promise((r) => setTimeout(r, 2250))
+    .then(() => clang())
+    .then(() => new Promise((r) => setTimeout(r, 250)))
+    .then(() => {
+      const x = active.get(item.k);
+      if (x?.el === e) dockSameCell(e);
+      lockBusy = false;
+      processLockQueue();
+    });
 }
 function timeout(d) {
   unlock();
