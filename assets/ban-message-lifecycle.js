@@ -10,8 +10,9 @@
 
   const originalAppendChild = stage.appendChild.bind(stage);
   stage.appendChild = (node) => {
+    const result = originalAppendChild(node);
     if (node instanceof HTMLElement && node.classList.contains("ban-scene")) prepareScene(node);
-    return originalAppendChild(node);
+    return result;
   };
 
   function animationMs(element, fallback) {
@@ -111,37 +112,38 @@
     };
 
     const startArrivalSkids = () => {
-      const width = Math.max(1, trail.clientWidth);
-      const stopScale = Math.min(1, 520 / width);
+      const stopWidth = 520;
       const duration = animationMs(truck, REVEAL_MS);
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = "scaleX(0)";
+        skid.style.transform = "none";
+        skid.style.width = "0px";
         const animation = skid.animate(
-          [{ transform: "scaleX(0)" }, { transform: `scaleX(${stopScale})` }],
+          [{ width: "0px" }, { width: `${stopWidth}px` }],
           { duration, easing: "linear", fill: "forwards" }
         );
         arrivalSkidAnimations.push(animation);
         animation.finished.then(() => {
-          if (!departureStarted && skid.isConnected) skid.style.transform = `scaleX(${stopScale})`;
+          if (!departureStarted && skid.isConnected) skid.style.width = `${stopWidth}px`;
         }).catch(() => {});
       });
     };
 
     const startDepartureSkids = () => {
-      const width = Math.max(1, trail.clientWidth);
-      const stopScale = Math.min(1, 520 / width);
+      const stopWidth = 520;
+      const endWidth = Math.max(stopWidth, window.innerWidth + 20);
       const duration = animationMs(truck, DEPART_MS);
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = `scaleX(${stopScale})`;
+        skid.style.transform = "none";
+        skid.style.width = `${stopWidth}px`;
         skid.animate(
-          [{ transform: `scaleX(${stopScale})` }, { transform: "scaleX(1)" }],
+          [{ width: `${stopWidth}px` }, { width: `${endWidth}px` }],
           { duration, easing: "linear", fill: "forwards" }
         ).finished.then(() => {
-          if (skid.isConnected) skid.style.transform = "scaleX(1)";
+          if (skid.isConnected) skid.style.width = `${endWidth}px`;
         }).catch(() => {});
       });
     };
