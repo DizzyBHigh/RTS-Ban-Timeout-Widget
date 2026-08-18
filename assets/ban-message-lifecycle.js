@@ -60,8 +60,10 @@
       fadeStarted = true;
 
       // The skid marks are part of the same visual message lifecycle.
-      // Keep them visible for the entire reason scroll, then fade both together.
-      trail.classList.add("fading");
+      // The original .fading class is deliberately not used here because
+      // the truck animation applies it too early. message-complete is our
+      // explicit end-of-message fade state.
+      trail.classList.add("message-complete");
       layer.classList.add("fading");
 
       setTimeout(() => {
@@ -115,9 +117,9 @@
       }
 
       // The original Ban Truck starts fading the skid layer after 4.3s.
-      // If the reason is still scrolling, cancel that early fade so the skids
-      // stay visible until the message has finished. startFade() will apply
-      // the fade to both layers together at the end of the message lifecycle.
+      // Cancel that early fade while the message is still being presented.
+      // startFade() applies message-complete only after the final character
+      // has finished scrolling.
       if (trail.classList.contains("fading") && !fadeStarted) {
         trail.classList.remove("fading");
       }
