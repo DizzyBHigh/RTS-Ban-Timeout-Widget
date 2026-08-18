@@ -56,21 +56,20 @@ public class CPHInline
         CPH.SetArgument("banWidgetEventType", eventTypeName);
         CPH.SetArgument("banWidgetAction", "timeout");
 
-        // Normalize the target identity. Twitch Add Target Info currently
-        // supplies these values for the existing Twitch action. We copy them
-        // into platform-neutral BanWidget names so the overlay no longer needs
-        // to know Twitch's targetUser* argument names.
+        // Normalize the target identity. Twitch timeout events provide the
+        // target id/name directly. The profile image is resolved here so the
+        // overlay does not need Twitch-specific targetUser* arguments.
         string targetId = FirstArg(
             "banWidgetTargetId",
-            "targetUserId",
             "userId",
+            "targetUserId",
             "timeoutTargetUserId",
             "timedOutUserId"
         );
         string targetUsername = FirstArg(
             "banWidgetTargetUsername",
-            "targetUserName",
             "userName",
+            "targetUserName",
             "username",
             "login",
             "timeoutTargetUserName",
@@ -78,6 +77,7 @@ public class CPHInline
         );
         string targetDisplayName = FirstArg(
             "banWidgetTargetName",
+            "user",
             "targetUser",
             "displayName",
             "userName",
@@ -93,6 +93,49 @@ public class CPHInline
             "avatar",
             "userProfileImageUrl"
         );
+
+        // Twitch exposes the timed-out user's id on the moderation event.
+        // Resolve the profile image directly in C# so Twitch Add Target Info
+        // can be removed from the action after this has been verified.
+        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
+        {
+            try
+            {
+                var target = CPH.TwitchGetExtendedUserInfoById(targetId);
+                if (target != null)
+                {
+                    targetAvatar = target.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(targetUsername))
+                        targetUsername = target.UserName;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName))
+                        targetDisplayName = target.UserName;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve timed-out user avatar by id: {ex.Message}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
+        {
+            try
+            {
+                var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername);
+                if (target != null)
+                {
+                    targetAvatar = target.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(targetId))
+                        targetId = target.UserId;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName))
+                        targetDisplayName = target.UserName;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve timed-out user avatar by login: {ex.Message}");
+            }
+        }
 
         CPH.SetArgument("banWidgetTargetId", targetId ?? "");
         CPH.SetArgument("banWidgetTargetUsername", targetUsername ?? "");
