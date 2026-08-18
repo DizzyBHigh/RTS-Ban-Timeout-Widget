@@ -34,8 +34,43 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
-        CPH.TriggerEvent("BanWidget", true);
+        // Preserve an initiator supplied by the action/event that launched the
+        // timeout. The overlay accepts these standardized names and will show
+        // the initiator avatar in the animated key when they are available.
+        string initiatorName = FirstArg(
+            "timeoutInitiatorName",
+            "initiatorName",
+            "moderatorDisplayName",
+            "moderatorName",
+            "performedByName",
+            "senderName"
+        );
+        string initiatorAvatar = FirstArg(
+            "timeoutInitiatorAvatar",
+            "initiatorAvatar",
+            "moderatorAvatar",
+            "moderatorProfileImageUrl",
+            "performedByAvatar",
+            "senderAvatar"
+        );
 
+        if (!string.IsNullOrWhiteSpace(initiatorName))
+            CPH.SetArgument("timeoutInitiatorName", initiatorName);
+        if (!string.IsNullOrWhiteSpace(initiatorAvatar))
+            CPH.SetArgument("timeoutInitiatorAvatar", initiatorAvatar);
+
+        CPH.TriggerEvent("BanWidget", true);
         return true;
+    }
+
+    private string FirstArg(params string[] names)
+    {
+        foreach (string name in names)
+        {
+            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+
+        return null;
     }
 }
