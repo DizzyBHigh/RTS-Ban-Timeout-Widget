@@ -7,14 +7,11 @@
   pointer-events: none !important;
 }
 
-/* The original truck animation fades .ban-trail after the 4.3s reveal.
-   Long reasons must be allowed to finish scrolling first. */
 .ban-scene .ban-trail.fading {
   animation: none !important;
   opacity: 1 !important;
 }
 
-/* The skids now fade only when the message lifecycle says it is complete. */
 .ban-scene .ban-trail.message-complete {
   animation: banSkidsFade 1.2s ease forwards !important;
 }
@@ -82,30 +79,38 @@
   animation: banMessageFade 1.2s ease forwards;
 }
 
-/* Alternate style: anchor the message to the left while the truck arrives.
-   The skid marks are anchored at the truck's rear and grow from right to left
-   during arrival, leaving a continuous trail behind the incoming truck. */
+/* Alternate style: BANNED: is fixed on the left from the beginning. */
 .ban-scene.arrival-message-style .ban-message-layer {
   left: 28px;
   width: calc(100vw - 56px);
 }
 
-.ban-scene.arrival-message-style .ban-message-layer.revealing .ban-message-viewport {
-  animation-duration: 4.3s;
+.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-label {
+  opacity: 1;
+  animation: none;
+}
+
+.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-viewport {
+  clip-path: none;
+  animation: none;
 }
 
 .ban-scene.arrival-message-style .ban-trail {
-  left: calc(520px - (100vw + 1400px));
+  left: 0;
+  right: auto;
+  width: calc(100vw + 1400px);
+  overflow: visible;
 }
 
+/* In arrival mode JS animates these from the left edge to the truck rear,
+   then from the rear onward to the right edge. */
 .ban-scene.arrival-message-style .ban-trail .skid {
   left: 0;
   right: auto;
-  transform-origin: right center;
-}
-
-.ban-scene.arrival-message-style .ban-trail.revealing .skid {
-  animation: banSkidRevealWithTruck 4.3s linear forwards;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: none !important;
 }
 
 @keyframes banMessageLabelIn {
