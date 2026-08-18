@@ -11,6 +11,8 @@ public class CPHInline
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
     private const string BanMessageArrivalStyleKey = "duhbuh.banwidget.banMessageArrivalStyle";
+    private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
+    private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
 
     public bool PrepareTimeout() => PrepareBanWidget("timeout");
     public bool PrepareBan() => PrepareBanWidget("ban");
@@ -25,7 +27,11 @@ public class CPHInline
         bool showKeyAnimation = CPH.GetGlobalVar<bool?>(ShowKeyAnimationKey, true) ?? true;
         int edgeOffset = CPH.GetGlobalVar<int?>(EdgeOffsetKey, true) ?? 28;
         int stackGap = CPH.GetGlobalVar<int?>(StackGapKey, true) ?? 18;
-        bool banMessageArrivalStyle = CPH.GetGlobalVar<bool?>(BanMessageArrivalStyleKey, true) ?? false;
+        string banMessageAnimationType = CPH.GetGlobalVar<string>(BanMessageAnimationTypeKey, true) ?? "Departure";
+        string banMessageScrollSpeed = CPH.GetGlobalVar<string>(BanMessageScrollSpeedKey, true) ?? "Medium";
+
+        if (!string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase)) banMessageAnimationType = "Departure";
+        if (!string.Equals(banMessageScrollSpeed, "Slow", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageScrollSpeed, "Fast", StringComparison.OrdinalIgnoreCase)) banMessageScrollSpeed = "Medium";
 
         stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
         maxDocked = Math.Max(1, Math.Min(25, maxDocked));
@@ -41,12 +47,13 @@ public class CPHInline
         CPH.SetArgument("banWidgetShowKeyAnimation", showKeyAnimation);
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
-        CPH.SetArgument("banWidgetBanMessageArrivalStyle", banMessageArrivalStyle);
+        CPH.SetArgument("banWidgetBanMessageArrivalStyle", string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase));
+        CPH.SetArgument("banWidgetBanMessageAnimationType", banMessageAnimationType);
+        CPH.SetArgument("banWidgetBanMessageScrollSpeed", banMessageScrollSpeed);
 
         string sourceName = CPH.GetSource().ToString();
         string eventTypeName = CPH.GetEventType().ToString();
         string platform = NormalizePlatform(sourceName);
-
         CPH.SetArgument("banWidgetPlatform", platform);
         CPH.SetArgument("banWidgetSource", sourceName);
         CPH.SetArgument("banWidgetEventType", eventTypeName);
@@ -61,31 +68,12 @@ public class CPHInline
         {
             if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
             {
-                try
-                {
-                    var target = CPH.TwitchGetExtendedUserInfoById(targetId);
-                    if (target != null)
-                    {
-                        targetAvatar = target.ProfileImageUrl;
-                        if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName;
-                        if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
-                    }
-                }
+                try { var target = CPH.TwitchGetExtendedUserInfoById(targetId); if (target != null) { targetAvatar = target.ProfileImageUrl; if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName; if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName; } }
                 catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch target avatar by id: {ex.Message}"); }
             }
-
             if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
             {
-                try
-                {
-                    var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername);
-                    if (target != null)
-                    {
-                        targetAvatar = target.ProfileImageUrl;
-                        if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId;
-                        if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
-                    }
-                }
+                try { var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername); if (target != null) { targetAvatar = target.ProfileImageUrl; if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId; if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName; } }
                 catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch target avatar by login: {ex.Message}"); }
             }
         }
@@ -104,32 +92,12 @@ public class CPHInline
         {
             if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorId))
             {
-                try
-                {
-                    var initiator = CPH.TwitchGetExtendedUserInfoById(initiatorId);
-                    if (initiator != null)
-                    {
-                        initiatorAvatar = initiator.ProfileImageUrl;
-                        if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
-                        if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName;
-                        if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
-                    }
-                }
+                try { var initiator = CPH.TwitchGetExtendedUserInfoById(initiatorId); if (initiator != null) { initiatorAvatar = initiator.ProfileImageUrl; if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName; if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName; } }
                 catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch initiator avatar by id: {ex.Message}"); }
             }
-
             if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
             {
-                try
-                {
-                    var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername);
-                    if (initiator != null)
-                    {
-                        initiatorAvatar = initiator.ProfileImageUrl;
-                        if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
-                        if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
-                    }
-                }
+                try { var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername); if (initiator != null) { initiatorAvatar = initiator.ProfileImageUrl; if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName; if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId; } }
                 catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch initiator avatar by login: {ex.Message}"); }
             }
         }
@@ -143,12 +111,8 @@ public class CPHInline
         CPH.SetArgument("banWidgetInitiatorId", initiatorId ?? "");
         CPH.SetArgument("banWidgetInitiatorAvatar", initiatorAvatar ?? "");
 
-        string duration = FirstArg("duration", "timeoutDuration", "banDuration");
-        string reason = FirstArg("reason", "timeoutReason", "banReason", "message");
-
-        CPH.SetArgument("banWidgetDuration", duration ?? "");
-        CPH.SetArgument("banWidgetReason", reason ?? "");
-
+        CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration", "banDuration") ?? "");
+        CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "banReason", "message") ?? "");
         CPH.TriggerEvent("BanWidget", true);
         return true;
     }
@@ -163,10 +127,7 @@ public class CPHInline
 
     private string FirstArg(params string[] names)
     {
-        foreach (string name in names)
-        {
-            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value)) return value;
-        }
+        foreach (string name in names) if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value)) return value;
         return null;
     }
 }
