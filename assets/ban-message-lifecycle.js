@@ -5,6 +5,9 @@
   const REVEAL_MS = 4300;
   const DEPART_MS = 4300;
   const FADE_MS = 1200;
+  const ARRIVAL_TRUCK_DISTANCE = 1220;
+  const ARRIVAL_REAR_DISTANCE = 520;
+  const DEPART_TRUCK_DISTANCE_EXTRA = 700;
   const WS_URL = "ws://127.0.0.1:8080/";
   let pendingArrivalStyle = false;
 
@@ -111,9 +114,14 @@
       arrivalSkidAnimations = [];
     };
 
+    // The skid is laid down by the truck's rear axle, not by the truck's
+    // entire travel distance. Therefore its duration is proportional to the
+    // distance that rear axle is visible on screen. This keeps the leading
+    // edge of the skid exactly with the moving truck rear.
     const startArrivalSkids = () => {
-      const stopWidth = 520;
-      const duration = animationMs(truck, REVEAL_MS);
+      const truckDuration = animationMs(truck, REVEAL_MS);
+      const duration = truckDuration * (ARRIVAL_REAR_DISTANCE / ARRIVAL_TRUCK_DISTANCE);
+      const stopWidth = ARRIVAL_REAR_DISTANCE;
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
@@ -129,18 +137,25 @@
       });
     };
 
+    // On departure, the skid edge follows the truck rear from the calibrated
+    // stopped position to the right edge of the viewport. We calculate the
+    // duration from the same truck speed instead of using the full 4.3s.
     const startDepartureSkids = () => {
-      const startWidth = 520;
-      const duration = animationMs(truck, DEPART_MS);
+      const startWidth = ARRIVAL_REAR_DISTANCE;
+      const visibleDistance = Math.max(1, window.innerWidth - startWidth);
+      const truckDistance = Math.max(1, window.innerWidth + DEPART_TRUCK_DISTANCE_EXTRA);
+      const truckDuration = animationMs(truck, DEPART_MS);
+      const duration = truckDuration * (visibleDistance / truckDistance);
+      const endWidth = startWidth + visibleDistance;
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
         skid.style.width = `${startWidth}px`;
         skid.animate(
-          [{ width: `${startWidth}px` }, { width: `${Math.max(1, trail.clientWidth)}px` }],
+          [{ width: `${startWidth}px` }, { width: `${endWidth}px` }],
           { duration, easing: "linear", fill: "forwards" }
         ).finished.then(() => {
-          if (skid.isConnected) skid.style.width = `${Math.max(1, trail.clientWidth)}px`;
+          if (skid.isConnected) skid.style.width = `${endWidth}px`;
         }).catch(() => {});
       });
     };
