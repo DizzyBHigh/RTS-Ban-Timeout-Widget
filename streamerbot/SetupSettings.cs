@@ -9,6 +9,7 @@ public class CPHInline
     private const string AlwaysShowStackKey = "duhbuh.banwidget.alwaysShowStack";
     private const string StackVisibilityDurationKey = "duhbuh.banwidget.stackVisibilityDuration";
     private const string ShowStackWhenItemLeavesKey = "duhbuh.banwidget.showStackWhenItemLeaves";
+    private const string ShowKeyAnimationKey = "duhbuh.banwidget.showKeyAnimation";
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
 
@@ -70,6 +71,14 @@ public class CPHInline
             "Temporarily show the stack when a timeout card leaves the stack, but only when Always Show Stack is disabled.",
             "Ban Widget",
             ShowStackWhenItemLeavesKey,
+            true
+        );
+
+        ui.AddToggleSwitch(
+            "Show Key Animation",
+            "Show the timeout key animation as the cell locks. The lock sound and bars are unaffected when disabled.",
+            "Ban Widget",
+            ShowKeyAnimationKey,
             true
         );
 
