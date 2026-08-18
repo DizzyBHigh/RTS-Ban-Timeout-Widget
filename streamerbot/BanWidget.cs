@@ -10,6 +10,7 @@ public class CPHInline
     private const string ShowKeyAnimationKey = "duhbuh.banwidget.showKeyAnimation";
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
+    private const string BanMessageArrivalStyleKey = "duhbuh.banwidget.banMessageArrivalStyle";
 
     public bool PrepareTimeout() => PrepareBanWidget("timeout");
     public bool PrepareBan() => PrepareBanWidget("ban");
@@ -24,6 +25,7 @@ public class CPHInline
         bool showKeyAnimation = CPH.GetGlobalVar<bool?>(ShowKeyAnimationKey, true) ?? true;
         int edgeOffset = CPH.GetGlobalVar<int?>(EdgeOffsetKey, true) ?? 28;
         int stackGap = CPH.GetGlobalVar<int?>(StackGapKey, true) ?? 18;
+        bool banMessageArrivalStyle = CPH.GetGlobalVar<bool?>(BanMessageArrivalStyleKey, true) ?? false;
 
         stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
         maxDocked = Math.Max(1, Math.Min(25, maxDocked));
@@ -39,6 +41,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetShowKeyAnimation", showKeyAnimation);
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
+        CPH.SetArgument("banWidgetBanMessageArrivalStyle", banMessageArrivalStyle);
 
         string sourceName = CPH.GetSource().ToString();
         string eventTypeName = CPH.GetEventType().ToString();
