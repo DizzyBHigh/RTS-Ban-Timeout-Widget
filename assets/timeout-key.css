@@ -1,7 +1,7 @@
 .timeout-key {
   position: absolute;
-  z-index: 12;
-  left: -30px;
+  z-index: 3;
+  left: -96px;
   top: 96px;
   width: 132px;
   height: 72px;
@@ -9,7 +9,7 @@
   transform-origin: 116px 36px;
   transform-style: preserve-3d;
   perspective: 700px;
-  transform: translateX(-125px) rotateX(0deg) scale(.9);
+  transform: translateX(-104px) rotateX(0deg) scale(.9);
   opacity: 0;
   filter: drop-shadow(0 5px 4px rgba(0, 0, 0, .75));
 }
@@ -63,7 +63,6 @@
   transform-origin: 0 50%;
 }
 
-/* Proper flat key bit: rectangular gold blade with a stepped tooth. */
 .timeout-key-tooth {
   position: absolute;
   left: 112px;
@@ -108,26 +107,25 @@
 }
 
 @keyframes timeoutKeyUnlock {
-  /* The current visual position is the END position: the key tip is at the cell. */
-  /* Start well to the left, then travel horizontally to this position. */
+  /* Start left edge = -200px. */
   0% {
     opacity: 0;
-    transform: translateX(-125px) rotateX(0deg) scale(.9);
+    transform: translateX(-104px) rotateX(0deg) scale(.9);
   }
 
   /* Wait 1 second before moving. */
   40% {
     opacity: 1;
-    transform: translateX(-125px) rotateX(0deg) scale(1);
+    transform: translateX(-104px) rotateX(0deg) scale(1);
   }
 
-  /* Move horizontally RIGHT until the tip reaches the lock. */
+  /* End left edge = -96px: tip is seated in the lock. */
   60% {
     opacity: 1;
     transform: translateX(0) rotateX(0deg) scale(1);
   }
 
-  /* Hold fully inserted for 500ms. */
+  /* Hold inserted for 500ms. */
   80% {
     opacity: 1;
     transform: translateX(0) rotateX(0deg) scale(1);
@@ -144,10 +142,10 @@
     transform: translateX(0) rotateX(-72deg) scale(1);
   }
 
-  /* Retract to the left after unlocking. */
+  /* Retract back to the left. */
   100% {
     opacity: 0;
-    transform: translateX(-42px) rotateX(-72deg) scale(.9);
+    transform: translateX(-104px) rotateX(-72deg) scale(.9);
   }
 }
 
