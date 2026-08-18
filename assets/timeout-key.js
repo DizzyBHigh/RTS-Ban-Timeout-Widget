@@ -3,6 +3,7 @@
   // short-lived map of initiator data keyed by the timed-out user's id/login.
   const initiators = new Map();
   const originalWebSocket = window.WebSocket;
+  let showKeyAnimation = true;
 
   function flatten(value) {
     if (!value || typeof value !== "object") return value;
@@ -11,6 +12,16 @@
     if (x.args && typeof x.args === "object") x = { ...x, ...x.args };
     if (x.payload && typeof x.payload === "object") x = { ...x, ...x.payload };
     return x;
+  }
+
+  function applySettings(data) {
+    const d = flatten(data);
+    if (!d || typeof d !== "object") return;
+
+    if (d.banWidgetShowKeyAnimation !== undefined) {
+      showKeyAnimation = d.banWidgetShowKeyAnimation === true ||
+        String(d.banWidgetShowKeyAnimation).toLowerCase() === "true";
+    }
   }
 
   function remember(data) {
@@ -61,6 +72,7 @@
   }
 
   function addKey(cell) {
+    if (!showKeyAnimation) return;
     if (!cell || !cell.classList.contains("cell") || cell.querySelector(".timeout-key")) return;
 
     const initiator = findInitiator(cell);
@@ -99,11 +111,13 @@
         super.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
+            applySettings(message.data || message);
             const source = String(message?.event?.source || "").toLowerCase();
             const type = String(message?.event?.type || "").toLowerCase();
             if (source === "twitchusertimedout" || type === "usertimedout") remember(message.data || message);
             if (source === "custom" && type === "event") {
               const d = flatten(message.data || {});
+              applySettings(d);
               const action = String(d.actionName || d.name || "").toLowerCase();
               if (action.includes("timeout") || d.timeoutInitiatorName || d.createdByUsername) remember(d);
             }
@@ -130,11 +144,14 @@
     }
 
     const observer = new MutationObserver(() => {
+      if (!showKeyAnimation) return;
       stage.querySelectorAll(".cell:not([data-timeout-key-added])").forEach(addKey);
     });
     observer.observe(stage, { childList: true, subtree: true });
 
-    stage.querySelectorAll(".cell:not([data-timeout-key-added])").forEach(addKey);
+    if (showKeyAnimation) {
+      stage.querySelectorAll(".cell:not([data-timeout-key-added])").forEach(addKey);
+    }
 
     setInterval(() => {
       const now = Date.now();
