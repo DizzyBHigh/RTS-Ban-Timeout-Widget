@@ -1,12 +1,13 @@
 .timeout-key {
   position: absolute;
   z-index: 12;
-  right: -92px;
-  top: 43%;
-  width: 92px;
-  height: 58px;
+  left: -70px;
+  top: 109px;
+  width: 100px;
+  height: 125px;
   pointer-events: none;
-  transform: translateX(0) rotate(0deg);
+  transform-origin: 90px 41px;
+  transform: rotate(90deg) scale(.82);
   opacity: 0;
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .7));
 }
@@ -71,8 +72,8 @@
 
 .timeout-key-label {
   position: absolute;
-  left: -10px;
-  top: 62px;
+  left: -28px;
+  top: 58px;
   width: 125px;
   padding: 3px 6px;
   overflow: hidden;
@@ -85,32 +86,65 @@
   color: #fff;
   font: 900 10px Arial, sans-serif;
   text-shadow: 0 1px 2px #000;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.cell.locking .timeout-key-label {
+  animation: timeoutKeyLabel 1.5s cubic-bezier(.2, .85, .25, 1) forwards;
 }
 
 @keyframes timeoutKeyUnlock {
   0% {
     opacity: 0;
-    transform: translateX(22px) rotate(-8deg) scale(.82);
+    transform: rotate(90deg) translateX(-28px) scale(.82);
   }
   18% {
     opacity: 1;
-    transform: translateX(0) rotate(0deg) scale(1);
+    transform: rotate(90deg) translateX(0) scale(1);
   }
-  52% {
+  50% {
     opacity: 1;
-    transform: translateX(-48px) rotate(0deg) scale(1);
+    transform: rotate(90deg) translateX(0) scale(1);
   }
-  70% {
+  72% {
     opacity: 1;
-    transform: translateX(-48px) rotate(92deg) scale(1);
+    transform: rotate(0deg) translateX(0) scale(1);
   }
-  82% {
+  84% {
     opacity: 1;
-    transform: translateX(-48px) rotate(82deg) scale(1);
+    transform: rotate(0deg) translateX(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(12px) rotate(82deg) scale(.82);
+    transform: rotate(0deg) translateX(-10px) scale(.82);
+  }
+}
+
+@keyframes timeoutKeyLabel {
+  0% {
+    transform: rotate(-90deg);
+    opacity: 0;
+  }
+  18% {
+    transform: rotate(-90deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(-90deg);
+    opacity: 1;
+  }
+  72% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  84% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0deg);
+    opacity: 0;
   }
 }
 
