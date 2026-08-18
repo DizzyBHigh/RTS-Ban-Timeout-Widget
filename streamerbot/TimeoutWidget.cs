@@ -34,8 +34,8 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
-        // Twitch User Timed Out supplies the creator of the timeout as
-        // createdByUsername / createdByDisplayName / createdById.
+        // Twitch User Timed Out supplies the moderator/creator as
+        // createdByUsername, createdByDisplayName and createdById.
         string initiatorName = FirstArg(
             "timeoutInitiatorName",
             "createdByDisplayName",
@@ -67,8 +67,34 @@ public class CPHInline
             "senderAvatar"
         );
 
-        // Resolve the initiator's current Twitch profile image when the event
-        // gives us their login but no avatar URL.
+        // The Twitch timeout trigger always provides createdById. Prefer the
+        // ID lookup because it is unambiguous and returns ProfileImageUrl.
+        if (string.IsNullOrWhiteSpace(initiatorAvatar))
+        {
+            try
+            {
+                var initiator = !string.IsNullOrWhiteSpace(initiatorId)
+                    ? CPH.TwitchGetExtendedUserInfoById(initiatorId)
+                    : null;
+
+                if (initiator != null)
+                {
+                    initiatorAvatar = initiator.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(initiatorName))
+                        initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorUsername))
+                        initiatorUsername = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId))
+                        initiatorId = initiator.UserId;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve timeout initiator avatar by id: {ex.Message}");
+            }
+        }
+
+        // Fallback to login lookup if the event did not provide a usable ID.
         if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
         {
             try
@@ -85,7 +111,7 @@ public class CPHInline
             }
             catch (Exception ex)
             {
-                CPH.LogWarn($"Ban Widget: unable to resolve timeout initiator avatar: {ex.Message}");
+                CPH.LogWarn($"Ban Widget: unable to resolve timeout initiator avatar by login: {ex.Message}");
             }
         }
 
