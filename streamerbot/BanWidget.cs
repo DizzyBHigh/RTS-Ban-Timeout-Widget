@@ -54,34 +54,37 @@ public class CPHInline
         string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "login");
         string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "avatar", "userProfileImageUrl");
 
-        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
+        if (platform == "twitch")
         {
-            try
+            if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
             {
-                var target = CPH.TwitchGetExtendedUserInfoById(targetId);
-                if (target != null)
+                try
                 {
-                    targetAvatar = target.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName;
-                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                    var target = CPH.TwitchGetExtendedUserInfoById(targetId);
+                    if (target != null)
+                    {
+                        targetAvatar = target.ProfileImageUrl;
+                        if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName;
+                        if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                    }
                 }
+                catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch target avatar by id: {ex.Message}"); }
             }
-            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve target avatar by id: {ex.Message}"); }
-        }
 
-        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
-        {
-            try
+            if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
             {
-                var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername);
-                if (target != null)
+                try
                 {
-                    targetAvatar = target.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId;
-                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                    var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername);
+                    if (target != null)
+                    {
+                        targetAvatar = target.ProfileImageUrl;
+                        if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId;
+                        if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                    }
                 }
+                catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch target avatar by login: {ex.Message}"); }
             }
-            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve target avatar by login: {ex.Message}"); }
         }
 
         CPH.SetArgument("banWidgetTargetId", targetId ?? "");
@@ -94,35 +97,38 @@ public class CPHInline
         string initiatorId = FirstArg("timeoutInitiatorId", "createdById", "moderatorId", "initiatorId");
         string initiatorAvatar = FirstArg("timeoutInitiatorAvatar", "initiatorAvatar", "moderatorAvatar", "moderatorProfileImageUrl", "performedByAvatar", "senderAvatar");
 
-        if (string.IsNullOrWhiteSpace(initiatorAvatar))
+        if (platform == "twitch")
         {
-            try
+            if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorId))
             {
-                var initiator = !string.IsNullOrWhiteSpace(initiatorId) ? CPH.TwitchGetExtendedUserInfoById(initiatorId) : null;
-                if (initiator != null)
+                try
                 {
-                    initiatorAvatar = initiator.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                    var initiator = CPH.TwitchGetExtendedUserInfoById(initiatorId);
+                    if (initiator != null)
+                    {
+                        initiatorAvatar = initiator.ProfileImageUrl;
+                        if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                        if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName;
+                        if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                    }
                 }
+                catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch initiator avatar by id: {ex.Message}"); }
             }
-            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by id: {ex.Message}"); }
-        }
 
-        if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
-        {
-            try
+            if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
             {
-                var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername);
-                if (initiator != null)
+                try
                 {
-                    initiatorAvatar = initiator.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                    var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername);
+                    if (initiator != null)
+                    {
+                        initiatorAvatar = initiator.ProfileImageUrl;
+                        if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                        if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                    }
                 }
+                catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve Twitch initiator avatar by login: {ex.Message}"); }
             }
-            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by login: {ex.Message}"); }
         }
 
         CPH.SetArgument("timeoutInitiatorName", initiatorName ?? "");
