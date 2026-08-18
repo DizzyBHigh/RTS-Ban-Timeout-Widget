@@ -6,6 +6,9 @@ public class CPHInline
 {
     private const string StackScalePercentKey = "duhbuh.banwidget.stackScalePercent";
     private const string MaxDockedKey = "duhbuh.banwidget.maxDocked";
+    private const string AlwaysShowStackKey = "duhbuh.banwidget.alwaysShowStack";
+    private const string StackVisibilityDurationKey = "duhbuh.banwidget.stackVisibilityDuration";
+    private const string ShowStackWhenItemLeavesKey = "duhbuh.banwidget.showStackWhenItemLeaves";
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
 
@@ -23,6 +26,7 @@ public class CPHInline
         );
 
         ui.AddTitle("Overlay Settings", "Ban Widget");
+
         ui.AddSlider(
             "Stack Scale (%)",
             "Controls the size of timeout cells after they move into the bottom-right stack.",
@@ -32,15 +36,43 @@ public class CPHInline
             100,
             33
         );
+
         ui.AddSlider(
             "Max Docked",
             "Controls how many timeout cells can remain in the bottom-right stack.",
             "Ban Widget",
             MaxDockedKey,
             1,
-            4,
+            25,
             4
         );
+
+        ui.AddToggle(
+            "Always Show Stack",
+            "Keep the bottom-right stack permanently visible. When disabled, the stack can be shown temporarily.",
+            "Ban Widget",
+            AlwaysShowStackKey,
+            true
+        );
+
+        ui.AddSlider(
+            "Temporary Show Duration (sec)",
+            "How long the stack remains visible when temporarily shown.",
+            "Ban Widget",
+            StackVisibilityDurationKey,
+            1,
+            60,
+            10
+        );
+
+        ui.AddToggle(
+            "Show Stack When Item Leaves",
+            "Temporarily show the stack when a timeout card leaves the stack, but only when Always Show Stack is disabled.",
+            "Ban Widget",
+            ShowStackWhenItemLeavesKey,
+            true
+        );
+
         ui.AddSlider(
             "Edge Offset (px)",
             "Controls the distance from the bottom and right edges of the overlay.",
@@ -50,6 +82,7 @@ public class CPHInline
             200,
             28
         );
+
         ui.AddSlider(
             "Stack Gap (px)",
             "Controls the vertical gap between timeout cells in the bottom-right stack.",
