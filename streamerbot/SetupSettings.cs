@@ -5,6 +5,9 @@ using System;
 public class CPHInline
 {
     private const string StackScalePercentKey = "duhbuh.banwidget.stackScalePercent";
+    private const string MaxDockedKey = "duhbuh.banwidget.maxDocked";
+    private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
+    private const string StackGapKey = "duhbuh.banwidget.stackGap";
 
     public bool Execute()
     {
@@ -28,6 +31,33 @@ public class CPHInline
             10,
             100,
             33
+        );
+        ui.AddSlider(
+            "Max Docked",
+            "Controls how many timeout cells can remain in the bottom-right stack.",
+            "Ban Widget",
+            MaxDockedKey,
+            1,
+            4,
+            4
+        );
+        ui.AddSlider(
+            "Edge Offset (px)",
+            "Controls the distance from the bottom and right edges of the overlay.",
+            "Ban Widget",
+            EdgeOffsetKey,
+            0,
+            200,
+            28
+        );
+        ui.AddSlider(
+            "Stack Gap (px)",
+            "Controls the vertical gap between timeout cells in the bottom-right stack.",
+            "Ban Widget",
+            StackGapKey,
+            0,
+            100,
+            18
         );
 
         ui.ShowUI();
