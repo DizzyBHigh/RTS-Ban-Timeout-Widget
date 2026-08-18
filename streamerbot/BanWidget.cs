@@ -50,9 +50,9 @@ public class CPHInline
         CPH.SetArgument("banWidgetAction", action);
 
         string targetId = FirstArg("banWidgetTargetId", "userId", "targetUserId");
-        string targetUsername = FirstArg("banWidgetTargetUsername", "userName", "targetUserName", "username", "login");
-        string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "login");
-        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "avatar", "userProfileImageUrl");
+        string targetUsername = FirstArg("banWidgetTargetUsername", "userName", "targetUserName", "username", "userLogin", "login");
+        string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "userLogin", "login");
+        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "profilePicture", "avatar", "userProfileImageUrl", "userProfilePicture");
 
         if (platform == "twitch")
         {
@@ -93,9 +93,9 @@ public class CPHInline
         CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
 
         string initiatorName = FirstArg("timeoutInitiatorName", "createdByDisplayName", "moderatorDisplayName", "moderatorName", "initiatorName", "performedByName", "senderName");
-        string initiatorUsername = FirstArg("timeoutInitiatorUsername", "createdByUsername", "moderatorUsername", "moderatorLogin", "initiatorUsername");
+        string initiatorUsername = FirstArg("timeoutInitiatorUsername", "createdByUsername", "moderatorUsername", "moderatorLogin", "initiatorUsername", "createdByUserName", "moderatorUserName");
         string initiatorId = FirstArg("timeoutInitiatorId", "createdById", "moderatorId", "initiatorId");
-        string initiatorAvatar = FirstArg("timeoutInitiatorAvatar", "initiatorAvatar", "moderatorAvatar", "moderatorProfileImageUrl", "performedByAvatar", "senderAvatar");
+        string initiatorAvatar = FirstArg("timeoutInitiatorAvatar", "initiatorAvatar", "moderatorAvatar", "moderatorProfileImageUrl", "moderatorProfilePicture", "createdByProfileImageUrl", "createdByProfilePicture", "performedByAvatar", "senderAvatar");
 
         if (platform == "twitch")
         {
@@ -140,8 +140,11 @@ public class CPHInline
         CPH.SetArgument("banWidgetInitiatorId", initiatorId ?? "");
         CPH.SetArgument("banWidgetInitiatorAvatar", initiatorAvatar ?? "");
 
-        CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration") ?? "");
-        CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "message") ?? "");
+        string duration = FirstArg("duration", "timeoutDuration", "banDuration");
+        string reason = FirstArg("reason", "timeoutReason", "banReason", "message");
+
+        CPH.SetArgument("banWidgetDuration", duration ?? "");
+        CPH.SetArgument("banWidgetReason", reason ?? "");
 
         CPH.TriggerEvent("BanWidget", true);
         return true;
