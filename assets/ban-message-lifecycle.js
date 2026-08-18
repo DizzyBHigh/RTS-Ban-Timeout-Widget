@@ -117,7 +117,6 @@
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = "none";
         skid.style.width = "0px";
         const animation = skid.animate(
           [{ width: "0px" }, { width: `${stopWidth}px` }],
@@ -131,19 +130,17 @@
     };
 
     const startDepartureSkids = () => {
-      const stopWidth = 520;
-      const endWidth = Math.max(stopWidth, window.innerWidth + 20);
+      const startWidth = 520;
       const duration = animationMs(truck, DEPART_MS);
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = "none";
-        skid.style.width = `${stopWidth}px`;
+        skid.style.width = `${startWidth}px`;
         skid.animate(
-          [{ width: `${stopWidth}px` }, { width: `${endWidth}px` }],
+          [{ width: `${startWidth}px` }, { width: `${Math.max(1, trail.clientWidth)}px` }],
           { duration, easing: "linear", fill: "forwards" }
         ).finished.then(() => {
-          if (skid.isConnected) skid.style.width = `${endWidth}px`;
+          if (skid.isConnected) skid.style.width = `${Math.max(1, trail.clientWidth)}px`;
         }).catch(() => {});
       });
     };
