@@ -7,14 +7,11 @@
   pointer-events: none !important;
 }
 
-/* The original truck animation fades .ban-trail after the 4.3s reveal.
-   Long reasons must be allowed to finish scrolling first. */
 .ban-scene .ban-trail.fading {
   animation: none !important;
   opacity: 1 !important;
 }
 
-/* The skids now fade only when the message lifecycle says it is complete. */
 .ban-scene .ban-trail.message-complete {
   animation: banSkidsFade 1.2s ease forwards !important;
 }
@@ -82,7 +79,7 @@
   animation: banMessageFade 1.2s ease forwards;
 }
 
-/* Alternate style: the message is anchored on the left from the start. */
+/* Alternate style: BANNED: is fixed on the left from the beginning. */
 .ban-scene.arrival-message-style .ban-message-layer {
   left: 28px;
   width: calc(100vw - 56px);
@@ -98,13 +95,6 @@
   animation: none;
 }
 
-.ban-scene.arrival-message-style .ban-message-layer.arrival-style .ban-message-text {
-  transform: translateX(0);
-}
-
-/* Alternate skid geometry: start at the left edge and build toward the
-   truck's calibrated rear point during arrival, then continue to the right
-   edge during departure. JS owns the exact scale/timing. */
 .ban-scene.arrival-message-style .ban-trail {
   left: 0;
   right: auto;
@@ -112,12 +102,15 @@
   overflow: visible;
 }
 
+/* In arrival mode JS gives each skid a real pixel width. This avoids
+   scaling a huge off-screen element, which made the initial trail appear
+   late or at the wrong visual speed. */
 .ban-scene.arrival-message-style .ban-trail .skid {
   left: 0;
   right: auto;
-  width: 100%;
+  width: 0;
+  transform: none !important;
   transform-origin: left center;
-  transform: scaleX(0);
   animation: none !important;
 }
 

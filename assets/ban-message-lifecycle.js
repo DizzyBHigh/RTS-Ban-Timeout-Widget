@@ -5,30 +5,41 @@
   const REVEAL_MS = 4300;
   const DEPART_MS = 4300;
   const FADE_MS = 1200;
+  const ARRIVAL_TRUCK_DISTANCE = 1220;
+  const ARRIVAL_REAR_DISTANCE = 520;
+  const DEPART_TRUCK_DISTANCE_EXTRA = 700;
   const WS_URL = "ws://127.0.0.1:8080/";
-
   let pendingArrivalStyle = false;
+  let pendingScrollSpeed = "Medium";
 
   const originalAppendChild = stage.appendChild.bind(stage);
   stage.appendChild = (node) => {
-    if (node instanceof HTMLElement && node.classList.contains("ban-scene")) {
-      prepareScene(node);
-    }
-    return originalAppendChild(node);
+    const result = originalAppendChild(node);
+    if (node instanceof HTMLElement && node.classList.contains("ban-scene")) prepareScene(node);
+    return result;
   };
 
-  function isArrivalStyle(scene) {
-    return scene.classList.contains("arrival-message-style");
+  function animationMs(element, fallback) {
+    const value = getComputedStyle(element).animationDuration.split(",")[0].trim();
+    const ms = value.endsWith("ms") ? parseFloat(value) : parseFloat(value) * 1000;
+    return Number.isFinite(ms) && ms > 0 ? ms : fallback;
+  }
+
+  function scrollPixelsPerSecond(scene) {
+    const speed = String(scene.dataset.banMessageScrollSpeed || "Medium").toLowerCase();
+    if (speed === "slow") return 25;
+    if (speed === "fast") return 70;
+    return 40;
   }
 
   function prepareScene(scene) {
     if (scene.dataset.messageLifecycle === "1") return;
     scene.dataset.messageLifecycle = "1";
-
     if (pendingArrivalStyle) {
       scene.classList.add("arrival-message-style");
       pendingArrivalStyle = false;
     }
+    scene.dataset.banMessageScrollSpeed = pendingScrollSpeed;
 
     const trail = scene.querySelector(".ban-trail");
     const sourceReason = trail?.querySelector(".ban-reason span");
@@ -39,7 +50,6 @@
     layer.className = "ban-message-layer";
     layer.innerHTML = '<div class="ban-message-label">BANNED:</div><div class="ban-message-viewport"><div class="ban-message-text"></div></div>';
     scene.appendChild(layer);
-
     const viewport = layer.querySelector(".ban-message-viewport");
     const text = layer.querySelector(".ban-message-text");
     const skids = [...trail.querySelectorAll(".skid")];
@@ -65,7 +75,8 @@
       if (!layer.isConnected) return;
       const overflow = Math.max(0, text.scrollWidth - viewport.clientWidth);
       if (overflow > 0) {
-        scrollMs = Math.max(6000, Math.min(14000, (overflow / 40) * 1000));
+        const pixelsPerSecond = scrollPixelsPerSecond(scene);
+        scrollMs = Math.max(1000, Math.ceil((overflow / pixelsPerSecond) * 1000));
         layer.style.setProperty("--ban-message-scroll-distance", `${-overflow}px`);
         layer.style.setProperty("--ban-message-scroll-time", `${scrollMs}ms`);
       } else {
@@ -81,71 +92,73 @@
       fadeStarted = true;
       trail.classList.add("message-complete");
       layer.classList.add("fading");
-      setTimeout(() => {
-        if (scene.isConnected) originalRemove();
-      }, FADE_MS);
+      setTimeout(() => { if (scene.isConnected) originalRemove(); }, FADE_MS);
     };
 
     const finishMessage = () => {
       messageFinished = true;
-      if (!arrivalActive) startFade();
-      else startFade();
+      startFade();
     };
 
     const startScroll = (immediate = false) => {
       if (scrollStarted || !layer.isConnected) return;
       scrollStarted = true;
-      requestAnimationFrame(measureReason);
       const begin = () => {
         if (!layer.isConnected) return;
-        if (scrollMs > 0) {
-          layer.classList.add("scrolling");
-          setTimeout(finishMessage, scrollMs);
-        } else {
-          finishMessage();
-        }
+        measureReason();
+        requestAnimationFrame(() => {
+          if (!layer.isConnected) return;
+          if (scrollMs > 0) {
+            layer.classList.add("scrolling");
+            setTimeout(finishMessage, scrollMs);
+          } else {
+            finishMessage();
+          }
+        });
       };
-      if (immediate) begin();
-      else setTimeout(begin, REVEAL_MS);
+      if (immediate) begin(); else setTimeout(begin, REVEAL_MS);
     };
 
     const stopArrivalSkids = () => {
-      arrivalSkidAnimations.forEach((a) => {
-        try { a.cancel(); } catch {}
-      });
+      arrivalSkidAnimations.forEach((a) => { try { a.cancel(); } catch {} });
       arrivalSkidAnimations = [];
     };
 
     const startArrivalSkids = () => {
-      const width = Math.max(1, trail.clientWidth);
-      const stopScale = Math.min(1, 520 / width);
+      const truckDuration = animationMs(truck, REVEAL_MS);
+      const duration = truckDuration * (ARRIVAL_REAR_DISTANCE / ARRIVAL_TRUCK_DISTANCE);
+      const stopWidth = ARRIVAL_REAR_DISTANCE;
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = "scaleX(0)";
+        skid.style.width = "0px";
         const animation = skid.animate(
-          [{ transform: "scaleX(0)" }, { transform: `scaleX(${stopScale})` }],
-          { duration: REVEAL_MS, easing: "linear", fill: "forwards" }
+          [{ width: "0px" }, { width: `${stopWidth}px` }],
+          { duration, easing: "linear", fill: "forwards" }
         );
         arrivalSkidAnimations.push(animation);
         animation.finished.then(() => {
-          if (!departureStarted && skid.isConnected) skid.style.transform = `scaleX(${stopScale})`;
+          if (!departureStarted && skid.isConnected) skid.style.width = `${stopWidth}px`;
         }).catch(() => {});
       });
     };
 
     const startDepartureSkids = () => {
-      const width = Math.max(1, trail.clientWidth);
-      const stopScale = Math.min(1, 520 / width);
+      const startWidth = ARRIVAL_REAR_DISTANCE;
+      const visibleDistance = Math.max(1, window.innerWidth - startWidth);
+      const truckDistance = Math.max(1, window.innerWidth + DEPART_TRUCK_DISTANCE_EXTRA);
+      const truckDuration = animationMs(truck, DEPART_MS);
+      const duration = truckDuration * (visibleDistance / truckDistance);
+      const endWidth = startWidth + visibleDistance;
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
-        skid.style.transform = `scaleX(${stopScale})`;
+        skid.style.width = `${startWidth}px`;
         skid.animate(
-          [{ transform: `scaleX(${stopScale})` }, { transform: "scaleX(1)" }],
-          { duration: DEPART_MS, easing: "linear", fill: "forwards" }
+          [{ width: `${startWidth}px` }, { width: `${endWidth}px` }],
+          { duration, easing: "linear", fill: "forwards" }
         ).finished.then(() => {
-          if (skid.isConnected) skid.style.transform = "scaleX(1)";
+          if (skid.isConnected) skid.style.width = `${endWidth}px`;
         }).catch(() => {});
       });
     };
@@ -153,38 +166,41 @@
     const beginArrivalStyle = () => {
       if (arrivalActive) return;
       arrivalActive = true;
-      layer.classList.add("arrival-style");
-      layer.classList.add("revealing");
+      revealStarted = true;
+      revealStartedAt = performance.now();
+      layer.classList.add("arrival-style", "revealing");
       syncReason();
       startScroll(true);
-      startArrivalSkids();
     };
 
     const originalRemove = scene.remove.bind(scene);
     scene.remove = () => {
-      if (!revealStarted && !arrivalActive) {
+      if (arrivalActive) {
+        if (fadeStarted) originalRemove();
+        else {
+          if (removeTimer) clearTimeout(removeTimer);
+          removeTimer = setTimeout(() => { if (scene.isConnected) scene.remove(); }, 100);
+        }
+        return;
+      }
+      if (!revealStarted) {
         originalRemove();
         return;
       }
       const elapsed = performance.now() - revealStartedAt;
       const remaining = Math.max(0, REVEAL_MS + scrollMs + FADE_MS - elapsed);
-      if (remaining <= 0) {
-        originalRemove();
-        return;
+      if (remaining <= 0) originalRemove();
+      else {
+        if (removeTimer) clearTimeout(removeTimer);
+        removeTimer = setTimeout(() => { if (scene.isConnected) originalRemove(); }, remaining);
       }
-      if (removeTimer) clearTimeout(removeTimer);
-      removeTimer = setTimeout(() => {
-        if (scene.isConnected) originalRemove();
-      }, remaining);
     };
 
     const textObserver = new MutationObserver(syncReason);
     textObserver.observe(sourceReason, { childList: true, characterData: true, subtree: true });
 
     const classObserver = new MutationObserver(() => {
-      if (!arrivalActive && isArrivalStyle(scene)) {
-        beginArrivalStyle();
-      }
+      if (!arrivalActive && scene.classList.contains("arrival-message-style")) beginArrivalStyle();
 
       if (arrivalActive && !departureStarted && truck.classList.contains("driving-off")) {
         departureStarted = true;
@@ -192,7 +208,7 @@
         setTimeout(() => {
           departureFinished = true;
           startFade();
-        }, DEPART_MS);
+        }, animationMs(truck, DEPART_MS));
       }
 
       if (!arrivalActive && !revealStarted && trail.classList.contains("revealing")) {
@@ -200,29 +216,32 @@
         revealStartedAt = performance.now();
         layer.classList.add("revealing");
         syncReason();
-        startScroll(false);
+        startScroll();
       }
 
-      if (trail.classList.contains("fading") && !fadeStarted) {
-        trail.classList.remove("fading");
-      }
+      if (trail.classList.contains("fading") && !fadeStarted) trail.classList.remove("fading");
     });
     classObserver.observe(scene, { attributes: true, attributeFilter: ["class"] });
     classObserver.observe(trail, { attributes: true, attributeFilter: ["class"] });
     classObserver.observe(truck, { attributes: true, attributeFilter: ["class"] });
 
-    if (isArrivalStyle(scene)) beginArrivalStyle();
+    if (scene.classList.contains("arrival-message-style")) beginArrivalStyle();
     syncReason();
+
+    if (scene.classList.contains("arrival-message-style")) {
+      const arrivalWatcher = (event) => {
+        if (event.animationName !== "banTruckCalibratedIn") return;
+        truck.removeEventListener("animationstart", arrivalWatcher);
+        startArrivalSkids();
+      };
+      truck.addEventListener("animationstart", arrivalWatcher);
+      if (getComputedStyle(truck).animationName === "none") startArrivalSkids();
+    }
   }
 
-  // The BanWidget event carries the persisted animation setting. We listen to
-  // the same Custom event stream so the visual layer can select the style
-  // without coupling the stable Ban action to animation implementation code.
   function connectStyleListener() {
     const ws = new WebSocket(WS_URL);
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ request: "Subscribe", id: "ban-widget-message-style", events: { Custom: ["Event"] } }));
-    };
+    ws.onopen = () => ws.send(JSON.stringify({ request: "Subscribe", id: "ban-widget-message-style", events: { Custom: ["Event"] } }));
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
@@ -237,16 +256,20 @@
         if (eventName && eventName !== "banwidget") return;
         const action = String(data.banWidgetAction || data.action || "").toLowerCase();
         if (action !== "ban") return;
+
         const enabled = data.banWidgetBanMessageArrivalStyle === true || String(data.banWidgetBanMessageArrivalStyle || "").toLowerCase() === "true";
+        const speed = String(data.banWidgetBanMessageScrollSpeed || "Medium");
+        pendingScrollSpeed = ["Slow", "Medium", "Fast"].find(x => x.toLowerCase() === speed.toLowerCase()) || "Medium";
+
         const scenes = [...stage.querySelectorAll(".ban-scene")];
         const scene = scenes[scenes.length - 1];
-        if (enabled) {
-          if (scene) scene.classList.add("arrival-message-style");
-          else pendingArrivalStyle = true;
+        if (scene) {
+          scene.dataset.banMessageScrollSpeed = pendingScrollSpeed;
+          if (enabled) scene.classList.add("arrival-message-style");
+        } else {
+          pendingArrivalStyle = enabled;
         }
-      } catch (err) {
-        console.warn("Ban message style listener error", err);
-      }
+      } catch (err) { console.warn("Ban message style listener error", err); }
     };
     ws.onclose = () => setTimeout(connectStyleListener, 3000);
     ws.onerror = () => ws.close();
