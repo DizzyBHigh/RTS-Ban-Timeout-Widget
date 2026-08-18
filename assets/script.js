@@ -44,7 +44,7 @@ function applyOverlaySettings(d) {
 
   const maxDocked = Number(d.banWidgetMaxDocked);
   if (Number.isFinite(maxDocked)) {
-    overlaySettings.maxDocked = Math.max(1, Math.min(4, Math.round(maxDocked)));
+    overlaySettings.maxDocked = Math.max(1, Math.min(25, Math.round(maxDocked)));
     CFG.maxDocked = overlaySettings.maxDocked;
   }
 
