@@ -37,6 +37,20 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
+        // Preserve the original Streamer.bot event source/type so the
+        // BanWidget event is platform-aware without requiring the overlay
+        // to inspect native Twitch/YouTube/Kick events itself.
+        var eventSource = CPH.GetSource();
+        var eventType = CPH.GetEventType();
+        string sourceName = eventSource.ToString();
+        string eventTypeName = eventType.ToString();
+        string platform = NormalizePlatform(sourceName);
+
+        CPH.SetArgument("banWidgetPlatform", platform);
+        CPH.SetArgument("banWidgetSource", sourceName);
+        CPH.SetArgument("banWidgetEventType", eventTypeName);
+        CPH.SetArgument("banWidgetAction", "timeout");
+
         // Twitch User Timed Out supplies the moderator/creator as
         // createdByUsername, createdByDisplayName and createdById.
         string initiatorName = FirstArg(
@@ -125,6 +139,18 @@ public class CPHInline
 
         CPH.TriggerEvent("BanWidget", true);
         return true;
+    }
+
+    private static string NormalizePlatform(string source)
+    {
+        if (string.Equals(source, "Twitch", StringComparison.OrdinalIgnoreCase))
+            return "twitch";
+        if (string.Equals(source, "Kick", StringComparison.OrdinalIgnoreCase))
+            return "kick";
+        if (string.Equals(source, "YouTube", StringComparison.OrdinalIgnoreCase))
+            return "youtube";
+
+        return (source ?? "").Trim().ToLowerInvariant();
     }
 
     private string FirstArg(params string[] names)
