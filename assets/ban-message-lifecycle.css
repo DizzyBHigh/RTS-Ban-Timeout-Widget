@@ -102,14 +102,15 @@
   overflow: visible;
 }
 
-/* In arrival mode JS animates these from the left edge to the truck rear,
-   then from the rear onward to the right edge. */
+/* In arrival mode JS gives each skid a real pixel width. This avoids
+   scaling a huge off-screen element, which made the initial trail appear
+   late or at the wrong visual speed. */
 .ban-scene.arrival-message-style .ban-trail .skid {
   left: 0;
   right: auto;
-  width: 100%;
+  width: 0;
+  transform: none !important;
   transform-origin: left center;
-  transform: scaleX(0);
   animation: none !important;
 }
 
