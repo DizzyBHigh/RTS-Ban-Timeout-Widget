@@ -52,7 +52,7 @@ public class CPHInline
         string targetId = FirstArg("banWidgetTargetId", "userId", "targetUserId");
         string targetUsername = FirstArg("banWidgetTargetUsername", "userName", "targetUserName", "username", "userLogin", "login");
         string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "userLogin", "login");
-        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "profilePicture", "avatar", "userProfileImageUrl", "userProfilePicture");
+        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "profilePicture", "avatar", "userProfileImageUrl", "userProfilePicture", "broadcastUserProfileImage");
 
         if (platform == "twitch")
         {
