@@ -14,40 +14,51 @@
 }
 
 /*
-   The skid marks begin at the truck's rear in the stopped position.
-   As the truck drives right, the trail grows from that fixed start
-   point toward the right, leaving the marks behind the moving truck.
+   The trail starts exactly at the calibrated rear point of the stopped truck.
+   Its reveal boundary travels at the same speed as the truck, so the uncovered
+   edge stays aligned with the truck's rear while it drives away.
 */
 .ban-scene .ban-trail {
   left: 520px;
   right: auto;
   top: 499px;
   bottom: auto;
-  width: calc(100vw - 520px);
-  height: 31px;
+  width: calc(100vw + 700px);
+  height: 92px;
+  z-index: 55;
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0);
+}
+
+.ban-scene .ban-trail.revealing {
+  animation: banTrailRevealWithTruck 4.3s linear forwards;
 }
 
 .ban-scene .ban-trail .skid {
   left: 0;
   right: auto;
   width: 100%;
-  top: 0;
+  top: 22px;
   bottom: auto;
 }
 
 .ban-scene .ban-trail .skid.two {
-  top: 18px;
+  top: 40px;
   bottom: auto;
 }
 
+/* The reason is a child of the trail, so position it back at the calibrated
+   screen coordinate and let the same clip-path uncover it left-to-right. */
 .ban-scene .ban-reason {
-  left: 512px;
+  left: -8px;
   right: auto;
-  top: 480px;
+  top: -19px;
   width: max-content;
+  min-height: 30px;
   padding-left: 0;
   padding-right: 0;
   justify-content: flex-start;
+  z-index: 3;
 }
 
 @keyframes banTruckCalibratedIn {
@@ -58,4 +69,9 @@
 @keyframes banTruckCalibratedOff {
   from { transform: translateX(0); }
   to { transform: translateX(calc(100vw + 700px)); }
+}
+
+@keyframes banTrailRevealWithTruck {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
