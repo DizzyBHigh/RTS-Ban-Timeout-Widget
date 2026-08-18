@@ -170,6 +170,10 @@
       revealStartedAt = performance.now();
       layer.classList.add("arrival-style", "revealing");
       syncReason();
+      // Start the skid reveal directly with the truck. Do not wait for
+      // animationstart: the truck CSS animation can begin before the
+      // listener is attached, which caused arrival marks to be skipped.
+      startArrivalSkids();
       startScroll(true);
     };
 
@@ -227,16 +231,6 @@
 
     if (scene.classList.contains("arrival-message-style")) beginArrivalStyle();
     syncReason();
-
-    if (scene.classList.contains("arrival-message-style")) {
-      const arrivalWatcher = (event) => {
-        if (event.animationName !== "banTruckCalibratedIn") return;
-        truck.removeEventListener("animationstart", arrivalWatcher);
-        startArrivalSkids();
-      };
-      truck.addEventListener("animationstart", arrivalWatcher);
-      if (getComputedStyle(truck).animationName === "none") startArrivalSkids();
-    }
   }
 
   function connectStyleListener() {
