@@ -371,6 +371,7 @@ function ban(d) {
     bars = [...scene.querySelectorAll(".truck-bars i")],
     trail = scene.querySelector(".ban-trail");
   avatar.src =
+    d.banWidgetTargetAvatar ||
     d.avatar ||
     d.profileImageUrl ||
     d.targetUserProfileImageUrl ||
@@ -474,6 +475,7 @@ function handle(d) {
       displayName:
         d.displayName || d.userName || d.username || d.login || d.targetUser,
       avatar:
+        d.banWidgetTargetAvatar ||
         d.avatar ||
         d.profileImageUrl ||
         d.targetUserProfileImageUrl ||
