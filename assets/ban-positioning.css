@@ -1,0 +1,56 @@
+/* Calibrated against the Ban Truck calibration page. */
+.ban-scene .truck {
+  left: 520px;
+  top: 220px;
+  bottom: auto;
+  width: 590px;
+  height: auto;
+  aspect-ratio: 590 / 320;
+  animation-name: banTruckCalibratedIn;
+}
+
+.ban-scene .truck.driving-off {
+  animation-name: banTruckCalibratedOff;
+}
+
+.ban-scene .ban-trail {
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+}
+
+.ban-scene .ban-trail .skid {
+  left: 0;
+  right: auto;
+  width: 518px;
+  top: 499px;
+  bottom: auto;
+}
+
+.ban-scene .ban-trail .skid.two {
+  top: 517px;
+  bottom: auto;
+}
+
+.ban-scene .ban-reason {
+  left: 512px;
+  right: auto;
+  top: 480px;
+  width: max-content;
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: flex-start;
+}
+
+@keyframes banTruckCalibratedIn {
+  from { transform: translateX(-1220px); }
+  to { transform: translateX(0); }
+}
+
+@keyframes banTruckCalibratedOff {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 700px)); }
+}
