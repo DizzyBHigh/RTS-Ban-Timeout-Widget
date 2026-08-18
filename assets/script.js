@@ -361,6 +361,7 @@ function ban(d) {
   const k = key(d);
   if (active.has(k)) release(k);
   const scene = document.createElement("div");
+  scene.dataset.platform = d.banWidgetPlatform || "unknown";
   scene.className = "ban-scene";
   scene.innerHTML =
     '<div class="ban-trail"><div class="skid one"></div><div class="skid two"></div><div class="ban-reason"><span></span></div></div><div class="truck"><div class="truck-window"><img class="truck-avatar" alt=""><div class="truck-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>';
@@ -379,7 +380,10 @@ function ban(d) {
     "";
   avatar.onerror = () => (avatar.style.opacity = ".12");
   active.set(k, { scene, type: "ban" });
-  setBanReason(trail, d.reason || d.banReason || d.message || "BANNED");
+  setBanReason(
+    trail,
+    d.banWidgetReason || d.reason || d.banReason || d.message || "BANNED",
+  );
   setTimeout(() => {
     if (active.get(k)?.scene !== scene) return;
     w.classList.add("visible");
