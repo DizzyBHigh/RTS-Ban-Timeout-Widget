@@ -1,0 +1,185 @@
+using System;
+
+public class CPHInline
+{
+    private const string StackScalePercentKey = "duhbuh.banwidget.stackScalePercent";
+    private const string MaxDockedKey = "duhbuh.banwidget.maxDocked";
+    private const string AlwaysShowStackKey = "duhbuh.banwidget.alwaysShowStack";
+    private const string StackVisibilityDurationKey = "duhbuh.banwidget.stackVisibilityDuration";
+    private const string ShowStackWhenItemLeavesKey = "duhbuh.banwidget.showStackWhenItemLeaves";
+    private const string ShowKeyAnimationKey = "duhbuh.banwidget.showKeyAnimation";
+    private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
+    private const string StackGapKey = "duhbuh.banwidget.stackGap";
+
+    // Shared entry point for Execute C# Method.
+    // Platform-specific moderation actions can call this after placing their
+    // event arguments on Streamer.bot's current argument stack.
+    public bool PrepareTimeout()
+    {
+        return PrepareBanWidget("timeout");
+    }
+
+    // Shared entry point reserved for the ban action. The existing ban action
+    // will continue using its current C# code until this method is wired in.
+    public bool PrepareBan()
+    {
+        return PrepareBanWidget("ban");
+    }
+
+    private bool PrepareBanWidget(string action)
+    {
+        int stackScalePercent = CPH.GetGlobalVar<int?>(StackScalePercentKey, true) ?? 33;
+        int maxDocked = CPH.GetGlobalVar<int?>(MaxDockedKey, true) ?? 4;
+        bool alwaysShowStack = CPH.GetGlobalVar<bool?>(AlwaysShowStackKey, true) ?? true;
+        int stackVisibilityDuration = CPH.GetGlobalVar<int?>(StackVisibilityDurationKey, true) ?? 10;
+        bool showStackWhenItemLeaves = CPH.GetGlobalVar<bool?>(ShowStackWhenItemLeavesKey, true) ?? true;
+        bool showKeyAnimation = CPH.GetGlobalVar<bool?>(ShowKeyAnimationKey, true) ?? true;
+        int edgeOffset = CPH.GetGlobalVar<int?>(EdgeOffsetKey, true) ?? 28;
+        int stackGap = CPH.GetGlobalVar<int?>(StackGapKey, true) ?? 18;
+
+        stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
+        maxDocked = Math.Max(1, Math.Min(25, maxDocked));
+        stackVisibilityDuration = Math.Max(1, Math.Min(60, stackVisibilityDuration));
+        edgeOffset = Math.Max(0, Math.Min(200, edgeOffset));
+        stackGap = Math.Max(0, Math.Min(100, stackGap));
+
+        CPH.SetArgument("banWidgetStackScalePercent", stackScalePercent);
+        CPH.SetArgument("banWidgetMaxDocked", maxDocked);
+        CPH.SetArgument("banWidgetAlwaysShowStack", alwaysShowStack);
+        CPH.SetArgument("banWidgetStackVisibilityDuration", stackVisibilityDuration);
+        CPH.SetArgument("banWidgetShowStackWhenItemLeaves", showStackWhenItemLeaves);
+        CPH.SetArgument("banWidgetShowKeyAnimation", showKeyAnimation);
+        CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
+        CPH.SetArgument("banWidgetStackGap", stackGap);
+
+        string sourceName = (CPH.GetSource() ?? "").ToString();
+        string eventTypeName = (CPH.GetEventType() ?? "").ToString();
+        string platform = NormalizePlatform(sourceName);
+
+        CPH.SetArgument("banWidgetPlatform", platform);
+        CPH.SetArgument("banWidgetSource", sourceName);
+        CPH.SetArgument("banWidgetEventType", eventTypeName);
+        CPH.SetArgument("banWidgetAction", action);
+
+        string targetId = FirstArg("banWidgetTargetId", "userId", "targetUserId");
+        string targetUsername = FirstArg("banWidgetTargetUsername", "userName", "targetUserName", "username", "login");
+        string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "login");
+        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "avatar", "userProfileImageUrl");
+
+        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
+        {
+            try
+            {
+                var target = CPH.TwitchGetExtendedUserInfoById(targetId);
+                if (target != null)
+                {
+                    targetAvatar = target.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve target avatar by id: {ex.Message}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
+        {
+            try
+            {
+                var target = CPH.TwitchGetExtendedUserInfoByLogin(targetUsername);
+                if (target != null)
+                {
+                    targetAvatar = target.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve target avatar by login: {ex.Message}");
+            }
+        }
+
+        CPH.SetArgument("banWidgetTargetId", targetId ?? "");
+        CPH.SetArgument("banWidgetTargetUsername", targetUsername ?? "");
+        CPH.SetArgument("banWidgetTargetName", targetDisplayName ?? "");
+        CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
+
+        string initiatorName = FirstArg("timeoutInitiatorName", "createdByDisplayName", "moderatorDisplayName", "moderatorName", "initiatorName", "performedByName", "senderName");
+        string initiatorUsername = FirstArg("timeoutInitiatorUsername", "createdByUsername", "moderatorUsername", "moderatorLogin", "initiatorUsername");
+        string initiatorId = FirstArg("timeoutInitiatorId", "createdById", "moderatorId", "initiatorId");
+        string initiatorAvatar = FirstArg("timeoutInitiatorAvatar", "initiatorAvatar", "moderatorAvatar", "moderatorProfileImageUrl", "performedByAvatar", "senderAvatar");
+
+        if (string.IsNullOrWhiteSpace(initiatorAvatar))
+        {
+            try
+            {
+                var initiator = !string.IsNullOrWhiteSpace(initiatorId) ? CPH.TwitchGetExtendedUserInfoById(initiatorId) : null;
+                if (initiator != null)
+                {
+                    initiatorAvatar = initiator.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by id: {ex.Message}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
+        {
+            try
+            {
+                var initiator = CPH.TwitchGetExtendedUserInfoByLogin(initiatorUsername);
+                if (initiator != null)
+                {
+                    initiatorAvatar = initiator.ProfileImageUrl;
+                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
+                }
+            }
+            catch (Exception ex)
+            {
+                CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by login: {ex.Message}");
+            }
+        }
+
+        CPH.SetArgument("timeoutInitiatorName", initiatorName ?? "");
+        CPH.SetArgument("timeoutInitiatorUsername", initiatorUsername ?? "");
+        CPH.SetArgument("timeoutInitiatorId", initiatorId ?? "");
+        CPH.SetArgument("timeoutInitiatorAvatar", initiatorAvatar ?? "");
+        CPH.SetArgument("banWidgetInitiatorName", initiatorName ?? "");
+        CPH.SetArgument("banWidgetInitiatorUsername", initiatorUsername ?? "");
+        CPH.SetArgument("banWidgetInitiatorId", initiatorId ?? "");
+        CPH.SetArgument("banWidgetInitiatorAvatar", initiatorAvatar ?? "");
+
+        CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration") ?? "");
+        CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "message") ?? "");
+
+        CPH.TriggerEvent("BanWidget", true);
+        return true;
+    }
+
+    private static string NormalizePlatform(string source)
+    {
+        if (string.Equals(source, "Twitch", StringComparison.OrdinalIgnoreCase)) return "twitch";
+        if (string.Equals(source, "Kick", StringComparison.OrdinalIgnoreCase)) return "kick";
+        if (string.Equals(source, "YouTube", StringComparison.OrdinalIgnoreCase)) return "youtube";
+        return (source ?? "").Trim().ToLowerInvariant();
+    }
+
+    private string FirstArg(params string[] names)
+    {
+        foreach (string name in names)
+        {
+            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+        return null;
+    }
+}
