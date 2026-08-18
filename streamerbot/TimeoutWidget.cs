@@ -7,6 +7,7 @@ public class CPHInline
     private const string AlwaysShowStackKey = "duhbuh.banwidget.alwaysShowStack";
     private const string StackVisibilityDurationKey = "duhbuh.banwidget.stackVisibilityDuration";
     private const string ShowStackWhenItemLeavesKey = "duhbuh.banwidget.showStackWhenItemLeaves";
+    private const string ShowKeyAnimationKey = "duhbuh.banwidget.showKeyAnimation";
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
 
@@ -17,6 +18,7 @@ public class CPHInline
         bool alwaysShowStack = CPH.GetGlobalVar<bool?>(AlwaysShowStackKey, true) ?? true;
         int stackVisibilityDuration = CPH.GetGlobalVar<int?>(StackVisibilityDurationKey, true) ?? 10;
         bool showStackWhenItemLeaves = CPH.GetGlobalVar<bool?>(ShowStackWhenItemLeavesKey, true) ?? true;
+        bool showKeyAnimation = CPH.GetGlobalVar<bool?>(ShowKeyAnimationKey, true) ?? true;
         int edgeOffset = CPH.GetGlobalVar<int?>(EdgeOffsetKey, true) ?? 28;
         int stackGap = CPH.GetGlobalVar<int?>(StackGapKey, true) ?? 18;
 
@@ -31,6 +33,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetAlwaysShowStack", alwaysShowStack);
         CPH.SetArgument("banWidgetStackVisibilityDuration", stackVisibilityDuration);
         CPH.SetArgument("banWidgetShowStackWhenItemLeaves", showStackWhenItemLeaves);
+        CPH.SetArgument("banWidgetShowKeyAnimation", showKeyAnimation);
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
