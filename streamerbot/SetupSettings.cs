@@ -29,7 +29,7 @@ public class CPHInline
         );
 
         // Ban Widget tab
-        ui.AddTitle("Overlay Settings", "Ban Widget");
+        ui.AddTitle("Ban Settings", "Ban Widget");
 
         ui.AddRadioGroup(
             "Ban Animation Type",
@@ -50,7 +50,7 @@ public class CPHInline
         );
 
         // Timeout Widget tab
-        ui.AddTitle("Overlay Settings", "Timeout Widget");
+        ui.AddTitle("Timeout Settings", "Timeout Widget");
 
         ui.AddToggleSwitch("Always Show Stack", "Keep the bottom-right stack permanently visible. When disabled, the stack can be shown temporarily.", "Timeout Widget", AlwaysShowStackKey, true);
         ui.AddSlider("Temporary Show Duration (sec)", "How long the stack remains visible when temporarily shown.", "Timeout Widget", StackVisibilityDurationKey, 1, 60, 10);
