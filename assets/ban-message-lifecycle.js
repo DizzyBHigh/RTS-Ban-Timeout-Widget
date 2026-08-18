@@ -14,6 +14,12 @@
     return originalAppendChild(node);
   };
 
+  function animationMs(element, fallback) {
+    const value = getComputedStyle(element).animationDuration.split(",")[0].trim();
+    const ms = value.endsWith("ms") ? parseFloat(value) : parseFloat(value) * 1000;
+    return Number.isFinite(ms) && ms > 0 ? ms : fallback;
+  }
+
   function prepareScene(scene) {
     if (scene.dataset.messageLifecycle === "1") return;
     scene.dataset.messageLifecycle = "1";
@@ -83,15 +89,18 @@
     const startScroll = (immediate = false) => {
       if (scrollStarted || !layer.isConnected) return;
       scrollStarted = true;
-      requestAnimationFrame(measureReason);
       const begin = () => {
         if (!layer.isConnected) return;
-        if (scrollMs > 0) {
-          layer.classList.add("scrolling");
-          setTimeout(finishMessage, scrollMs);
-        } else {
-          finishMessage();
-        }
+        measureReason();
+        requestAnimationFrame(() => {
+          if (!layer.isConnected) return;
+          if (scrollMs > 0) {
+            layer.classList.add("scrolling");
+            setTimeout(finishMessage, scrollMs);
+          } else {
+            finishMessage();
+          }
+        });
       };
       if (immediate) begin(); else setTimeout(begin, REVEAL_MS);
     };
@@ -104,13 +113,14 @@
     const startArrivalSkids = () => {
       const width = Math.max(1, trail.clientWidth);
       const stopScale = Math.min(1, 520 / width);
+      const duration = animationMs(truck, REVEAL_MS);
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
         skid.style.transform = "scaleX(0)";
         const animation = skid.animate(
           [{ transform: "scaleX(0)" }, { transform: `scaleX(${stopScale})` }],
-          { duration: REVEAL_MS, easing: "linear", fill: "forwards" }
+          { duration, easing: "linear", fill: "forwards" }
         );
         arrivalSkidAnimations.push(animation);
         animation.finished.then(() => {
@@ -122,13 +132,14 @@
     const startDepartureSkids = () => {
       const width = Math.max(1, trail.clientWidth);
       const stopScale = Math.min(1, 520 / width);
+      const duration = animationMs(truck, DEPART_MS);
       stopArrivalSkids();
       skids.forEach((skid) => {
         skid.style.animation = "none";
         skid.style.transform = `scaleX(${stopScale})`;
         skid.animate(
           [{ transform: `scaleX(${stopScale})` }, { transform: "scaleX(1)" }],
-          { duration: DEPART_MS, easing: "linear", fill: "forwards" }
+          { duration, easing: "linear", fill: "forwards" }
         ).finished.then(() => {
           if (skid.isConnected) skid.style.transform = "scaleX(1)";
         }).catch(() => {});
@@ -143,7 +154,6 @@
       layer.classList.add("arrival-style", "revealing");
       syncReason();
       startScroll(true);
-      startArrivalSkids();
     };
 
     const originalRemove = scene.remove.bind(scene);
@@ -182,7 +192,7 @@
         setTimeout(() => {
           departureFinished = true;
           startFade();
-        }, DEPART_MS);
+        }, animationMs(truck, DEPART_MS));
       }
 
       if (!arrivalActive && !revealStarted && trail.classList.contains("revealing")) {
@@ -201,6 +211,16 @@
 
     if (scene.classList.contains("arrival-message-style")) beginArrivalStyle();
     syncReason();
+
+    if (scene.classList.contains("arrival-message-style")) {
+      const arrivalWatcher = (event) => {
+        if (event.animationName !== "banTruckCalibratedIn") return;
+        truck.removeEventListener("animationstart", arrivalWatcher);
+        startArrivalSkids();
+      };
+      truck.addEventListener("animationstart", arrivalWatcher);
+      if (getComputedStyle(truck).animationName === "none") startArrivalSkids();
+    }
   }
 
   function connectStyleListener() {
