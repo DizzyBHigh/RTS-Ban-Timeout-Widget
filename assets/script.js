@@ -211,6 +211,7 @@ function createCell(d) {
     '<img class="avatar" alt=""><div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div><img class="frame" src="assets/cell_frame_final.png" alt=""><div class="timer">00:00</div><div class="nameplate"><span></span></div><div class="reason"><span></span></div>';
   const a = e.querySelector(".avatar");
   a.src =
+    d.banWidgetTargetAvatar ||
     d.avatar ||
     d.profileImageUrl ||
     d.targetUserProfileImageUrl ||
