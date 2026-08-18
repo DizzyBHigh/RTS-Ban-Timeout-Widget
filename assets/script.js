@@ -17,6 +17,9 @@ const BAR_SOUND = "assets/audio/395920__locontrario23__closing-door.wav";
 const rootStyle = document.documentElement.style;
 const overlaySettings = {
   stackScalePercent: 33,
+  maxDocked: 4,
+  edgeOffset: 28,
+  stackGap: 18,
 };
 function updateStackSize() {
   const scale =
@@ -28,14 +31,40 @@ function updateStackSize() {
   rootStyle.setProperty("--stack-h", 310 * scale + "px");
 }
 function applyOverlaySettings(d) {
-  const value = Number(d?.banWidgetStackScalePercent);
-  if (!Number.isFinite(value)) return;
+  if (!d || typeof d !== "object") return;
 
-  overlaySettings.stackScalePercent = Math.max(10, Math.min(100, value));
-  const scale = overlaySettings.stackScalePercent / 100;
-  rootStyle.setProperty("--stack-scale", String(scale));
+  const stackScale = Number(d.banWidgetStackScalePercent);
+  if (Number.isFinite(stackScale)) {
+    overlaySettings.stackScalePercent = Math.max(10, Math.min(100, stackScale));
+    rootStyle.setProperty(
+      "--stack-scale",
+      String(overlaySettings.stackScalePercent / 100),
+    );
+  }
+
+  const maxDocked = Number(d.banWidgetMaxDocked);
+  if (Number.isFinite(maxDocked)) {
+    overlaySettings.maxDocked = Math.max(1, Math.min(4, Math.round(maxDocked)));
+    CFG.maxDocked = overlaySettings.maxDocked;
+  }
+
+  const edgeOffset = Number(d.banWidgetEdgeOffset);
+  if (Number.isFinite(edgeOffset)) {
+    overlaySettings.edgeOffset = Math.max(0, Math.min(200, edgeOffset));
+    rootStyle.setProperty("--edge", overlaySettings.edgeOffset + "px");
+  }
+
+  const stackGap = Number(d.banWidgetStackGap);
+  if (Number.isFinite(stackGap)) {
+    overlaySettings.stackGap = Math.max(0, Math.min(100, stackGap));
+    rootStyle.setProperty("--stack-gap", overlaySettings.stackGap + "px");
+  }
+
   updateStackSize();
 }
+rootStyle.setProperty("--stack-scale", String(overlaySettings.stackScalePercent / 100));
+rootStyle.setProperty("--edge", overlaySettings.edgeOffset + "px");
+rootStyle.setProperty("--stack-gap", overlaySettings.stackGap + "px");
 updateStackSize();
 function say(s) {
   status.textContent = s;
