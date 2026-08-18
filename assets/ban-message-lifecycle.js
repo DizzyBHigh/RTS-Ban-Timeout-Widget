@@ -10,6 +10,7 @@
   const DEPART_TRUCK_DISTANCE_EXTRA = 700;
   const WS_URL = "ws://127.0.0.1:8080/";
   let pendingArrivalStyle = false;
+  let pendingScrollSpeed = "Medium";
 
   const originalAppendChild = stage.appendChild.bind(stage);
   stage.appendChild = (node) => {
@@ -24,6 +25,13 @@
     return Number.isFinite(ms) && ms > 0 ? ms : fallback;
   }
 
+  function scrollPixelsPerSecond(scene) {
+    const speed = String(scene.dataset.banMessageScrollSpeed || "Medium").toLowerCase();
+    if (speed === "slow") return 25;
+    if (speed === "fast") return 70;
+    return 40;
+  }
+
   function prepareScene(scene) {
     if (scene.dataset.messageLifecycle === "1") return;
     scene.dataset.messageLifecycle = "1";
@@ -31,6 +39,7 @@
       scene.classList.add("arrival-message-style");
       pendingArrivalStyle = false;
     }
+    scene.dataset.banMessageScrollSpeed = pendingScrollSpeed;
 
     const trail = scene.querySelector(".ban-trail");
     const sourceReason = trail?.querySelector(".ban-reason span");
@@ -66,7 +75,8 @@
       if (!layer.isConnected) return;
       const overflow = Math.max(0, text.scrollWidth - viewport.clientWidth);
       if (overflow > 0) {
-        scrollMs = Math.max(6000, Math.min(14000, (overflow / 40) * 1000));
+        const pixelsPerSecond = scrollPixelsPerSecond(scene);
+        scrollMs = Math.max(1000, Math.ceil((overflow / pixelsPerSecond) * 1000));
         layer.style.setProperty("--ban-message-scroll-distance", `${-overflow}px`);
         layer.style.setProperty("--ban-message-scroll-time", `${scrollMs}ms`);
       } else {
@@ -114,10 +124,6 @@
       arrivalSkidAnimations = [];
     };
 
-    // The skid is laid down by the truck's rear axle, not by the truck's
-    // entire travel distance. Therefore its duration is proportional to the
-    // distance that rear axle is visible on screen. This keeps the leading
-    // edge of the skid exactly with the moving truck rear.
     const startArrivalSkids = () => {
       const truckDuration = animationMs(truck, REVEAL_MS);
       const duration = truckDuration * (ARRIVAL_REAR_DISTANCE / ARRIVAL_TRUCK_DISTANCE);
@@ -137,9 +143,6 @@
       });
     };
 
-    // On departure, the skid edge follows the truck rear from the calibrated
-    // stopped position to the right edge of the viewport. We calculate the
-    // duration from the same truck speed instead of using the full 4.3s.
     const startDepartureSkids = () => {
       const startWidth = ARRIVAL_REAR_DISTANCE;
       const visibleDistance = Math.max(1, window.innerWidth - startWidth);
@@ -173,9 +176,8 @@
     const originalRemove = scene.remove.bind(scene);
     scene.remove = () => {
       if (arrivalActive) {
-        if (fadeStarted) {
-          originalRemove();
-        } else {
+        if (fadeStarted) originalRemove();
+        else {
           if (removeTimer) clearTimeout(removeTimer);
           removeTimer = setTimeout(() => { if (scene.isConnected) scene.remove(); }, 100);
         }
@@ -254,12 +256,18 @@
         if (eventName && eventName !== "banwidget") return;
         const action = String(data.banWidgetAction || data.action || "").toLowerCase();
         if (action !== "ban") return;
+
         const enabled = data.banWidgetBanMessageArrivalStyle === true || String(data.banWidgetBanMessageArrivalStyle || "").toLowerCase() === "true";
+        const speed = String(data.banWidgetBanMessageScrollSpeed || "Medium");
+        pendingScrollSpeed = ["Slow", "Medium", "Fast"].find(x => x.toLowerCase() === speed.toLowerCase()) || "Medium";
+
         const scenes = [...stage.querySelectorAll(".ban-scene")];
         const scene = scenes[scenes.length - 1];
-        if (enabled) {
-          if (scene) scene.classList.add("arrival-message-style");
-          else pendingArrivalStyle = true;
+        if (scene) {
+          scene.dataset.banMessageScrollSpeed = pendingScrollSpeed;
+          if (enabled) scene.classList.add("arrival-message-style");
+        } else {
+          pendingArrivalStyle = enabled;
         }
       } catch (err) { console.warn("Ban message style listener error", err); }
     };
