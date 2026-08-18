@@ -79,7 +79,8 @@
     image.src = initiator.avatar || "";
     image.alt = initiator.name ? `Timeout by ${initiator.name}` : "Timeout initiator";
     image.onerror = () => (image.style.opacity = "0.15");
-    label.textContent = initiator.name ? `TIMEOUT BY: ${initiator.name}` : "";
+    // The key label is intentionally just the initiator's name.
+    label.textContent = initiator.name || "";
     if (!initiator.name) label.hidden = true;
 
     cell.appendChild(key);
