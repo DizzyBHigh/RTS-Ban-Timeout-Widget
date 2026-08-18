@@ -1,10 +1,13 @@
 /*
  * Timeout lock timing.
  * The cell bars stay fully raised while the key travels to the lock,
- * waits, and performs its turn. They only begin dropping when the key turn starts.
- * Key animation timing: 1.0s wait + 0.5s travel + 0.5s inserted hold = 2.0s.
+ * waits, and performs its turn. They begin dropping at the same moment
+ * the existing lock sound is triggered by script.js.
+ *
+ * The timeout lock sound is currently triggered at 2.5s, so the bar drop
+ * is deliberately synchronized to that point.
  */
 .cell.locking .bar {
   transform: scaleY(0);
-  animation: barsDown 0.5s cubic-bezier(.25, .8, .25, 1) 2s forwards;
+  animation: barsDown 0.5s cubic-bezier(.25, .8, .25, 1) 2.5s forwards;
 }
