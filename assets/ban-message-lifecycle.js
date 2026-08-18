@@ -58,7 +58,12 @@
     const startFade = () => {
       if (fadeStarted || !layer.isConnected) return;
       fadeStarted = true;
+
+      // The skid marks are part of the same visual message lifecycle.
+      // Keep them visible for the entire reason scroll, then fade both together.
+      trail.classList.add("fading");
       layer.classList.add("fading");
+
       setTimeout(() => {
         if (scene.isConnected) originalRemove();
       }, FADE_MS);
@@ -109,10 +114,12 @@
         startScroll();
       }
 
-      // The original Ban Truck can fade the skid layer after 4.3s.
-      // Do not fade the independent message with it; its own lifecycle controls fade.
-      if (trail.classList.contains("fading") && !scrollStarted) {
-        startScroll();
+      // The original Ban Truck starts fading the skid layer after 4.3s.
+      // If the reason is still scrolling, cancel that early fade so the skids
+      // stay visible until the message has finished. startFade() will apply
+      // the fade to both layers together at the end of the message lifecycle.
+      if (trail.classList.contains("fading") && !fadeStarted) {
+        trail.classList.remove("fading");
       }
     });
     classObserver.observe(trail, { attributes: true, attributeFilter: ["class"] });
