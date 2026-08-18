@@ -11,20 +11,8 @@ public class CPHInline
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
 
-    // Shared entry point for Execute C# Method.
-    // Platform-specific moderation actions can call this after placing their
-    // event arguments on Streamer.bot's current argument stack.
-    public bool PrepareTimeout()
-    {
-        return PrepareBanWidget("timeout");
-    }
-
-    // Shared entry point reserved for the ban action. The existing ban action
-    // will continue using its current C# code until this method is wired in.
-    public bool PrepareBan()
-    {
-        return PrepareBanWidget("ban");
-    }
+    public bool PrepareTimeout() => PrepareBanWidget("timeout");
+    public bool PrepareBan() => PrepareBanWidget("ban");
 
     private bool PrepareBanWidget(string action)
     {
@@ -52,8 +40,8 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
-        string sourceName = (CPH.GetSource() ?? "").ToString();
-        string eventTypeName = (CPH.GetEventType() ?? "").ToString();
+        string sourceName = CPH.GetSource().ToString();
+        string eventTypeName = CPH.GetEventType().ToString();
         string platform = NormalizePlatform(sourceName);
 
         CPH.SetArgument("banWidgetPlatform", platform);
@@ -78,10 +66,7 @@ public class CPHInline
                     if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
                 }
             }
-            catch (Exception ex)
-            {
-                CPH.LogWarn($"Ban Widget: unable to resolve target avatar by id: {ex.Message}");
-            }
+            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve target avatar by id: {ex.Message}"); }
         }
 
         if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetUsername))
@@ -96,10 +81,7 @@ public class CPHInline
                     if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
                 }
             }
-            catch (Exception ex)
-            {
-                CPH.LogWarn($"Ban Widget: unable to resolve target avatar by login: {ex.Message}");
-            }
+            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve target avatar by login: {ex.Message}"); }
         }
 
         CPH.SetArgument("banWidgetTargetId", targetId ?? "");
@@ -125,10 +107,7 @@ public class CPHInline
                     if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
                 }
             }
-            catch (Exception ex)
-            {
-                CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by id: {ex.Message}");
-            }
+            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by id: {ex.Message}"); }
         }
 
         if (string.IsNullOrWhiteSpace(initiatorAvatar) && !string.IsNullOrWhiteSpace(initiatorUsername))
@@ -143,10 +122,7 @@ public class CPHInline
                     if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
                 }
             }
-            catch (Exception ex)
-            {
-                CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by login: {ex.Message}");
-            }
+            catch (Exception ex) { CPH.LogWarn($"Ban Widget: unable to resolve initiator avatar by login: {ex.Message}"); }
         }
 
         CPH.SetArgument("timeoutInitiatorName", initiatorName ?? "");
@@ -177,8 +153,7 @@ public class CPHInline
     {
         foreach (string name in names)
         {
-            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value))
-                return value;
+            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value)) return value;
         }
         return null;
     }
