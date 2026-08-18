@@ -13,32 +13,30 @@
   animation-name: banTruckCalibratedOff;
 }
 
-/* The skid marks are anchored at the truck's calibrated rear point.
-   The reveal runs from right to left so the first visible mark is directly
-   behind the truck, then the trail grows backward as the truck leaves. */
+/*
+   The skid marks begin at the truck's rear in the stopped position.
+   As the truck drives right, the trail grows from that fixed start
+   point toward the right, leaving the marks behind the moving truck.
+*/
 .ban-scene .ban-trail {
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: auto;
-  height: auto;
-}
-
-.ban-scene .ban-trail.revealing {
-  animation-name: banTrailRevealFromTruck;
+  left: 520px;
+  right: auto;
+  top: 499px;
+  bottom: auto;
+  width: calc(100vw - 520px);
+  height: 31px;
 }
 
 .ban-scene .ban-trail .skid {
   left: 0;
   right: auto;
-  width: 520px;
-  top: 499px;
+  width: 100%;
+  top: 0;
   bottom: auto;
 }
 
 .ban-scene .ban-trail .skid.two {
-  top: 517px;
+  top: 18px;
   bottom: auto;
 }
 
@@ -60,9 +58,4 @@
 @keyframes banTruckCalibratedOff {
   from { transform: translateX(0); }
   to { transform: translateX(calc(100vw + 700px)); }
-}
-
-@keyframes banTrailRevealFromTruck {
-  from { clip-path: inset(0 0 0 100%); }
-  to { clip-path: inset(0 0 0 0); }
 }
