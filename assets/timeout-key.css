@@ -171,3 +171,76 @@
 .cell.docked .timeout-key {
   display: none;
 }
+
+/* Platform identity for the timeout key. */
+.cell[data-platform="twitch"] .timeout-key-head {
+  background: linear-gradient(145deg, #c084ff, #9146ff 60%, #5b1bb7);
+  border-color: #5b1bb7;
+}
+
+.cell[data-platform="twitch"] .timeout-key-head::after {
+  border-color: #5b1bb7;
+}
+
+.cell[data-platform="twitch"] .timeout-key-shaft,
+.cell[data-platform="twitch"] .timeout-key-tooth {
+  background: linear-gradient(#c084ff, #9146ff 55%, #5b1bb7);
+  border-color: #5b1bb7;
+}
+
+.cell[data-platform="twitch"] .timeout-key-tooth::before {
+  background: #9146ff;
+  border-color: #5b1bb7;
+}
+
+.cell[data-platform="twitch"] .timeout-key-label {
+  border-color: #9146ff;
+}
+
+.cell[data-platform="kick"] .timeout-key-head {
+  background: linear-gradient(145deg, #70f0a0, #53d769 60%, #16883b);
+  border-color: #16883b;
+}
+
+.cell[data-platform="kick"] .timeout-key-head::after {
+  border-color: #16883b;
+}
+
+.cell[data-platform="kick"] .timeout-key-shaft,
+.cell[data-platform="kick"] .timeout-key-tooth {
+  background: linear-gradient(#70f0a0, #53d769 55%, #16883b);
+  border-color: #16883b;
+}
+
+.cell[data-platform="kick"] .timeout-key-tooth::before {
+  background: #53d769;
+  border-color: #16883b;
+}
+
+.cell[data-platform="kick"] .timeout-key-label {
+  border-color: #53d769;
+}
+
+.cell[data-platform="youtube"] .timeout-key-head {
+  background: linear-gradient(145deg, #ff7070, #ff3030 60%, #a90000);
+  border-color: #a90000;
+}
+
+.cell[data-platform="youtube"] .timeout-key-head::after {
+  border-color: #a90000;
+}
+
+.cell[data-platform="youtube"] .timeout-key-shaft,
+.cell[data-platform="youtube"] .timeout-key-tooth {
+  background: linear-gradient(#ff7070, #ff3030 55%, #a90000);
+  border-color: #a90000;
+}
+
+.cell[data-platform="youtube"] .timeout-key-tooth::before {
+  background: #ff3030;
+  border-color: #a90000;
+}
+
+.cell[data-platform="youtube"] .timeout-key-label {
+  border-color: #ff3030;
+}
