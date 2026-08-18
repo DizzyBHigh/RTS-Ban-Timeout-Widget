@@ -142,6 +142,12 @@ public class CPHInline
         CPH.SetArgument("banWidgetTargetName", targetDisplayName ?? "");
         CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
 
+        // Backwards-compatible aliases for the current overlay while the
+        // browser payload is being migrated to the normalized BanWidget fields.
+        CPH.SetArgument("avatar", targetAvatar ?? "");
+        CPH.SetArgument("profileImageUrl", targetAvatar ?? "");
+        CPH.SetArgument("targetUserProfileImageUrl", targetAvatar ?? "");
+
         // Twitch User Timed Out supplies the moderator/creator as
         // createdByUsername, createdByDisplayName and createdById.
         string initiatorName = FirstArg(
