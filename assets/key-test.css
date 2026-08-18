@@ -26,9 +26,10 @@
   animation: none !important;
   opacity: 1 !important;
   transform: none !important;
-  /* Adjust these live in DevTools or with CSS variables. */
-  left: var(--key-test-x, -90px) !important;
+  /* Start position supplied from DevTools: -200px. */
+  left: var(--key-test-x, -200px) !important;
   top: var(--key-test-y, 96px) !important;
+  z-index: 3 !important;
 }
 
 .key-test-mode .key-test-avatar {
