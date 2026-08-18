@@ -15,15 +15,16 @@
 
 /*
    The trail starts exactly at the calibrated rear point of the stopped truck.
-   The skid marks themselves reveal left-to-right at the same speed as the
-   truck, so their leading edge stays aligned with the truck's rear.
+   The skid marks reveal left-to-right at the same speed as the truck.
+   Make the reveal substantially wider than the viewport so it can never
+   stop short of the screen edge.
 */
 .ban-scene .ban-trail {
   left: 520px;
   right: auto;
   top: 499px;
   bottom: auto;
-  width: calc(100vw + 700px);
+  width: calc(100vw + 1400px);
   height: 92px;
   z-index: 55;
   overflow: visible;
@@ -53,18 +54,28 @@
   animation: banSkidRevealWithTruck 4.3s linear forwards;
 }
 
-/* Keep the BANNED text independent of the skid reveal so it cannot be clipped. */
+/* Keep the BANNED text completely outside the skid reveal mask. */
 .ban-scene .ban-reason {
   left: -8px;
   right: auto;
   top: -19px;
-  width: max-content;
+  width: max-content !important;
+  max-width: none;
   min-height: 30px;
   padding-left: 0;
   padding-right: 0;
   justify-content: flex-start;
+  white-space: nowrap;
+  overflow: visible;
   z-index: 3;
   opacity: 0;
+}
+
+.ban-scene .ban-reason span {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
+  max-width: none;
 }
 
 .ban-scene .ban-trail.revealing .ban-reason {
