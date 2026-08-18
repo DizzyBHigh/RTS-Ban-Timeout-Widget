@@ -1,0 +1,18 @@
+/* Platform identity accents for timeout cells. */
+.cell {
+  --platform-accent: rgba(255, 215, 47, .28);
+  filter: drop-shadow(0 18px 12px #0008)
+    drop-shadow(0 0 10px var(--platform-accent));
+}
+
+.cell[data-platform="twitch"] {
+  --platform-accent: rgba(145, 70, 255, .55);
+}
+
+.cell[data-platform="kick"] {
+  --platform-accent: rgba(83, 252, 24, .55);
+}
+
+.cell[data-platform="youtube"] {
+  --platform-accent: rgba(255, 0, 0, .55);
+}
