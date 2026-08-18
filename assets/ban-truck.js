@@ -21,7 +21,9 @@
 
   function rememberBan(d) {
     d = normalize(d);
-    if (isBan(d)) pendingBan = d;
+    if (!isBan(d)) return;
+    pendingBan = d;
+    document.querySelectorAll(".ban-scene").forEach(setupScene);
   }
 
   function setupScene(scene) {
