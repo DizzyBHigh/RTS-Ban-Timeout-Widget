@@ -15,6 +15,9 @@ let audio = null,
   lockBusy = false;
 const BAR_SOUND = "assets/audio/395920__locontrario23__closing-door.wav";
 const rootStyle = document.documentElement.style;
+const overlaySettings = {
+  stackScalePercent: 33,
+};
 function updateStackSize() {
   const scale =
     parseFloat(
@@ -23,6 +26,15 @@ function updateStackSize() {
       ),
     ) || 0.333333;
   rootStyle.setProperty("--stack-h", 310 * scale + "px");
+}
+function applyOverlaySettings(d) {
+  const value = Number(d?.banWidgetStackScalePercent);
+  if (!Number.isFinite(value)) return;
+
+  overlaySettings.stackScalePercent = Math.max(10, Math.min(100, value));
+  const scale = overlaySettings.stackScalePercent / 100;
+  rootStyle.setProperty("--stack-scale", String(scale));
+  updateStackSize();
 }
 updateStackSize();
 function say(s) {
@@ -363,6 +375,7 @@ function handle(d) {
   }
   d = normaliseCustomArgs(d);
   if (!d || typeof d !== "object") return;
+  applyOverlaySettings(d);
   const name = String(
     d.eventName || d.triggerCustomEventName || "",
   ).toLowerCase();
