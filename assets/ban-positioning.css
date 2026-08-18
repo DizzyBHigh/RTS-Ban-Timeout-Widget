@@ -15,8 +15,8 @@
 
 /*
    The trail starts exactly at the calibrated rear point of the stopped truck.
-   Its reveal boundary travels at the same speed as the truck, so the uncovered
-   edge stays aligned with the truck's rear while it drives away.
+   The skid marks themselves reveal left-to-right at the same speed as the
+   truck, so their leading edge stays aligned with the truck's rear.
 */
 .ban-scene .ban-trail {
   left: 520px;
@@ -26,12 +26,12 @@
   width: calc(100vw + 700px);
   height: 92px;
   z-index: 55;
-  overflow: hidden;
-  clip-path: inset(0 100% 0 0);
+  overflow: visible;
+  clip-path: none;
 }
 
 .ban-scene .ban-trail.revealing {
-  animation: banTrailRevealWithTruck 4.3s linear forwards;
+  animation: none;
 }
 
 .ban-scene .ban-trail .skid {
@@ -40,6 +40,8 @@
   width: 100%;
   top: 22px;
   bottom: auto;
+  transform-origin: left center;
+  transform: scaleX(0);
 }
 
 .ban-scene .ban-trail .skid.two {
@@ -47,8 +49,11 @@
   bottom: auto;
 }
 
-/* The reason is a child of the trail, so position it back at the calibrated
-   screen coordinate and let the same clip-path uncover it left-to-right. */
+.ban-scene .ban-trail.revealing .skid {
+  animation: banSkidRevealWithTruck 4.3s linear forwards;
+}
+
+/* Keep the BANNED text independent of the skid reveal so it cannot be clipped. */
 .ban-scene .ban-reason {
   left: -8px;
   right: auto;
@@ -59,6 +64,11 @@
   padding-right: 0;
   justify-content: flex-start;
   z-index: 3;
+  opacity: 0;
+}
+
+.ban-scene .ban-trail.revealing .ban-reason {
+  animation: banReasonAppear .18s ease-out forwards;
 }
 
 @keyframes banTruckCalibratedIn {
@@ -71,7 +81,12 @@
   to { transform: translateX(calc(100vw + 700px)); }
 }
 
-@keyframes banTrailRevealWithTruck {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+@keyframes banSkidRevealWithTruck {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes banReasonAppear {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
