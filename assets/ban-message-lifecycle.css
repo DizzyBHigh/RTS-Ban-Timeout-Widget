@@ -83,8 +83,8 @@
 }
 
 /* Alternate style: anchor the message to the left while the truck arrives.
-   The calibrated skid reveal is started at the same moment as the truck's
-   calibrated arrival animation, so the marks sweep across the screen. */
+   The skid marks are anchored at the truck's rear and grow from right to left
+   during arrival, leaving a continuous trail behind the incoming truck. */
 .ban-scene.arrival-message-style .ban-message-layer {
   left: 28px;
   width: calc(100vw - 56px);
@@ -92,6 +92,20 @@
 
 .ban-scene.arrival-message-style .ban-message-layer.revealing .ban-message-viewport {
   animation-duration: 4.3s;
+}
+
+.ban-scene.arrival-message-style .ban-trail {
+  left: calc(520px - (100vw + 1400px));
+}
+
+.ban-scene.arrival-message-style .ban-trail .skid {
+  left: 0;
+  right: auto;
+  transform-origin: right center;
+}
+
+.ban-scene.arrival-message-style .ban-trail.revealing .skid {
+  animation: banSkidRevealWithTruck 4.3s linear forwards;
 }
 
 @keyframes banMessageLabelIn {
