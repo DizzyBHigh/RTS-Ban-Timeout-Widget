@@ -22,45 +22,32 @@ const overlaySettings = {
   stackGap: 18,
 };
 function updateStackSize() {
-  const scale =
-    parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue(
-        "--stack-scale",
-      ),
-    ) || 0.333333;
+  const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--stack-scale")) || 0.333333;
   rootStyle.setProperty("--stack-h", 310 * scale + "px");
 }
 function applyOverlaySettings(d) {
   if (!d || typeof d !== "object") return;
-
   const stackScale = Number(d.banWidgetStackScalePercent);
   if (Number.isFinite(stackScale)) {
     overlaySettings.stackScalePercent = Math.max(10, Math.min(100, stackScale));
-    rootStyle.setProperty(
-      "--stack-scale",
-      String(overlaySettings.stackScalePercent / 100),
-    );
+    rootStyle.setProperty("--stack-scale", String(overlaySettings.stackScalePercent / 100));
   }
-
   const maxDocked = Number(d.banWidgetMaxDocked);
   if (Number.isFinite(maxDocked)) {
     overlaySettings.maxDocked = Math.max(1, Math.min(25, Math.round(maxDocked)));
     CFG.maxDocked = overlaySettings.maxDocked;
     trimDockedToLimit();
   }
-
   const edgeOffset = Number(d.banWidgetEdgeOffset);
   if (Number.isFinite(edgeOffset)) {
     overlaySettings.edgeOffset = Math.max(0, Math.min(200, edgeOffset));
     rootStyle.setProperty("--edge", overlaySettings.edgeOffset + "px");
   }
-
   const stackGap = Number(d.banWidgetStackGap);
   if (Number.isFinite(stackGap)) {
     overlaySettings.stackGap = Math.max(0, Math.min(100, stackGap));
     rootStyle.setProperty("--stack-gap", overlaySettings.stackGap + "px");
   }
-
   updateStackSize();
 }
 rootStyle.setProperty("--stack-scale", String(overlaySettings.stackScalePercent / 100));
@@ -87,8 +74,7 @@ function tone(f, d, t = "square", g = 0.04, delay = 0) {
   if (!CFG.sounds) return;
   unlock();
   if (!audio) return;
-  const o = audio.createOscillator(),
-    a = audio.createGain();
+  const o = audio.createOscillator(), a = audio.createGain();
   o.type = t;
   o.frequency.value = f;
   a.gain.setValueAtTime(g, audio.currentTime + delay);
@@ -104,8 +90,7 @@ function clang() {
   barSound.currentTime = 0;
   barSound.volume = 0.85;
   return new Promise((resolve) => {
-    let done = false,
-      timeoutId = null;
+    let done = false, timeoutId = null;
     const finish = () => {
       if (done) return;
       done = true;
@@ -122,19 +107,12 @@ function clang() {
     barSound.addEventListener("ended", finish, { once: true });
     barSound.addEventListener("error", finish, { once: true });
     barSound.addEventListener("loadedmetadata", setFallback, { once: true });
-    if (Number.isFinite(barSound.duration) && barSound.duration > 0)
-      setFallback();
+    if (Number.isFinite(barSound.duration) && barSound.duration > 0) setFallback();
     const p = barSound.play();
-    if (p)
-      p.catch(() => {
-        say("CLICK TO ENABLE SOUND");
-        finish();
-      });
+    if (p) p.catch(() => { say("CLICK TO ENABLE SOUND"); finish(); });
   });
 }
-function releaseSound() {
-  tone(520, 0.08, "triangle", 0.03);
-}
+function releaseSound() { tone(520, 0.08, "triangle", 0.03); }
 function siren() {
   tone(650, 0.18, "sawtooth", 0.025);
   tone(900, 0.18, "sawtooth", 0.025, 0.19);
@@ -143,28 +121,12 @@ function siren() {
 }
 function fmt(s) {
   s = Math.max(0, Math.ceil(s));
-  return (
-    String(Math.floor(s / 60)).padStart(2, "0") +
-    ":" +
-    String(s % 60).padStart(2, "0")
-  );
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
 }
-function key(d) {
-  return (
-    d.id ||
-    d.userId ||
-    d.username ||
-    d.userName ||
-    d.displayName ||
-    crypto.randomUUID()
-  );
-}
-function setName(e, text) {
-  e.querySelector(".nameplate span").textContent = text || "UNKNOWN USER";
-}
+function key(d) { return d.id || d.userId || d.username || d.userName || d.displayName || crypto.randomUUID(); }
+function setName(e, text) { e.querySelector(".nameplate span").textContent = text || "UNKNOWN USER"; }
 function setReason(e, text) {
-  const box = e.querySelector(".reason"),
-    span = box.querySelector("span");
+  const box = e.querySelector(".reason"), span = box.querySelector("span");
   span.textContent = text || "TIMEOUT";
   requestAnimationFrame(() => {
     box.classList.remove("scrolling");
@@ -178,56 +140,28 @@ function setReason(e, text) {
 }
 function scheduleAngryAvatar(e) {
   const avatar = e.querySelector(".avatar");
-  let startTimer = null;
-  let endTimer = null;
-  let stopped = false;
-
+  let startTimer = null, endTimer = null, stopped = false;
   function scheduleNext() {
     if (stopped || !e.isConnected || e.classList.contains("releasing")) return;
     const delay = 10000 + Math.random() * 10000;
     startTimer = setTimeout(() => {
       if (stopped || !e.isConnected || e.classList.contains("releasing")) return;
       avatar.classList.add("angry");
-      endTimer = setTimeout(() => {
-        avatar.classList.remove("angry");
-        scheduleNext();
-      }, 2000);
+      endTimer = setTimeout(() => { avatar.classList.remove("angry"); scheduleNext(); }, 2000);
     }, delay);
   }
-
   scheduleNext();
-
-  return () => {
-    stopped = true;
-    if (startTimer) clearTimeout(startTimer);
-    if (endTimer) clearTimeout(endTimer);
-    avatar.classList.remove("angry");
-  };
+  return () => { stopped = true; if (startTimer) clearTimeout(startTimer); if (endTimer) clearTimeout(endTimer); avatar.classList.remove("angry"); };
 }
 function createCell(d) {
   const e = document.createElement("div");
   e.className = "cell";
   e.dataset.platform = d.banWidgetPlatform || "unknown";
-  e.innerHTML =
-    '<img class="avatar" alt=""><div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div><img class="frame" src="assets/cell_frame_final.png" alt=""><div class="timer">00:00</div><div class="nameplate"><span></span></div><div class="reason"><span></span></div>';
+  e.innerHTML = '<img class="avatar" alt=""><div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div><img class="frame" src="assets/cell_frame_final.png" alt=""><div class="timer">00:00</div><div class="nameplate"><span></span></div><div class="reason"><span></span></div>';
   const a = e.querySelector(".avatar");
-  a.src =
-    d.banWidgetTargetAvatar ||
-    d.avatar ||
-    d.profileImageUrl ||
-    d.targetUserProfileImageUrl ||
-    d.userProfileImageUrl ||
-    "";
+  a.src = d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl || "";
   a.onerror = () => (a.style.opacity = ".12");
-  setName(
-    e,
-    d.displayName ||
-      d.userName ||
-      d.username ||
-      d.login ||
-      d.targetUser ||
-      "UNKNOWN USER",
-  );
+  setName(e, d.displayName || d.userName || d.username || d.login || d.targetUser || "UNKNOWN USER");
   setReason(e, d.reason || d.timeoutReason || d.message || "TIMEOUT");
   e.stopAngryAvatar = scheduleAngryAvatar(e);
   return e;
@@ -235,12 +169,10 @@ function createCell(d) {
 function trimDockedToLimit() {
   const maxDocked = Math.max(1, Math.min(25, Number(CFG.maxDocked) || 1));
   const cards = [...stage.querySelectorAll(".cell.docked")];
-
   while (cards.length > maxDocked) {
     const oldest = cards.shift();
     const ent = [...active.entries()].find(([, v]) => v.el === oldest);
-    if (ent) release(ent[0], true);
-    else oldest.remove();
+    if (ent) release(ent[0], true); else oldest.remove();
   }
 }
 function restack() {
@@ -251,58 +183,39 @@ function restack() {
 }
 function dockSameCell(e) {
   e.classList.remove("locking");
-
   trimDockedToLimit();
   const cards = [...stage.querySelectorAll(".cell.docked")];
   if (cards.length >= CFG.maxDocked) {
-    const oldest = cards[0],
-      ent = [...active.entries()].find(([, v]) => v.el === oldest);
-    if (ent) release(ent[0], true);
-    else oldest.remove();
+    const oldest = cards[0], ent = [...active.entries()].find(([, v]) => v.el === oldest);
+    if (ent) release(ent[0], true); else oldest.remove();
   }
-
   e.classList.add("locked", "docked");
   restack();
 }
 function processLockQueue() {
   if (lockBusy || !lockQueue.length) return;
-  const item = lockQueue.shift(),
-    current = active.get(item.k);
-  if (!current || current.item !== item) {
-    processLockQueue();
-    return;
-  }
+  const item = lockQueue.shift(), current = active.get(item.k);
+  if (!current || current.item !== item) { processLockQueue(); return; }
   lockBusy = true;
-  const duration = Math.max(1, Number(item.d.duration) || 1),
-    e = createCell(item.d);
+  const duration = Math.max(1, Number(item.d.duration) || 1), e = createCell(item.d);
   stage.appendChild(e);
-  active.set(item.k, {
-    el: e,
-    end: Date.now() + duration * 1000,
-    type: "timeout",
-  });
+  active.set(item.k, { el: e, end: Date.now() + duration * 1000, type: "timeout" });
   e.classList.add("locking");
   const tick = () => {
     const x = active.get(item.k);
     if (!x || x.el !== e) return;
     const left = (x.end - Date.now()) / 1000;
     e.querySelector(".timer").textContent = fmt(left);
-    if (left <= 0) {
-      release(item.k);
-      return;
-    }
+    if (left <= 0) { release(item.k); return; }
     requestAnimationFrame(tick);
   };
   tick();
-  new Promise((r) => setTimeout(r, 2250))
-    .then(() => clang())
-    .then(() => new Promise((r) => setTimeout(r, 250)))
-    .then(() => {
-      const x = active.get(item.k);
-      if (x?.el === e) dockSameCell(e);
-      lockBusy = false;
-      processLockQueue();
-    });
+  new Promise((r) => setTimeout(r, 2250)).then(() => clang()).then(() => new Promise((r) => setTimeout(r, 250))).then(() => {
+    const x = active.get(item.k);
+    if (x?.el === e) dockSameCell(e);
+    lockBusy = false;
+    processLockQueue();
+  });
 }
 function timeout(d) {
   unlock();
@@ -316,35 +229,17 @@ function timeout(d) {
 function release(k, immediate = false) {
   const x = active.get(k);
   if (!x) return;
-  if (x.item && !x.el) {
-    x.item.cancelled = true;
-    active.delete(k);
-    lockQueue = lockQueue.filter((i) => i !== x.item);
-    processLockQueue();
-    return;
-  }
+  if (x.item && !x.el) { x.item.cancelled = true; active.delete(k); lockQueue = lockQueue.filter((i) => i !== x.item); processLockQueue(); return; }
   if (!x.el) return;
   const e = x.el;
   if (e.stopAngryAvatar) e.stopAngryAvatar();
-
-  if (immediate) {
-    e.remove();
-    active.delete(k);
-    restack();
-    return;
-  }
-
+  if (immediate) { e.remove(); active.delete(k); restack(); return; }
   e.classList.add("releasing");
   releaseSound();
-  setTimeout(() => {
-    e.remove();
-    active.delete(k);
-    restack();
-  }, 2600);
+  setTimeout(() => { e.remove(); active.delete(k); restack(); }, 2600);
 }
 function setBanReason(trail, text) {
-  const box = trail.querySelector(".ban-reason"),
-    span = box.querySelector("span");
+  const box = trail.querySelector(".ban-reason"), span = box.querySelector("span");
   span.textContent = text || "BANNED";
   requestAnimationFrame(() => {
     box.classList.remove("scrolling");
@@ -363,36 +258,20 @@ function ban(d) {
   const scene = document.createElement("div");
   scene.dataset.platform = d.banWidgetPlatform || "unknown";
   scene.className = "ban-scene";
-  scene.innerHTML =
-    '<div class="ban-trail"><div class="skid one"></div><div class="skid two"></div><div class="ban-reason"><span></span></div></div><div class="truck"><div class="truck-window"><img class="truck-avatar" alt=""><div class="truck-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>';
+  scene.innerHTML = '<div class="ban-trail"><div class="skid one"></div><div class="skid two"></div><div class="ban-reason"><span></span></div></div><div class="truck"><div class="truck-window"><img class="truck-avatar" alt=""><div class="truck-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>';
   stage.appendChild(scene);
-  const truck = scene.querySelector(".truck"),
-    w = scene.querySelector(".truck-window"),
-    avatar = scene.querySelector(".truck-avatar"),
-    bars = [...scene.querySelectorAll(".truck-bars i")],
-    trail = scene.querySelector(".ban-trail");
-  avatar.src =
-    d.banWidgetTargetAvatar ||
-    d.avatar ||
-    d.profileImageUrl ||
-    d.targetUserProfileImageUrl ||
-    d.userProfileImageUrl ||
-    "";
+  const truck = scene.querySelector(".truck"), w = scene.querySelector(".truck-window"), avatar = scene.querySelector(".truck-avatar"), bars = [...scene.querySelectorAll(".truck-bars i")], trail = scene.querySelector(".ban-trail");
+  avatar.src = d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl || "";
   avatar.onerror = () => (avatar.style.opacity = ".12");
   active.set(k, { scene, type: "ban" });
-  setBanReason(
-    trail,
-    d.banWidgetReason || d.reason || d.banReason || d.message || "BANNED",
-  );
+  setBanReason(trail, d.banWidgetReason || d.reason || d.banReason || d.message || "BANNED");
   setTimeout(() => {
     if (active.get(k)?.scene !== scene) return;
+    clang();
     w.classList.add("visible");
     setTimeout(() => {
       if (active.get(k)?.scene !== scene) return;
-      bars.forEach((b) => {
-        b.style.transition = "transform 1.5s cubic-bezier(.25,.8,.25,1)";
-        b.style.transform = "scaleY(1)";
-      });
+      bars.forEach((b) => { b.style.transition = "transform 1.5s cubic-bezier(.25,.8,.25,1)"; b.style.transform = "scaleY(1)"; });
       clang().then(() => {
         if (active.get(k)?.scene !== scene) return;
         trail.classList.add("revealing");
@@ -401,10 +280,7 @@ function ban(d) {
         setTimeout(() => {
           trail.classList.remove("revealing");
           trail.classList.add("fading");
-          setTimeout(() => {
-            scene.remove();
-            active.delete(k);
-          }, 1200);
+          setTimeout(() => { scene.remove(); active.delete(k); }, 1200);
         }, 4300);
       });
     }, 100);
@@ -419,80 +295,29 @@ function normaliseCustomArgs(d) {
   return x;
 }
 function handle(d) {
-  if (typeof d === "string") {
-    try {
-      d = JSON.parse(d);
-    } catch {
-      return;
-    }
-  }
-  if (d?.data && typeof d.data === "string") {
-    try {
-      d.data = JSON.parse(d.data);
-    } catch {}
-  }
-  if (d?.payload && typeof d.payload === "string") {
-    try {
-      d.payload = JSON.parse(d.payload);
-    } catch {}
-  }
+  if (typeof d === "string") { try { d = JSON.parse(d); } catch { return; } }
+  if (d?.data && typeof d.data === "string") { try { d.data = JSON.parse(d.data); } catch {} }
+  if (d?.payload && typeof d.payload === "string") { try { d.payload = JSON.parse(d.payload); } catch {} }
   d = normaliseCustomArgs(d);
   if (!d || typeof d !== "object") return;
   applyOverlaySettings(d);
-  const name = String(
-    d.eventName || d.triggerCustomEventName || "",
-  ).toLowerCase();
+  const name = String(d.eventName || d.triggerCustomEventName || "").toLowerCase();
   if (name && name !== "banwidget") return;
   const act = String(d.actionName || d.name || "").toLowerCase();
-  const src = String(
-    d.__source || d.source || d.eventSource || "",
-  ).toLowerCase();
+  const src = String(d.__source || d.source || d.eventSource || "").toLowerCase();
   const timeoutEvent = src === "twitchusertimedout" || act.includes("timeout");
-  const banEvent =
-    src === "twitchuserbanned" ||
-    act === "duhbuh - ban - ban" ||
-    act.endsWith(" - ban - ban") ||
-    act.includes("ban - ban");
+  const banEvent = src === "twitchuserbanned" || act === "duhbuh - ban - ban" || act.endsWith(" - ban - ban") || act.includes("ban - ban");
   if (timeoutEvent) {
-    timeout({
-      ...d,
-      action: "timeout",
-      id: d.userId || d.id,
-      username: d.userName || d.username || d.login || d.targetUserName,
-      displayName:
-        d.displayName || d.userName || d.username || d.login || d.targetUser,
-      avatar:
-        d.avatar ||
-        d.profileImageUrl ||
-        d.targetUserProfileImageUrl ||
-        d.userProfileImageUrl,
-      reason: d.reason || d.timeoutReason || d.message,
-    });
+    timeout({ ...d, action: "timeout", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.timeoutReason || d.message });
     return;
   }
   if (banEvent) {
-    ban({
-      ...d,
-      action: "ban",
-      id: d.userId || d.id,
-      username: d.userName || d.username || d.login || d.targetUserName,
-      displayName:
-        d.displayName || d.userName || d.username || d.login || d.targetUser,
-      avatar:
-        d.banWidgetTargetAvatar ||
-        d.avatar ||
-        d.profileImageUrl ||
-        d.targetUserProfileImageUrl ||
-        d.userProfileImageUrl,
-      reason: d.reason || d.banReason || d.message,
-    });
+    ban({ ...d, action: "ban", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.banReason || d.message });
   }
 }
 function onCustomEvent(data) {
   const d = normaliseCustomArgs(data || {});
-  const name = String(
-    d.eventName || d.triggerCustomEventName || "",
-  ).toLowerCase();
+  const name = String(d.eventName || d.triggerCustomEventName || "").toLowerCase();
   if (name && name !== "banwidget") return;
   handle(d);
 }
@@ -500,51 +325,22 @@ function connect() {
   const ws = new WebSocket(`ws://${CFG.host}:${CFG.port}/`);
   ws.onopen = () => {
     say("BAN WIDGET V4 ONLINE");
-    ws.send(
-      JSON.stringify({
-        request: "Subscribe",
-        id: "ban-widget-v4",
-        events: { Custom: ["Event"] },
-      }),
-    );
+    ws.send(JSON.stringify({ request: "Subscribe", id: "ban-widget-v4", events: { Custom: ["Event"] } }));
   };
   ws.onmessage = (e) => {
     try {
-      const m = JSON.parse(e.data),
-        src = String(m.event?.source || "").toLowerCase(),
-        typ = String(m.event?.type || "").toLowerCase();
+      const m = JSON.parse(e.data), src = String(m.event?.source || "").toLowerCase(), typ = String(m.event?.type || "").toLowerCase();
       if (src === "custom" && typ === "event") onCustomEvent(m.data);
-    } catch (err) {
-      console.warn("Ban widget websocket message error", err);
-    }
+    } catch (err) { console.warn("Ban widget websocket message error", err); }
   };
   ws.onclose = () => setTimeout(connect, CFG.reconnectMs);
   ws.onerror = () => ws.close();
 }
-function demoTimeout(
-  name = "DEMO_VIEWER",
-  duration = 59,
-  reason = "BACKSEAT GAMING",
-) {
-  timeout({
-    action: "timeout",
-    id: crypto.randomUUID(),
-    userName: name,
-    displayName: name,
-    avatar: "",
-    duration,
-    reason,
-  });
+function demoTimeout(name = "DEMO_VIEWER", duration = 59, reason = "BACKSEAT GAMING") {
+  timeout({ action: "timeout", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", duration, reason });
 }
 function demoBan(name = "DEMO_VIEWER", reason = "REPEATED OFFENSE") {
-  ban({
-    action: "ban",
-    id: crypto.randomUUID(),
-    userName: name,
-    displayName: name,
-    avatar: "",
-    reason,
-  });
+  ban({ action: "ban", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", reason });
 }
 window.demoTimeout = demoTimeout;
 window.demoBan = demoBan;
