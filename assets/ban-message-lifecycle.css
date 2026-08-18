@@ -82,6 +82,18 @@
   animation: banMessageFade 1.2s ease forwards;
 }
 
+/* Alternate style: anchor the message to the left while the truck arrives.
+   The calibrated skid reveal is started at the same moment as the truck's
+   calibrated arrival animation, so the marks sweep across the screen. */
+.ban-scene.arrival-message-style .ban-message-layer {
+  left: 28px;
+  width: calc(100vw - 56px);
+}
+
+.ban-scene.arrival-message-style .ban-message-layer.revealing .ban-message-viewport {
+  animation-duration: 4.3s;
+}
+
 @keyframes banMessageLabelIn {
   from { opacity: 0; }
   to { opacity: 1; }
