@@ -13,6 +13,14 @@ public class CPHInline
 
     public bool Execute()
     {
+        return PrepareBanWidgetTimeout();
+    }
+
+    // Shared entry point for Execute C# Method.
+    // Other platform-specific moderation actions can call this method after
+    // placing their platform event arguments on Streamer.bot's argument stack.
+    public bool PrepareBanWidgetTimeout()
+    {
         int stackScalePercent = CPH.GetGlobalVar<int?>(StackScalePercentKey, true) ?? 33;
         int maxDocked = CPH.GetGlobalVar<int?>(MaxDockedKey, true) ?? 4;
         bool alwaysShowStack = CPH.GetGlobalVar<bool?>(AlwaysShowStackKey, true) ?? true;
@@ -37,9 +45,6 @@ public class CPHInline
         CPH.SetArgument("banWidgetEdgeOffset", edgeOffset);
         CPH.SetArgument("banWidgetStackGap", stackGap);
 
-        // Preserve the original Streamer.bot event source/type so the
-        // BanWidget event is platform-aware without requiring the overlay
-        // to inspect native Twitch/YouTube/Kick events itself.
         var eventSource = CPH.GetSource();
         var eventType = CPH.GetEventType();
         string sourceName = eventSource.ToString();
@@ -50,6 +55,49 @@ public class CPHInline
         CPH.SetArgument("banWidgetSource", sourceName);
         CPH.SetArgument("banWidgetEventType", eventTypeName);
         CPH.SetArgument("banWidgetAction", "timeout");
+
+        // Normalize the target identity. Twitch Add Target Info currently
+        // supplies these values for the existing Twitch action. We copy them
+        // into platform-neutral BanWidget names so the overlay no longer needs
+        // to know Twitch's targetUser* argument names.
+        string targetId = FirstArg(
+            "banWidgetTargetId",
+            "targetUserId",
+            "userId",
+            "timeoutTargetUserId",
+            "timedOutUserId"
+        );
+        string targetUsername = FirstArg(
+            "banWidgetTargetUsername",
+            "targetUserName",
+            "userName",
+            "username",
+            "login",
+            "timeoutTargetUserName",
+            "timedOutUserName"
+        );
+        string targetDisplayName = FirstArg(
+            "banWidgetTargetName",
+            "targetUser",
+            "displayName",
+            "userName",
+            "username",
+            "login",
+            "timeoutTargetUserDisplayName",
+            "timedOutUser"
+        );
+        string targetAvatar = FirstArg(
+            "banWidgetTargetAvatar",
+            "targetUserProfileImageUrl",
+            "profileImageUrl",
+            "avatar",
+            "userProfileImageUrl"
+        );
+
+        CPH.SetArgument("banWidgetTargetId", targetId ?? "");
+        CPH.SetArgument("banWidgetTargetUsername", targetUsername ?? "");
+        CPH.SetArgument("banWidgetTargetName", targetDisplayName ?? "");
+        CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
 
         // Twitch User Timed Out supplies the moderator/creator as
         // createdByUsername, createdByDisplayName and createdById.
@@ -84,8 +132,8 @@ public class CPHInline
             "senderAvatar"
         );
 
-        // The Twitch timeout trigger always provides createdById. Prefer the
-        // ID lookup because it is unambiguous and returns ProfileImageUrl.
+        // The Twitch timeout trigger provides createdById. Prefer the ID
+        // lookup because it is unambiguous and returns ProfileImageUrl.
         if (string.IsNullOrWhiteSpace(initiatorAvatar))
         {
             try
@@ -136,6 +184,14 @@ public class CPHInline
         CPH.SetArgument("timeoutInitiatorUsername", initiatorUsername ?? "");
         CPH.SetArgument("timeoutInitiatorId", initiatorId ?? "");
         CPH.SetArgument("timeoutInitiatorAvatar", initiatorAvatar ?? "");
+
+        CPH.SetArgument("banWidgetInitiatorName", initiatorName ?? "");
+        CPH.SetArgument("banWidgetInitiatorUsername", initiatorUsername ?? "");
+        CPH.SetArgument("banWidgetInitiatorId", initiatorId ?? "");
+        CPH.SetArgument("banWidgetInitiatorAvatar", initiatorAvatar ?? "");
+
+        CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration") ?? "");
+        CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "message") ?? "");
 
         CPH.TriggerEvent("BanWidget", true);
         return true;
