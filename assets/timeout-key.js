@@ -15,10 +15,19 @@
 
   function remember(data) {
     const d = flatten(data);
-    const name = String(
-      d.timeoutTargetUserName || d.timedOutUserName || d.userName || d.username || d.targetUserName || d.targetUser || "",
+    const target = d.targetUser && typeof d.targetUser === "object" ? d.targetUser : {};
+    const login = String(
+      d.timeoutTargetUserName || d.timedOutUserName || d.userName || d.username ||
+      d.targetUserName || target.login || "",
     ).toLowerCase();
-    const id = String(d.timeoutTargetUserId || d.timedOutUserId || d.userId || d.userId || d.targetUserId || "");
+    const display = String(
+      d.timeoutTargetUserDisplayName || d.timedOutUser || d.displayName ||
+      target.name || "",
+    ).toLowerCase();
+    const id = String(
+      d.timeoutTargetUserId || d.timedOutUserId || d.userId || d.targetUserId || target.id || "",
+    );
+
     const initiatorName =
       d.timeoutInitiatorName || d.createdByDisplayName || d.moderatorDisplayName || d.moderatorName || "";
     const initiatorAvatar =
@@ -38,7 +47,8 @@
     };
 
     if (id) initiators.set(`id:${id}`, info);
-    if (name) initiators.set(`name:${name}`, info);
+    if (login) initiators.set(`name:${login}`, info);
+    if (display) initiators.set(`name:${display}`, info);
   }
 
   function findInitiator(cell) {
