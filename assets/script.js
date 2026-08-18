@@ -250,8 +250,6 @@ function restack() {
 function dockSameCell(e) {
   e.classList.remove("locking");
 
-  // Enforce Max Docked before adding the new card. Capacity eviction is
-  // immediate so the stack never visibly exceeds the configured limit.
   trimDockedToLimit();
   const cards = [...stage.querySelectorAll(".cell.docked")];
   if (cards.length >= CFG.maxDocked) {
@@ -294,7 +292,7 @@ function processLockQueue() {
     requestAnimationFrame(tick);
   };
   tick();
-  Promise.all([new Promise((r) => setTimeout(r, 1500)), clang()]).then(() => {
+  Promise.all([new Promise((r) => setTimeout(r, 2500)), clang()]).then(() => {
     const x = active.get(item.k);
     if (x?.el === e) dockSameCell(e);
     lockBusy = false;
@@ -519,23 +517,21 @@ function demoTimeout(
 ) {
   timeout({
     action: "timeout",
-    id: name,
-    username: name,
+    id: crypto.randomUUID(),
+    userName: name,
     displayName: name,
-    avatar:
-      "https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png",
+    avatar: "",
     duration,
     reason,
   });
 }
-function demoBan(name = "DEMO_VIEWER", reason = "RULE BREAKING") {
+function demoBan(name = "DEMO_VIEWER", reason = "REPEATED OFFENSE") {
   ban({
     action: "ban",
-    id: name,
-    username: name,
+    id: crypto.randomUUID(),
+    userName: name,
     displayName: name,
-    avatar:
-      "https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png",
+    avatar: "",
     reason,
   });
 }
