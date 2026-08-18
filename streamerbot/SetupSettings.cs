@@ -12,6 +12,7 @@ public class CPHInline
     private const string ShowKeyAnimationKey = "duhbuh.banwidget.showKeyAnimation";
     private const string EdgeOffsetKey = "duhbuh.banwidget.edgeOffset";
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
+    private const string BanMessageArrivalStyleKey = "duhbuh.banwidget.banMessageArrivalStyle";
 
     public bool Execute()
     {
@@ -103,6 +104,14 @@ public class CPHInline
             "Animations",
             ShowKeyAnimationKey,
             true
+        );
+
+        ui.AddToggleSwitch(
+            "Ban Message Arrival Style",
+            "When enabled, BANNED: appears on the left as the truck drives in and the message/skids animate across the screen. When disabled, use the current departure style.",
+            "Animations",
+            BanMessageArrivalStyleKey,
+            false
         );
 
         ui.ShowUI();
