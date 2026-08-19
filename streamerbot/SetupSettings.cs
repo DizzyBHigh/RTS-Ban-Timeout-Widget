@@ -15,10 +15,10 @@ public class CPHInline
     private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
     private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
     private const string BanVanSizeKey = "duhbuh.banwidget.banVanSize";
-    private const string BanVanVerticalOffsetKey = "duhbuh.banwidget.banVanVerticalOffset";
+    private const string BanVanVerticalPositionKey = "duhbuh.banwidget.banVanVerticalPosition";
     private const string BanMessageVisibilityKey = "duhbuh.banwidget.banMessageVisibility";
     private const string BanMessageSizeKey = "duhbuh.banwidget.banMessageSize";
-    private const string BanMessageVerticalOffsetKey = "duhbuh.banwidget.banMessageVerticalOffset";
+    private const string BanMessageVerticalPositionKey = "duhbuh.banwidget.banMessageVerticalPosition";
 
     public bool Execute()
     {
@@ -34,13 +34,12 @@ public class CPHInline
         );
 
         ui.AddTitle("Ban Settings", "Ban Widget");
-
         ui.AddRadioGroup("Ban Animation Type", "Departure - Ban message appears once the jail truck has stopped and starts driving away. Arrival - Ban message appears when the jail truck enters the screen.", "Ban Widget", BanMessageAnimationTypeKey, new[] { "Departure", "Arrival" }, "Departure");
         ui.AddRadioGroup("Ban Van Size", "Controls the size of the ban van animation. Large preserves the current calibrated animation size.", "Ban Widget", BanVanSizeKey, new[] { "Large", "Medium", "Small", "Extra Small" }, "Large");
-        ui.AddSlider("Ban Van Vertical Position", "Moves the ban van and skid marks up or down from their calibrated position.", "Ban Widget", BanVanVerticalOffsetKey, -200, 200, 0);
+        ui.AddSlider("Ban Van Vertical Position", "Positions the ban van and skid marks vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanVanVerticalPositionKey, 0, 100, 50);
         ui.AddRadioGroup("Ban Message Visibility", "Show or hide the BANNED message and scrolling reason without affecting the van or skid animation.", "Ban Widget", BanMessageVisibilityKey, new[] { "Visible", "Hidden" }, "Visible");
         ui.AddRadioGroup("Ban Message Size", "Controls the size of BANNED and the scrolling reason independently of the van size.", "Ban Widget", BanMessageSizeKey, new[] { "Large", "Medium", "Small", "Extra Small" }, "Large");
-        ui.AddSlider("Ban Message Vertical Position", "Moves the ban message up or down from its calibrated position.", "Ban Widget", BanMessageVerticalOffsetKey, -200, 200, 0);
+        ui.AddSlider("Ban Message Vertical Position", "Positions the ban message vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanMessageVerticalPositionKey, 0, 100, 50);
         ui.AddRadioGroup("Ban Message Scroll Speed", "Speed the Ban message scrolls.", "Ban Widget", BanMessageScrollSpeedKey, new[] { "Slow", "Medium", "Fast" }, "Medium");
 
         ui.AddTitle("Timeout Settings", "Timeout Widget");
