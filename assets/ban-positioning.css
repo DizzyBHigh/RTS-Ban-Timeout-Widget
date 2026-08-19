@@ -1,7 +1,7 @@
-/* Calibrated against the Ban Truck calibration page. */
+/* Calibrated Ban Truck geometry. Vertical position is supplied in viewport pixels by ban-van-size.js. */
 .ban-scene .truck {
   left: 520px;
-  top: calc(220px + var(--ban-van-y-offset, 0px));
+  top: var(--ban-van-top, 220px);
   bottom: auto;
   width: 590px;
   height: auto;
@@ -22,7 +22,7 @@ html[data-ban-van-size="Extra Small"] .ban-scene .truck { --ban-van-scale: 0.60;
 .ban-scene .ban-trail {
   left: 520px;
   right: auto;
-  top: calc(499px + var(--ban-van-y-offset, 0px));
+  top: var(--ban-van-top, 499px);
   bottom: auto;
   width: calc(100vw + 1400px);
   height: 92px;
