@@ -14,6 +14,7 @@ public class CPHInline
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
     private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
     private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
+    private const string BanVanSizeKey = "duhbuh.banwidget.banVanSize";
 
     public bool Execute()
     {
@@ -47,6 +48,15 @@ public class CPHInline
             BanMessageScrollSpeedKey,
             new[] { "Slow", "Medium", "Fast" },
             "Medium"
+        );
+
+        ui.AddRadioGroup(
+            "Ban Van Size",
+            "Controls the size of the ban van animation. Large preserves the current calibrated animation size.",
+            "Ban Widget",
+            BanVanSizeKey,
+            new[] { "Large", "Medium", "Small", "Extra Small" },
+            "Large"
         );
 
         // Timeout Widget tab
