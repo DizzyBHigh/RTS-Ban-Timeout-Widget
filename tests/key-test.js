@@ -4,6 +4,17 @@
   const stage = document.getElementById("stage");
   if (!stage) return;
 
+  const DEFAULT_X = -90;
+  const DEFAULT_Y = 96;
+  const root = document.documentElement;
+  const xInput = document.getElementById("key-test-x");
+  const yInput = document.getElementById("key-test-y");
+  const xValue = document.getElementById("key-test-x-value");
+  const yValue = document.getElementById("key-test-y-value");
+  const output = document.getElementById("key-test-output");
+  const resetButton = document.getElementById("key-test-reset");
+  const copyButton = document.getElementById("key-test-copy");
+
   const cell = typeof createCell === "function"
     ? createCell({ displayName: "KEY TEST", reason: "KEY TEST", duration: 9999 })
     : document.createElement("div");
@@ -24,8 +35,35 @@
     '<div class="timeout-key-tooth"></div>';
   cell.appendChild(key);
 
-  key.style.setProperty("left", "var(--key-test-x, -90px)");
-  key.style.setProperty("top", "var(--key-test-y, 96px)");
-  key.style.setProperty("opacity", "1");
-  key.style.setProperty("transform", "none");
+  const apply = () => {
+    const x = Number(xInput?.value ?? DEFAULT_X);
+    const y = Number(yInput?.value ?? DEFAULT_Y);
+    root.style.setProperty("--key-test-x", `${x}px`);
+    root.style.setProperty("--key-test-y", `${y}px`);
+    if (xValue) xValue.textContent = `${x}px`;
+    if (yValue) yValue.textContent = `${y}px`;
+    if (output) output.textContent = `--key-test-x: ${x}px;\n--key-test-y: ${y}px;`;
+  };
+
+  xInput?.addEventListener("input", apply);
+  yInput?.addEventListener("input", apply);
+
+  resetButton?.addEventListener("click", () => {
+    if (xInput) xInput.value = DEFAULT_X;
+    if (yInput) yInput.value = DEFAULT_Y;
+    apply();
+  });
+
+  copyButton?.addEventListener("click", async () => {
+    const text = output?.textContent || "";
+    try {
+      await navigator.clipboard.writeText(text);
+      copyButton.textContent = "Copied!";
+      setTimeout(() => { copyButton.textContent = "Copy Values"; }, 1200);
+    } catch {
+      window.prompt("Copy these values:", text);
+    }
+  });
+
+  apply();
 })();
