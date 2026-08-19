@@ -1,7 +1,4 @@
 (() => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("keytest") !== "true") return;
-
   document.documentElement.classList.add("key-test-mode");
 
   const stage = document.getElementById("stage");
