@@ -18,30 +18,38 @@
     updateVerticalPositions();
   }
 
-  function setViewportPosition(variable, percent, elementHeight, scale, originBottom) {
-    const p = Number.isFinite(percent) ? Math.max(0, Math.min(100, percent)) : 50;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    const scaledHeight = elementHeight * scale;
-    let top = (viewportHeight - scaledHeight) * (p / 100);
-    if (originBottom) top -= elementHeight * (1 - scale);
-    root.style.setProperty(variable, `${Math.round(top)}px`);
+  function clampPercent(value) {
+    return Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
   }
 
   function updateVerticalPositions() {
-    const vanPosition = Number(root.dataset.banVanPosition ?? 50);
-    const messagePosition = Number(root.dataset.banMessagePosition ?? 50);
+    const vanPosition = clampPercent(Number(root.dataset.banVanPosition ?? 50));
+    const messagePosition = clampPercent(Number(root.dataset.banMessagePosition ?? 50));
     const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
     const messageScale = Number(root.style.getPropertyValue("--ban-message-scale")) || 1;
-    setViewportPosition("--ban-van-top", vanPosition, 320, vanScale, true);
-    setViewportPosition("--ban-message-top", messagePosition, 32, messageScale, false);
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+
+    // Position the van's full animation box from top (0) to bottom (100).
+    const vanHeight = 320 * vanScale;
+    const vanTop = (viewportHeight - vanHeight) * (vanPosition / 100);
+
+    // The calibrated skid line sits 279px below the unscaled van box top.
+    const trailTop = vanTop + (279 * vanScale);
+
+    // Position the message's own 32px lane from top (0) to bottom (100).
+    const messageHeight = 32 * messageScale;
+    const messageTop = (viewportHeight - messageHeight) * (messagePosition / 100);
+
+    root.style.setProperty("--ban-van-top", `${Math.round(vanTop)}px`);
+    root.style.setProperty("--ban-trail-top", `${Math.round(trailTop)}px`);
+    root.style.setProperty("--ban-message-top", `${Math.round(messageTop)}px`);
   }
 
   function applySettings(d) {
     if (!d || typeof d !== "object") return;
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVanSize")) applyVanSize(String(d.banWidgetBanVanSize));
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVanVerticalPosition")) {
-      const value = Number(d.banWidgetBanVanVerticalPosition);
-      root.dataset.banVanPosition = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
+      root.dataset.banVanPosition = clampPercent(Number(d.banWidgetBanVanVerticalPosition));
       updateVerticalPositions();
     }
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanMessageVisibility")) {
@@ -49,8 +57,7 @@
     }
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanMessageSize")) applyMessageSize(String(d.banWidgetBanMessageSize));
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanMessageVerticalPosition")) {
-      const value = Number(d.banWidgetBanMessageVerticalPosition);
-      root.dataset.banMessagePosition = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
+      root.dataset.banMessagePosition = clampPercent(Number(d.banWidgetBanMessageVerticalPosition));
       updateVerticalPositions();
     }
   }
@@ -64,8 +71,6 @@
   root.dataset.banVanPosition = "50";
   root.dataset.banMessagePosition = "50";
   root.dataset.banMessageVisibility = "Visible";
-  root.style.setProperty("--ban-van-top", "0px");
-  root.style.setProperty("--ban-message-top", "0px");
   updateVerticalPositions();
   window.addEventListener("resize", updateVerticalPositions);
 })();
