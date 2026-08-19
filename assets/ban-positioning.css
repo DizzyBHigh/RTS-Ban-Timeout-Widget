@@ -8,6 +8,7 @@
   aspect-ratio: 590 / 320;
   transform-origin: left bottom;
   animation-name: banTruckCalibratedIn;
+  z-index: 60;
 }
 
 /*
