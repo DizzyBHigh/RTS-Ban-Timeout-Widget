@@ -13,6 +13,7 @@ public class CPHInline
     private const string BanMessageArrivalStyleKey = "duhbuh.banwidget.banMessageArrivalStyle";
     private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
     private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
+    private const string BanVanSizeKey = "duhbuh.banwidget.banVanSize";
 
     public bool PrepareTimeout() => PrepareBanWidget("timeout");
     public bool PrepareBan() => PrepareBanWidget("ban");
@@ -29,9 +30,11 @@ public class CPHInline
         int stackGap = CPH.GetGlobalVar<int?>(StackGapKey, true) ?? 18;
         string banMessageAnimationType = CPH.GetGlobalVar<string>(BanMessageAnimationTypeKey, true) ?? "Departure";
         string banMessageScrollSpeed = CPH.GetGlobalVar<string>(BanMessageScrollSpeedKey, true) ?? "Medium";
+        string banVanSize = CPH.GetGlobalVar<string>(BanVanSizeKey, true) ?? "Large";
 
         if (!string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase)) banMessageAnimationType = "Departure";
         if (!string.Equals(banMessageScrollSpeed, "Slow", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageScrollSpeed, "Fast", StringComparison.OrdinalIgnoreCase)) banMessageScrollSpeed = "Medium";
+        if (!string.Equals(banVanSize, "Medium", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Small", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Extra Small", StringComparison.OrdinalIgnoreCase)) banVanSize = "Large";
 
         stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
         maxDocked = Math.Max(1, Math.Min(25, maxDocked));
@@ -50,6 +53,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetBanMessageArrivalStyle", string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase));
         CPH.SetArgument("banWidgetBanMessageAnimationType", banMessageAnimationType);
         CPH.SetArgument("banWidgetBanMessageScrollSpeed", banMessageScrollSpeed);
+        CPH.SetArgument("banWidgetBanVanSize", banVanSize);
 
         string sourceName = CPH.GetSource().ToString();
         string eventTypeName = CPH.GetEventType().ToString();
