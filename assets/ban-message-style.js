@@ -3,17 +3,32 @@
   if (!stage) return;
 
   let arrivalStyle = false;
+  const root = document.documentElement;
+  const vanScales = {
+    "Large": "1",
+    "Medium": "0.85",
+    "Small": "0.70",
+    "Extra Small": "0.60",
+  };
+
+  root.style.setProperty("--ban-van-scale", "1");
 
   // script.js exposes applyOverlaySettings as a global function. Wrap it so
-  // the persisted Streamer.bot setting is available to this visual layer
+  // the persisted Streamer.bot settings are available to this visual layer
   // without duplicating the websocket connection.
   const originalApplySettings = window.applyOverlaySettings;
   if (typeof originalApplySettings === "function") {
     window.applyOverlaySettings = (d) => {
       originalApplySettings(d);
-      if (d && typeof d === "object" && Object.prototype.hasOwnProperty.call(d, "banWidgetBanMessageArrivalStyle")) {
+      if (!d || typeof d !== "object") return;
+
+      if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanMessageArrivalStyle")) {
         const value = d.banWidgetBanMessageArrivalStyle;
         arrivalStyle = value === true || String(value).toLowerCase() === "true";
+      }
+
+      if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVanSize")) {
+        root.style.setProperty("--ban-van-scale", vanScales[d.banWidgetBanVanSize] || "1");
       }
     };
   }
