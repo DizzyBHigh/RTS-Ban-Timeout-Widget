@@ -14,6 +14,10 @@ public class CPHInline
     private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
     private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
     private const string BanVanSizeKey = "duhbuh.banwidget.banVanSize";
+    private const string BanVanVerticalOffsetKey = "duhbuh.banwidget.banVanVerticalOffset";
+    private const string BanMessageVisibilityKey = "duhbuh.banwidget.banMessageVisibility";
+    private const string BanMessageSizeKey = "duhbuh.banwidget.banMessageSize";
+    private const string BanMessageVerticalOffsetKey = "duhbuh.banwidget.banMessageVerticalOffset";
 
     public bool PrepareTimeout() => PrepareBanWidget("timeout");
     public bool PrepareBan() => PrepareBanWidget("ban");
@@ -31,16 +35,24 @@ public class CPHInline
         string banMessageAnimationType = CPH.GetGlobalVar<string>(BanMessageAnimationTypeKey, true) ?? "Departure";
         string banMessageScrollSpeed = CPH.GetGlobalVar<string>(BanMessageScrollSpeedKey, true) ?? "Medium";
         string banVanSize = CPH.GetGlobalVar<string>(BanVanSizeKey, true) ?? "Large";
+        int banVanVerticalOffset = CPH.GetGlobalVar<int?>(BanVanVerticalOffsetKey, true) ?? 0;
+        string banMessageVisibility = CPH.GetGlobalVar<string>(BanMessageVisibilityKey, true) ?? "Visible";
+        string banMessageSize = CPH.GetGlobalVar<string>(BanMessageSizeKey, true) ?? "Large";
+        int banMessageVerticalOffset = CPH.GetGlobalVar<int?>(BanMessageVerticalOffsetKey, true) ?? 0;
 
         if (!string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase)) banMessageAnimationType = "Departure";
         if (!string.Equals(banMessageScrollSpeed, "Slow", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageScrollSpeed, "Fast", StringComparison.OrdinalIgnoreCase)) banMessageScrollSpeed = "Medium";
         if (!string.Equals(banVanSize, "Medium", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Small", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Extra Small", StringComparison.OrdinalIgnoreCase)) banVanSize = "Large";
+        if (!string.Equals(banMessageVisibility, "Hidden", StringComparison.OrdinalIgnoreCase)) banMessageVisibility = "Visible";
+        if (!string.Equals(banMessageSize, "Medium", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageSize, "Small", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageSize, "Extra Small", StringComparison.OrdinalIgnoreCase)) banMessageSize = "Large";
 
         stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
         maxDocked = Math.Max(1, Math.Min(25, maxDocked));
         stackVisibilityDuration = Math.Max(1, Math.Min(60, stackVisibilityDuration));
         edgeOffset = Math.Max(0, Math.Min(200, edgeOffset));
         stackGap = Math.Max(0, Math.Min(100, stackGap));
+        banVanVerticalOffset = Math.Max(-200, Math.Min(200, banVanVerticalOffset));
+        banMessageVerticalOffset = Math.Max(-200, Math.Min(200, banMessageVerticalOffset));
 
         CPH.SetArgument("banWidgetStackScalePercent", stackScalePercent);
         CPH.SetArgument("banWidgetMaxDocked", maxDocked);
@@ -54,6 +66,10 @@ public class CPHInline
         CPH.SetArgument("banWidgetBanMessageAnimationType", banMessageAnimationType);
         CPH.SetArgument("banWidgetBanMessageScrollSpeed", banMessageScrollSpeed);
         CPH.SetArgument("banWidgetBanVanSize", banVanSize);
+        CPH.SetArgument("banWidgetBanVanVerticalOffset", banVanVerticalOffset);
+        CPH.SetArgument("banWidgetBanMessageVisibility", banMessageVisibility);
+        CPH.SetArgument("banWidgetBanMessageSize", banMessageSize);
+        CPH.SetArgument("banWidgetBanMessageVerticalOffset", banMessageVerticalOffset);
 
         string sourceName = CPH.GetSource().ToString();
         string eventTypeName = CPH.GetEventType().ToString();
