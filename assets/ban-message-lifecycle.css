@@ -79,6 +79,13 @@
   animation: banMessageFade 1.2s ease forwards;
 }
 
+/* Extra Small leaves less vertical clearance between the scaled van and the
+   message lane. Keep the message behind the van so the graphic remains the
+   visual foreground instead of letting the scrolling text draw over it. */
+html[data-ban-van-size="Extra Small"] .ban-scene .ban-message-layer {
+  z-index: 59;
+}
+
 /* Alternate style: BANNED: is fixed on the left from the beginning. */
 .ban-scene.arrival-message-style .ban-message-layer {
   left: 28px;
