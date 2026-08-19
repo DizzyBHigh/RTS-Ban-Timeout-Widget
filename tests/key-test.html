@@ -14,6 +14,26 @@
   <link rel="stylesheet" href="key-test.css" />
 </head>
 <body>
+  <div id="key-test-controls" class="key-test-controls">
+    <h1>Key Positioning Test</h1>
+    <label>
+      X Position
+      <input id="key-test-x" type="range" min="-500" max="500" value="-90" step="1">
+      <output id="key-test-x-value">-90px</output>
+    </label>
+    <label>
+      Y Position
+      <input id="key-test-y" type="range" min="-300" max="300" value="96" step="1">
+      <output id="key-test-y-value">96px</output>
+    </label>
+    <div class="key-test-actions">
+      <button id="key-test-reset" type="button">Reset</button>
+      <button id="key-test-copy" type="button">Copy Values</button>
+    </div>
+    <pre id="key-test-output">--key-test-x: -90px;
+--key-test-y: 96px;</pre>
+  </div>
+
   <div id="stage"></div>
   <div id="status"></div>
   <script src="../assets/stack-visibility.js"></script>
