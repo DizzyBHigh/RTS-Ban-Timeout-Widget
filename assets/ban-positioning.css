@@ -22,7 +22,7 @@ html[data-ban-van-size="Extra Small"] .ban-scene .truck { --ban-van-scale: 0.60;
 .ban-scene .ban-trail {
   left: 520px;
   right: auto;
-  top: var(--ban-van-top, 499px);
+  top: var(--ban-trail-top, 499px);
   bottom: auto;
   width: calc(100vw + 1400px);
   height: 92px;
