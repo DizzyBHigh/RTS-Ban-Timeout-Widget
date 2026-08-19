@@ -11,6 +11,11 @@
   cell.classList.add("locked", "key-test-cell");
   stage.appendChild(cell);
 
+  // script.js builds asset URLs relative to the production root. This test page
+  // lives one directory deeper, so correct the frame URL for the test harness.
+  const frame = cell.querySelector(".frame");
+  if (frame) frame.src = "../assets/cell_frame_final.png";
+
   const key = document.createElement("div");
   key.className = "timeout-key key-test-key";
   key.innerHTML =
