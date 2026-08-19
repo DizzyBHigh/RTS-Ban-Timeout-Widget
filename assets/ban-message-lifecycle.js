@@ -12,13 +12,6 @@
   let pendingArrivalStyle = false;
   let pendingScrollSpeed = "Medium";
 
-  const originalAppendChild = stage.appendChild.bind(stage);
-  stage.appendChild = (node) => {
-    const result = originalAppendChild(node);
-    if (node instanceof HTMLElement && node.classList.contains("ban-scene")) prepareScene(node);
-    return result;
-  };
-
   function animationMs(element, fallback) {
     const value = getComputedStyle(element).animationDuration.split(",")[0].trim();
     const ms = value.endsWith("ms") ? parseFloat(value) : parseFloat(value) * 1000;
@@ -170,9 +163,6 @@
       revealStartedAt = performance.now();
       layer.classList.add("arrival-style", "revealing");
       syncReason();
-      // Start the skid reveal directly with the truck. Do not wait for
-      // animationstart: the truck CSS animation can begin before the
-      // listener is attached, which caused arrival marks to be skipped.
       startArrivalSkids();
       startScroll(true);
     };
@@ -232,6 +222,15 @@
     if (scene.classList.contains("arrival-message-style")) beginArrivalStyle();
     syncReason();
   }
+
+  const sceneObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node instanceof HTMLElement && node.classList.contains("ban-scene")) prepareScene(node);
+      });
+    });
+  });
+  sceneObserver.observe(stage, { childList: true });
 
   function connectStyleListener() {
     const ws = new WebSocket(WS_URL);

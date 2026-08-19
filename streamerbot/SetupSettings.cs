@@ -14,6 +14,11 @@ public class CPHInline
     private const string StackGapKey = "duhbuh.banwidget.stackGap";
     private const string BanMessageAnimationTypeKey = "duhbuh.banwidget.banMessageAnimationType";
     private const string BanMessageScrollSpeedKey = "duhbuh.banwidget.banMessageScrollSpeed";
+    private const string BanVanSizeKey = "duhbuh.banwidget.banVanSize";
+    private const string BanVanVerticalPositionKey = "duhbuh.banwidget.banVanVerticalPosition";
+    private const string BanMessageVisibilityKey = "duhbuh.banwidget.banMessageVisibility";
+    private const string BanMessageSizeKey = "duhbuh.banwidget.banMessageSize";
+    private const string BanMessageVerticalPositionKey = "duhbuh.banwidget.banMessageVerticalPosition";
 
     public bool Execute()
     {
@@ -28,34 +33,19 @@ public class CPHInline
             message => CPH.LogInfo(message)
         );
 
-        // Ban Widget tab
         ui.AddTitle("Ban Settings", "Ban Widget");
+        ui.AddRadioGroup("Ban Animation Type", "Departure - Ban message appears once the jail truck has stopped and starts driving away. Arrival - Ban message appears when the jail truck enters the screen.", "Ban Widget", BanMessageAnimationTypeKey, new[] { "Departure", "Arrival" }, "Departure");
+        ui.AddRadioGroup("Ban Van Size", "Controls the size of the ban van animation. Large preserves the current calibrated animation size.", "Ban Widget", BanVanSizeKey, new[] { "Large", "Medium", "Small", "Extra Small" }, "Large");
+        ui.AddSlider("Ban Van Vertical Position", "Positions the ban van and skid marks vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanVanVerticalPositionKey, 0, 100, 50);
+        ui.AddRadioGroup("Ban Message Visibility", "Show or hide the BANNED message and scrolling reason without affecting the van or skid animation.", "Ban Widget", BanMessageVisibilityKey, new[] { "Visible", "Hidden" }, "Visible");
+        ui.AddRadioGroup("Ban Message Size", "Controls the size of BANNED and the scrolling reason independently of the van size.", "Ban Widget", BanMessageSizeKey, new[] { "Large", "Medium", "Small", "Extra Small" }, "Large");
+        ui.AddSlider("Ban Message Vertical Position", "Positions the ban message vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanMessageVerticalPositionKey, 0, 100, 50);
+        ui.AddRadioGroup("Ban Message Scroll Speed", "Speed the Ban message scrolls.", "Ban Widget", BanMessageScrollSpeedKey, new[] { "Slow", "Medium", "Fast" }, "Medium");
 
-        ui.AddRadioGroup(
-            "Ban Animation Type",
-            "Departure - Ban message appears once the jail truck has stopped and starts driving away. Arrival - Ban message appears when the jail truck enters the screen.",
-            "Ban Widget",
-            BanMessageAnimationTypeKey,
-            new[] { "Departure", "Arrival" },
-            "Departure"
-        );
-
-        ui.AddRadioGroup(
-            "Ban Message Scroll Speed",
-            "Speed the Ban message scrolls.",
-            "Ban Widget",
-            BanMessageScrollSpeedKey,
-            new[] { "Slow", "Medium", "Fast" },
-            "Medium"
-        );
-
-        // Timeout Widget tab
         ui.AddTitle("Timeout Settings", "Timeout Widget");
-
         ui.AddToggleSwitch("Always Show Stack", "Keep the bottom-right stack permanently visible. When disabled, the stack can be shown temporarily.", "Timeout Widget", AlwaysShowStackKey, true);
         ui.AddSlider("Temporary Show Duration (sec)", "How long the stack remains visible when temporarily shown.", "Timeout Widget", StackVisibilityDurationKey, 1, 60, 10);
         ui.AddToggleSwitch("Show Stack When Item Leaves", "Temporarily show the stack when a timeout card leaves the stack, but only when Always Show Stack is disabled.", "Timeout Widget", ShowStackWhenItemLeavesKey, true);
-
         ui.AddSlider("Stack Scale (%)", "Controls the size of timeout cells after they move into the bottom-right stack.", "Timeout Widget", StackScalePercentKey, 10, 100, 33);
         ui.AddSlider("Max Docked", "Controls how many timeout cells can remain in the bottom-right stack.", "Timeout Widget", MaxDockedKey, 1, 25, 4);
         ui.AddSlider("Edge Offset (px)", "Controls the distance from the bottom and right edges of the overlay.", "Timeout Widget", EdgeOffsetKey, 0, 200, 28);
