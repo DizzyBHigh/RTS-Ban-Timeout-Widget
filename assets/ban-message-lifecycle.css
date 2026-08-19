@@ -83,15 +83,14 @@
    Large keeps the existing message position because the full-size van has
    enough visual clearance around the message lane.
 
-   Medium, Small and Extra Small move the message lane below the skid marks.
-   This avoids both the accent colour merging with the skids and the awkward
-   look of the text disappearing behind the scaled-down van. No background
-   box is needed.
+   Medium, Small and Extra Small move the message lane just below the skid
+   marks. Keep only a small visual gap so the text feels attached to the
+   animation without touching the skid graphics.
 */
 html[data-ban-van-size="Medium"] .ban-scene .ban-message-layer,
 html[data-ban-van-size="Small"] .ban-scene .ban-message-layer,
 html[data-ban-van-size="Extra Small"] .ban-scene .ban-message-layer {
-  top: 595px;
+  top: 568px;
   z-index: 70;
 }
 
