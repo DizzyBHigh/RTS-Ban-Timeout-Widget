@@ -29,14 +29,17 @@
     const messageScale = Number(root.style.getPropertyValue("--ban-message-scale")) || 1;
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
 
-    // Position the van's full animation box from top (0) to bottom (100).
+    // Position the van's transformed visual box from top (0) to bottom (100).
     const vanHeight = 320 * vanScale;
     const vanTop = (viewportHeight - vanHeight) * (vanPosition / 100);
 
-    // The calibrated skid line sits 279px below the unscaled van box top.
-    const trailTop = vanTop + (279 * vanScale);
+    // The skid trail is anchored to the van's untransformed bottom edge.
+    // The truck uses transform-origin: left bottom, so its CSS bottom is
+    // vanTop + 320px regardless of scale. The calibrated skid lines sit
+    // 279px below the truck's CSS top and therefore stay aligned at every size.
+    const trailTop = vanTop + 279;
 
-    // Position the message's own 32px lane from top (0) to bottom (100).
+    // Position the message's own lane from top (0) to bottom (100).
     const messageHeight = 32 * messageScale;
     const messageTop = (viewportHeight - messageHeight) * (messagePosition / 100);
 
