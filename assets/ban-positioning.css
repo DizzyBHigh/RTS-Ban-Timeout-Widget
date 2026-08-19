@@ -6,10 +6,38 @@
   width: 590px;
   height: auto;
   aspect-ratio: 590 / 320;
+  transform-origin: left bottom;
   animation-name: banTruckCalibratedIn;
 }
 
+/*
+   Ban Van Size is deliberately applied only to the truck graphic.
+   The calibrated left/bottom anchor remains fixed so the truck's rear
+   stays aligned with the existing skid trail and the window/bars scale
+   with the truck automatically.
+*/
+.ban-scene .truck {
+  --ban-van-scale: 1;
+}
+
+html[data-ban-van-size="Medium"] .ban-scene .truck {
+  --ban-van-scale: 0.85;
+}
+
+html[data-ban-van-size="Small"] .ban-scene .truck {
+  --ban-van-scale: 0.70;
+}
+
+html[data-ban-van-size="Extra Small"] .ban-scene .truck {
+  --ban-van-scale: 0.60;
+}
+
+.ban-scene .truck:not(.driving-off) {
+  transform: translateX(0) scale(var(--ban-van-scale));
+}
+
 .ban-scene .truck.driving-off {
+  transform: translateX(0) scale(var(--ban-van-scale));
   animation-name: banTruckCalibratedOff;
 }
 
@@ -83,13 +111,13 @@
 }
 
 @keyframes banTruckCalibratedIn {
-  from { transform: translateX(-1220px); }
-  to { transform: translateX(0); }
+  from { transform: translateX(-1220px) scale(var(--ban-van-scale)); }
+  to { transform: translateX(0) scale(var(--ban-van-scale)); }
 }
 
 @keyframes banTruckCalibratedOff {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(100vw + 700px)); }
+  from { transform: translateX(0) scale(var(--ban-van-scale)); }
+  to { transform: translateX(calc(100vw + 700px)) scale(var(--ban-van-scale)); }
 }
 
 @keyframes banSkidRevealWithTruck {
