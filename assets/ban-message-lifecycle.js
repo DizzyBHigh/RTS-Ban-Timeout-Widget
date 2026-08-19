@@ -12,48 +12,6 @@
   let pendingArrivalStyle = false;
   let pendingScrollSpeed = "Medium";
 
-  // Ban scenes are queued here so a new ban can never visually overlap the
-  // currently running ban animation. Timeout cells use their own lifecycle
-  // and are deliberately not included in this queue.
-  const banSceneQueue = [];
-  let activeBanScene = null;
-  let queueDrainScheduled = false;
-
-  const originalAppendChild = stage.appendChild.bind(stage);
-
-  function drainBanSceneQueue() {
-    queueDrainScheduled = false;
-    if (activeBanScene && stage.contains(activeBanScene)) return;
-
-    activeBanScene = null;
-    const next = banSceneQueue.shift();
-    if (!next) return;
-
-    activeBanScene = next;
-    originalAppendChild(next);
-    if (next instanceof HTMLElement && next.classList.contains("ban-scene")) prepareScene(next);
-  }
-
-  function scheduleQueueDrain() {
-    if (queueDrainScheduled) return;
-    queueDrainScheduled = true;
-    requestAnimationFrame(drainBanSceneQueue);
-  }
-
-  stage.appendChild = (node) => {
-    if (node instanceof HTMLElement && node.classList.contains("ban-scene")) {
-      banSceneQueue.push(node);
-      scheduleQueueDrain();
-      return node;
-    }
-    return originalAppendChild(node);
-  };
-
-  const stageQueueObserver = new MutationObserver(() => {
-    if (activeBanScene && !stage.contains(activeBanScene)) scheduleQueueDrain();
-  });
-  stageQueueObserver.observe(stage, { childList: true });
-
   function animationMs(element, fallback) {
     const value = getComputedStyle(element).animationDuration.split(",")[0].trim();
     const ms = value.endsWith("ms") ? parseFloat(value) : parseFloat(value) * 1000;
@@ -264,6 +222,15 @@
     if (scene.classList.contains("arrival-message-style")) beginArrivalStyle();
     syncReason();
   }
+
+  const sceneObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node instanceof HTMLElement && node.classList.contains("ban-scene")) prepareScene(node);
+      });
+    });
+  });
+  sceneObserver.observe(stage, { childList: true });
 
   function connectStyleListener() {
     const ws = new WebSocket(WS_URL);
