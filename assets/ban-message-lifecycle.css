@@ -79,9 +79,16 @@
   animation: banMessageFade 1.2s ease forwards;
 }
 
-/* Extra Small leaves less vertical clearance between the scaled van and the
-   message lane. Keep the message behind the van so the graphic remains the
-   visual foreground instead of letting the scrolling text draw over it. */
+/*
+   Large keeps the message in the foreground because the full-size van has
+   enough visual clearance around the message lane.
+
+   Medium, Small and Extra Small put the message behind the van. This keeps
+   the scaled-down truck visually in the foreground when the scrolling text
+   passes through the truck's footprint, while remaining above the skid trail.
+*/
+html[data-ban-van-size="Medium"] .ban-scene .ban-message-layer,
+html[data-ban-van-size="Small"] .ban-scene .ban-message-layer,
 html[data-ban-van-size="Extra Small"] .ban-scene .ban-message-layer {
   z-index: 59;
 }
