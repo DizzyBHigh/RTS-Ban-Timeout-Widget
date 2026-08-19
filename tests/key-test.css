@@ -1,0 +1,63 @@
+/* Development-only key positioning test. */
+.key-test-mode,
+.key-test-mode body {
+  margin: 0;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.key-test-controls {
+  position: fixed;
+  z-index: 10000;
+  top: 16px;
+  left: 16px;
+  width: 280px;
+  padding: 16px;
+  box-sizing: border-box;
+  font: 14px/1.4 system-ui, sans-serif;
+  background: rgba(255,255,255,.96);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.12);
+}
+
+.key-test-controls h1 { margin: 0 0 14px; font-size: 18px; }
+.key-test-controls label { display: block; margin: 12px 0; }
+.key-test-controls input[type="range"] { width: 100%; margin: 6px 0 2px; }
+.key-test-controls output { display: block; font-variant-numeric: tabular-nums; }
+.key-test-actions { display: flex; gap: 8px; margin-top: 14px; }
+.key-test-actions button { padding: 6px 10px; cursor: pointer; }
+.key-test-controls pre { margin: 14px 0 0; padding: 8px; overflow: auto; background: #f3f3f3; font-size: 12px; }
+
+.key-test-mode #status { display: none; }
+
+.key-test-mode .key-test-cell {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.key-test-mode .key-test-cell .avatar,
+.key-test-mode .key-test-cell .timer,
+.key-test-mode .key-test-cell .nameplate,
+.key-test-mode .key-test-cell .reason { display: none; }
+
+.key-test-mode .key-test-key {
+  display: block !important;
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  left: var(--key-test-x, -90px) !important;
+  top: var(--key-test-y, 96px) !important;
+  z-index: 3 !important;
+}
+
+.key-test-mode .key-test-avatar {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: #777;
+  z-index: 1;
+}
+
+.key-test-mode .key-test-key .timeout-key-head::after { z-index: 2; }
