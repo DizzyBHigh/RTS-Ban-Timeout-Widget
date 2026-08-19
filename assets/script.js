@@ -12,7 +12,9 @@ const recentModeration = new Map();
 let audio = null,
   barSound = null,
   lockQueue = [],
-  lockBusy = false;
+  lockBusy = false,
+  banQueue = [],
+  banBusy = false;
 const BAR_SOUND = "assets/audio/395920__locontrario23__closing-door.wav";
 const rootStyle = document.documentElement.style;
 const overlaySettings = {
@@ -251,7 +253,20 @@ function setBanReason(trail, text) {
     }
   });
 }
-function ban(d) {
+function processBanQueue() {
+  if (banBusy || !banQueue.length) return;
+  banBusy = true;
+  const d = banQueue.shift();
+  ban(d, () => {
+    banBusy = false;
+    processBanQueue();
+  });
+}
+function enqueueBan(d) {
+  banQueue.push(d);
+  processBanQueue();
+}
+function ban(d, onComplete) {
   unlock();
   const k = key(d);
   if (active.has(k)) release(k);
@@ -265,6 +280,23 @@ function ban(d) {
   avatar.onerror = () => (avatar.style.opacity = ".12");
   active.set(k, { scene, type: "ban" });
   setBanReason(trail, d.banWidgetReason || d.reason || d.banReason || d.message || "BANNED");
+  let completed = false;
+  const complete = () => {
+    if (completed) return;
+    completed = true;
+    if (active.get(k)?.scene === scene) active.delete(k);
+    if (onComplete) onComplete();
+  };
+  const waitForRemoval = () => {
+    if (!scene.isConnected) { complete(); return; }
+    const observer = new MutationObserver(() => {
+      if (!scene.isConnected) {
+        observer.disconnect();
+        complete();
+      }
+    });
+    observer.observe(stage, { childList: true });
+  };
   setTimeout(() => {
     if (active.get(k)?.scene !== scene) return;
     clang();
@@ -280,7 +312,8 @@ function ban(d) {
         setTimeout(() => {
           trail.classList.remove("revealing");
           trail.classList.add("fading");
-          setTimeout(() => { scene.remove(); active.delete(k); }, 1200);
+          waitForRemoval();
+          setTimeout(() => { scene.remove(); }, 1200);
         }, 4300);
       });
     }, 100);
@@ -312,7 +345,7 @@ function handle(d) {
     return;
   }
   if (banEvent) {
-    ban({ ...d, action: "ban", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.banReason || d.message });
+    enqueueBan({ ...d, action: "ban", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.banReason || d.message });
   }
 }
 function onCustomEvent(data) {
@@ -340,7 +373,7 @@ function demoTimeout(name = "DEMO_VIEWER", duration = 59, reason = "BACKSEAT GAM
   timeout({ action: "timeout", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", duration, reason });
 }
 function demoBan(name = "DEMO_VIEWER", reason = "REPEATED OFFENSE") {
-  ban({ action: "ban", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", reason });
+  enqueueBan({ action: "ban", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", reason });
 }
 window.demoTimeout = demoTimeout;
 window.demoBan = demoBan;
