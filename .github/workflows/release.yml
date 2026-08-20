@@ -2,6 +2,15 @@ name: Build and Release Overlay
 
 on:
   workflow_dispatch:
+    inputs:
+      action:
+        description: Choose whether to create a release or republish the current site files
+        required: true
+        default: site
+        type: choice
+        options:
+          - site
+          - release
 
 permissions:
   contents: write
@@ -9,6 +18,7 @@ permissions:
 jobs:
   detect-release:
     name: Detect release version
+    if: inputs.action == 'release'
     runs-on: ubuntu-latest
     outputs:
       release: ${{ steps.version.outputs.release }}
@@ -44,7 +54,7 @@ jobs:
   release:
     name: Package overlay and create release
     needs: detect-release
-    if: needs.detect-release.outputs.release == 'true'
+    if: inputs.action == 'release' && needs.detect-release.outputs.release == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -57,13 +67,11 @@ jobs:
         run: |
           VERSION="${{ needs.detect-release.outputs.version }}"
           PRODUCT=$(python -c "import json; print(json.load(open('RTS-release.json'))['product'])")
-          SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
           IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
           IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
           ZIP_NAME="RTS-Ban-Timeout-Widget-v${VERSION}-Overlay.zip"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
-          echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
           echo "import_source=$IMPORT_SOURCE" >> "$GITHUB_OUTPUT"
           echo "import_name=$IMPORT_NAME" >> "$GITHUB_OUTPUT"
           echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
@@ -97,7 +105,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.detect-release.outputs.version }}
-          name: "${{ steps.metadata.outputs.product }} v${{ steps.metadata.outputs.version }}"
+          name: "${{ steps.metadata.outputs.product }} v${{ needs.detect-release.outputs.version }}"
           target_commitish: main
           generate_release_notes: true
           files: |
@@ -107,8 +115,8 @@ jobs:
 
   publish-site:
     name: Publish public overlay and import to RTS website
+    if: inputs.action == 'site' || (inputs.action == 'release' && needs.detect-release.outputs.release == 'true')
     needs: [detect-release, release]
-    if: needs.detect-release.outputs.release == 'true'
     runs-on: ubuntu-latest
     env:
       WEBSITE_TOKEN: ${{ secrets.RTS_WEBSITE_TOKEN }}
@@ -129,12 +137,12 @@ jobs:
         if: steps.token.outputs.configured == 'true'
         uses: actions/checkout@v4
 
-      - name: Read release metadata
+      - name: Read current release metadata
         if: steps.token.outputs.configured == 'true'
         id: metadata
         shell: bash
         run: |
-          VERSION="${{ needs.detect-release.outputs.version }}"
+          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
           SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
           IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
           IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
@@ -189,5 +197,5 @@ jobs:
             echo "No website changes to commit."
             exit 0
           fi
-          git commit -m "Publish RTS Ban / Timeout Widget v${{ needs.detect-release.outputs.version }}"
+          git commit -m "Republish RTS Ban / Timeout Widget site files v${{ steps.metadata.outputs.version }}"
           git push
