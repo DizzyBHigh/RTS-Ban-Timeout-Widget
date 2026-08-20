@@ -115,8 +115,8 @@ jobs:
 
   publish-site:
     name: Publish public overlay and import to RTS website
-    if: inputs.action == 'site' || (inputs.action == 'release' && needs.detect-release.outputs.release == 'true')
     needs: [detect-release, release]
+    if: always() && (inputs.action == 'site' || (inputs.action == 'release' && needs.detect-release.outputs.release == 'true'))
     runs-on: ubuntu-latest
     env:
       WEBSITE_TOKEN: ${{ secrets.RTS_WEBSITE_TOKEN }}
