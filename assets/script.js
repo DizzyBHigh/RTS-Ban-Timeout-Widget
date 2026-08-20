@@ -164,8 +164,8 @@ function createCell(d) {
   const a = e.querySelector(".avatar");
   a.src = d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl || "";
   a.onerror = () => (a.style.opacity = ".12");
-  setName(e, d.displayName || d.userName || d.username || d.login || d.targetUser || "UNKNOWN USER");
-  setReason(e, d.reason || d.timeoutReason || d.message || "TIMEOUT");
+  setName(e, d.banWidgetTargetName || d.displayName || d.userName || d.username || d.login || d.targetUser || "UNKNOWN USER");
+  setReason(e, d.banWidgetReason || d.reason || d.timeoutReason || d.message || "TIMEOUT");
   e.stopAngryAvatar = scheduleAngryAvatar(e);
   return e;
 }
@@ -317,42 +317,48 @@ function ban(d, onComplete) {
           setTimeout(() => { scene.remove(); }, 1200);
         }, 4300);
       });
-    }, 100);
-  }, 1800);
+    }, 900);
+  }, 300);
 }
-function normaliseCustomArgs(d) {
-  if (!d || typeof d !== "object") return d;
-  let x = { ...d };
-  if (x.data && typeof x.data === "object") x = { ...x, ...x.data };
-  if (x.args && typeof x.args === "object") x = { ...x, ...x.args };
-  if (x.payload && typeof x.payload === "object") x = { ...x, ...x.payload };
-  return x;
+function normaliseCustomArgs(data) {
+  if (!data || typeof data !== "object") return {};
+  const d = { ...data };
+  if (typeof d.args === "string") {
+    try { Object.assign(d, JSON.parse(d.args)); } catch {}
+  } else if (d.args && typeof d.args === "object") {
+    Object.assign(d, d.args);
+  }
+  if (typeof d.data === "string") {
+    try { Object.assign(d, JSON.parse(d.data)); } catch {}
+  } else if (d.data && typeof d.data === "object") {
+    Object.assign(d, d.data);
+  }
+  return d;
 }
 function handle(d) {
-  if (typeof d === "string") { try { d = JSON.parse(d); } catch { return; } }
-  if (d?.data && typeof d.data === "string") { try { d.data = JSON.parse(d.data); } catch {} }
-  if (d?.payload && typeof d.payload === "string") { try { d.payload = JSON.parse(d.payload); } catch {} }
-  d = normaliseCustomArgs(d);
-  if (!d || typeof d !== "object") return;
   applyOverlaySettings(d);
-  const name = String(d.eventName || d.triggerCustomEventName || "").toLowerCase();
-  if (name && name !== "banwidget") return;
-  const act = String(d.actionName || d.name || "").toLowerCase();
-  const src = String(d.__source || d.source || d.eventSource || "").toLowerCase();
-  const timeoutEvent = src === "twitchusertimedout" || act.includes("timeout");
-  const banEvent = src === "twitchuserbanned" || act === "duhbuh - ban - ban" || act.endsWith(" - ban - ban") || act.includes("ban - ban");
+  const action = String(d.banWidgetAction || d.action || "").toLowerCase();
+  const eventType = String(d.banWidgetEventType || d.eventType || "").toLowerCase();
+  const source = String(d.banWidgetSource || d.source || d.__source || "").toLowerCase();
+  const banEvent = action === "ban" || eventType.includes("banned") || source.includes("ban");
+  const timeoutEvent = action === "timeout" || eventType.includes("timedout") || source.includes("timedout") || source.includes("timeout");
   if (timeoutEvent) {
-    timeout({ ...d, action: "timeout", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.timeoutReason || d.message });
+    timeout({ ...d, action: "timeout", id: d.banWidgetTargetId || d.userId || d.id, userId: d.banWidgetTargetId || d.userId || d.id, username: d.banWidgetTargetUsername || d.userName || d.username || d.login || d.targetUserName, userName: d.banWidgetTargetUsername || d.userName || d.username || d.login || d.targetUserName, displayName: d.banWidgetTargetName || d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.banWidgetReason || d.reason || d.timeoutReason || d.message });
     return;
   }
   if (banEvent) {
-    enqueueBan({ ...d, action: "ban", id: d.userId || d.id, username: d.userName || d.username || d.login || d.targetUserName, displayName: d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.reason || d.banReason || d.message });
+    enqueueBan({ ...d, action: "ban", id: d.banWidgetTargetId || d.userId || d.id, username: d.banWidgetTargetUsername || d.userName || d.username || d.login || d.targetUserName, displayName: d.banWidgetTargetName || d.displayName || d.userName || d.username || d.login || d.targetUser, avatar: d.banWidgetTargetAvatar || d.avatar || d.profileImageUrl || d.targetUserProfileImageUrl || d.userProfileImageUrl, reason: d.banWidgetReason || d.reason || d.banReason || d.message });
   }
 }
 function onCustomEvent(data) {
   const d = normaliseCustomArgs(data || {});
   const name = String(d.eventName || d.triggerCustomEventName || "").toLowerCase();
   if (name && name !== "banwidget") return;
+  try {
+    window.dispatchEvent(new CustomEvent("BanWidget", { detail: d }));
+  } catch (err) {
+    console.warn("Ban widget custom event dispatch error", err);
+  }
   handle(d);
 }
 function connect() {
@@ -373,9 +379,7 @@ function connect() {
 function demoTimeout(name = "DEMO_VIEWER", duration = 59, reason = "BACKSEAT GAMING") {
   timeout({ action: "timeout", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", duration, reason });
 }
-function demoBan(name = "DEMO_VIEWER", reason = "REPEATED OFFENSE") {
+function demoBan(name = "DEMO_VIEWER", reason = "BANNED") {
   enqueueBan({ action: "ban", id: crypto.randomUUID(), userName: name, displayName: name, avatar: "", reason });
 }
-window.demoTimeout = demoTimeout;
-window.demoBan = demoBan;
 connect();
