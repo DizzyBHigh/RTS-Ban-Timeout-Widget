@@ -1,9 +1,7 @@
 name: Build and Release Overlay
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,7 +13,6 @@ jobs:
     outputs:
       release: ${{ steps.version.outputs.release }}
       version: ${{ steps.version.outputs.version }}
-      previous: ${{ steps.version.outputs.previous }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -34,18 +31,15 @@ jobs:
 
           TAG="v$VERSION"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists; no new release needed."
+            echo "Tag $TAG already exists; refusing to create another release for the same version."
             echo "release=false" >> "$GITHUB_OUTPUT"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-            echo "previous=$VERSION" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          PREVIOUS=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n 1)
           echo "release=true" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "previous=${PREVIOUS#v}" >> "$GITHUB_OUTPUT"
-          echo "New release detected: $VERSION"
+          echo "Release requested for version: $VERSION"
 
   release:
     name: Package overlay and create release
@@ -90,8 +84,6 @@ jobs:
           import json
           from pathlib import Path
           data = json.loads(Path('RTS-release.json').read_text())
-          version = '${{ steps.metadata.outputs.version }}'
-          data['version'] = version
           data['overlay']['zipName'] = '${{ steps.metadata.outputs.zip_name }}'
           data['streamerBotImport']['file'] = '${{ steps.metadata.outputs.import_name }}'
           Path('build/RTS-release.json').write_text(json.dumps(data, indent=2) + '\n')
@@ -107,14 +99,12 @@ jobs:
           files: |
             build/${{ steps.metadata.outputs.zip_name }}
             build/RTS-release.json
-            ${{ steps.metadata.outputs.import_source }}
 
-      - name: Rename import code for release
+      - name: Prepare versioned import code
         shell: bash
-        run: |
-          cp "${{ steps.metadata.outputs.import_source }}" "build/${{ steps.metadata.outputs.import_name }}"
+        run: cp "${{ steps.metadata.outputs.import_source }}" "build/${{ steps.metadata.outputs.import_name }}"
 
-      - name: Upload versioned import code
+      - name: Attach versioned import code to release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.metadata.outputs.version }}
