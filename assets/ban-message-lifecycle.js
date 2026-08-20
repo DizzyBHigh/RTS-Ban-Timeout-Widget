@@ -246,7 +246,7 @@
         if (data?.args && typeof data.args === "object") data = { ...data, ...data.args };
         if (data?.payload && typeof data.payload === "object") data = { ...data, ...data.payload };
         const eventName = String(data.eventName || data.triggerCustomEventName || "").toLowerCase();
-        if (eventName && eventName !== "banwidget") return;
+        if (eventName && eventName !== "RTS-BanWidget") return;
         const action = String(data.banWidgetAction || data.action || "").toLowerCase();
         if (action !== "ban") return;
 
