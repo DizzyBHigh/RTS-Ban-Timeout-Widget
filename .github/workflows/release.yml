@@ -148,12 +148,14 @@ jobs:
           SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
           IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
           IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
+          IMPORT_PATH="extensions/rts-ban-timeout-widget/${IMPORT_NAME}"
           echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           echo "import_source=$IMPORT_SOURCE" >> "$GITHUB_OUTPUT"
           echo "import_name=$IMPORT_NAME" >> "$GITHUB_OUTPUT"
+          echo "import_path=$IMPORT_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Check out public website
         if: steps.token.outputs.configured == 'true'
@@ -195,13 +197,13 @@ jobs:
               'footerLabel': site.get('footerLabel', ''),
               'url': f"/extensions/{release['slug']}/",
               'overlayUrl': release['overlay']['sitePath'],
-              'importFilename': '${{ steps.metadata.outputs.import_name }}'
+              'importFilename': '${{ steps.metadata.outputs.import_path }}'
           }
           Path('website/_data/rts_ban_timeout.json').write_text(json.dumps(payload, indent=2) + '\n')
 
           import_payload = {
               'version': release['version'],
-              'filename': '${{ steps.metadata.outputs.import_name }}'
+              'filename': '${{ steps.metadata.outputs.import_path }}'
           }
           Path('website/_data/rts_ban_timeout_import.json').write_text(json.dumps(import_payload, indent=2) + '\n')
           PY
