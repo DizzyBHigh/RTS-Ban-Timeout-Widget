@@ -1,5 +1,7 @@
 (() => {
-  // Consume the canonical BanWidget custom event from script.js.
+  // Consume the canonical BanWidget payload from script.js.
+  // The browser CustomEvent remains available, while this direct hook avoids
+  // any listener-order or event-delivery ambiguity between overlay modules.
   const initiators = new Map();
   let showKeyAnimation = true;
 
@@ -29,8 +31,10 @@
   function remember(data) {
     const d = flatten(data);
     if (!d || typeof d !== "object") return;
-    const action = String(d.banWidgetAction || "").toLowerCase();
-    if (action !== "timeout") return;
+
+    applySettings(d);
+
+    if (String(d.banWidgetAction || "").toLowerCase() !== "timeout") return;
 
     const id = String(d.banWidgetTargetId || "");
     const login = String(d.banWidgetTargetUsername || "").toLowerCase();
@@ -41,6 +45,7 @@
     const initiatorUsername = d.banWidgetInitiatorUsername || d.timeoutInitiatorUsername || d.createdByUsername || "";
 
     if (!initiatorName && !initiatorAvatar) return;
+
     const info = {
       name: String(initiatorName || initiatorUsername),
       username: String(initiatorUsername || ""),
@@ -52,10 +57,12 @@
     if (id) initiators.set(`id:${id}`, info);
     if (login) initiators.set(`name:${login}`, info);
     if (display) initiators.set(`name:${display}`, info);
-    applySettings(d);
+
     addPendingKeys();
   }
 
+  // Direct hook used by script.js for deterministic module-to-module delivery.
+  window.__banWidgetTimeoutKey = remember;
   window.addEventListener("BanWidget", event => remember(event.detail));
 
   function findInitiator(cell) {
