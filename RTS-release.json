@@ -14,6 +14,6 @@
   },
   "streamerBotImport": {
     "providedManually": true,
-    "siteFile": "streamerbot-import.json"
+    "file": "SB Import Code.txt"
   }
 }
