@@ -96,7 +96,7 @@ jobs:
       - name: Create GitHub release and tag
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.metadata.outputs.version }}
+          tag_name: v${{ needs.detect-release.outputs.version }}
           name: "${{ steps.metadata.outputs.product }} v${{ steps.metadata.outputs.version }}"
           target_commitish: main
           generate_release_notes: true
@@ -151,7 +151,7 @@ jobs:
           token: ${{ secrets.RTS_WEBSITE_TOKEN }}
           path: website
 
-      - name: Publish online overlay, import file and page data
+      - name: Publish online overlay, import file and page manifest
         if: steps.token.outputs.configured == 'true'
         shell: bash
         run: |
@@ -170,13 +170,9 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          version = '${{ steps.metadata.outputs.version }}'
-          filename = '${{ steps.metadata.outputs.import_name }}'
-          source = Path('${{ steps.metadata.outputs.import_source }}').read_text()
           payload = {
-              'version': version,
-              'filename': filename,
-              'code': source
+              'version': '${{ steps.metadata.outputs.version }}',
+              'filename': '${{ steps.metadata.outputs.import_name }}'
           }
           Path('website/_data/rts_ban_timeout_import.json').write_text(json.dumps(payload, indent=2) + '\n')
           PY
