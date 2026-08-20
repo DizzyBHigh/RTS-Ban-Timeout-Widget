@@ -2,15 +2,55 @@ name: Build and Release Overlay
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
+  detect-release:
+    name: Detect release version
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.version.outputs.release }}
+      version: ${{ steps.version.outputs.version }}
+      previous: ${{ steps.version.outputs.previous }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check release version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "RTS-release.json version must be in MAJOR.MINOR.PATCH format."
+            exit 1
+          fi
+
+          TAG="v$VERSION"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; no new release needed."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "previous=$VERSION" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PREVIOUS=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n 1)
+          echo "release=true" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "previous=${PREVIOUS#v}" >> "$GITHUB_OUTPUT"
+          echo "New release detected: $VERSION"
+
   release:
     name: Package overlay and create release
+    needs: detect-release
+    if: needs.detect-release.outputs.release == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -21,23 +61,18 @@ jobs:
         id: metadata
         shell: bash
         run: |
-          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          VERSION="${{ needs.detect-release.outputs.version }}"
           PRODUCT=$(python -c "import json; print(json.load(open('RTS-release.json'))['product'])")
-          ZIP_NAME=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['zipName'])")
           SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
+          IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
+          IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
+          ZIP_NAME="RTS-Ban-Timeout-Widget-v${VERSION}-Overlay.zip"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
-          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
           echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
-
-      - name: Validate tag matches release metadata
-        shell: bash
-        run: |
-          EXPECTED="v${{ steps.metadata.outputs.version }}"
-          if [ "$GITHUB_REF_NAME" != "$EXPECTED" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match RTS-release.json version $EXPECTED"
-            exit 1
-          fi
+          echo "import_source=$IMPORT_SOURCE" >> "$GITHUB_OUTPUT"
+          echo "import_name=$IMPORT_NAME" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build overlay package
         shell: bash
@@ -48,19 +83,47 @@ jobs:
           cd build
           zip -r "${{ steps.metadata.outputs.zip_name }}" overlay >/dev/null
 
-      - name: Create GitHub release
+      - name: Create versioned release manifest
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('RTS-release.json').read_text())
+          version = '${{ steps.metadata.outputs.version }}'
+          data['version'] = version
+          data['overlay']['zipName'] = '${{ steps.metadata.outputs.zip_name }}'
+          data['streamerBotImport']['file'] = '${{ steps.metadata.outputs.import_name }}'
+          Path('build/RTS-release.json').write_text(json.dumps(data, indent=2) + '\n')
+          PY
+
+      - name: Create GitHub release and tag
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.metadata.outputs.version }}
           name: "${{ steps.metadata.outputs.product }} v${{ steps.metadata.outputs.version }}"
+          target_commitish: main
           generate_release_notes: true
           files: |
             build/${{ steps.metadata.outputs.zip_name }}
-            RTS-release.json
-            SB Import Code.txt
+            build/RTS-release.json
+            ${{ steps.metadata.outputs.import_source }}
+
+      - name: Rename import code for release
+        shell: bash
+        run: |
+          cp "${{ steps.metadata.outputs.import_source }}" "build/${{ steps.metadata.outputs.import_name }}"
+
+      - name: Upload versioned import code
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.metadata.outputs.version }}
+          files: build/${{ steps.metadata.outputs.import_name }}
 
   publish-site:
     name: Publish public overlay to RTS website
-    needs: release
+    needs: [detect-release, release]
+    if: needs.detect-release.outputs.release == 'true'
     runs-on: ubuntu-latest
     env:
       WEBSITE_TOKEN: ${{ secrets.RTS_WEBSITE_TOKEN }}
@@ -78,29 +141,33 @@ jobs:
           fi
 
       - name: Check out extension
-        if: ${{ steps.token.outputs.configured == 'true' }}
+        if: steps.token.outputs.configured == 'true'
         uses: actions/checkout@v4
 
       - name: Read release metadata
-        if: ${{ steps.token.outputs.configured == 'true' }}
+        if: steps.token.outputs.configured == 'true'
         id: metadata
         shell: bash
         run: |
+          VERSION="${{ needs.detect-release.outputs.version }}"
           SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
-          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
+          IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
           echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "import_source=$IMPORT_SOURCE" >> "$GITHUB_OUTPUT"
+          echo "import_name=$IMPORT_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Check out public website
-        if: ${{ steps.token.outputs.configured == 'true' }}
+        if: steps.token.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
           repository: DizzyBHigh/road-to-somewhere
           token: ${{ secrets.RTS_WEBSITE_TOKEN }}
           path: website
 
-      - name: Publish online overlay
-        if: ${{ steps.token.outputs.configured == 'true' }}
+      - name: Publish online overlay and release files
+        if: steps.token.outputs.configured == 'true'
         shell: bash
         run: |
           DEST="website${{ steps.metadata.outputs.site_path }}"
@@ -112,10 +179,10 @@ jobs:
           PRODUCT_DIR="website/extensions/rts-ban-timeout-widget"
           mkdir -p "$PRODUCT_DIR"
           cp RTS-release.json "$PRODUCT_DIR/RTS-release.json"
-          cp "SB Import Code.txt" "$PRODUCT_DIR/streamerbot-import.txt"
+          cp "${{ steps.metadata.outputs.import_source }}" "$PRODUCT_DIR/${{ steps.metadata.outputs.import_name }}"
 
       - name: Commit website update
-        if: ${{ steps.token.outputs.configured == 'true' }}
+        if: steps.token.outputs.configured == 'true'
         shell: bash
         working-directory: website
         run: |
@@ -126,5 +193,5 @@ jobs:
             echo "No website changes to commit."
             exit 0
           fi
-          git commit -m "Publish RTS Ban / Timeout Widget v${{ steps.metadata.outputs.version }}"
+          git commit -m "Publish RTS Ban / Timeout Widget v${{ needs.detect-release.outputs.version }}"
           git push
