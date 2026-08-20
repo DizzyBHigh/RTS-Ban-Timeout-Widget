@@ -1,7 +1,6 @@
 (() => {
-  // The timeout event can reach the overlay and create the cell on a different
-  // WebSocket tick from the one that records the initiator. Keep the data long
-  // enough for both sides to meet, and retry cells briefly after creation.
+  // Keep timeout initiator data long enough for the timeout cell and key animation
+  // to meet, even when Streamer.bot delivers the related websocket messages apart.
   const initiators = new Map();
   const originalWebSocket = window.WebSocket;
   let showKeyAnimation = true;
@@ -12,18 +11,12 @@
     }
     if (!value || typeof value !== "object") return value;
     let x = { ...value };
-    if (x.data && typeof x.data === "string") {
-      try { x = { ...x, data: JSON.parse(x.data) }; } catch {}
+    for (const key of ["data", "args", "payload"]) {
+      if (typeof x[key] === "string") {
+        try { x[key] = JSON.parse(x[key]); } catch {}
+      }
+      if (x[key] && typeof x[key] === "object") x = { ...x, ...x[key] };
     }
-    if (x.data && typeof x.data === "object") x = { ...x, ...x.data };
-    if (x.args && typeof x.args === "string") {
-      try { x = { ...x, args: JSON.parse(x.args) }; } catch {}
-    }
-    if (x.args && typeof x.args === "object") x = { ...x, ...x.args };
-    if (x.payload && typeof x.payload === "string") {
-      try { x = { ...x, payload: JSON.parse(x.payload) }; } catch {}
-    }
-    if (x.payload && typeof x.payload === "object") x = { ...x, ...x.payload };
     return x;
   }
 
@@ -39,19 +32,20 @@
   function remember(data) {
     const d = flatten(data);
     if (!d || typeof d !== "object") return;
+
     const target = d.targetUser && typeof d.targetUser === "object" ? d.targetUser : {};
+    const id = String(
+      d.banWidgetTargetId || d.timeoutTargetUserId || d.timedOutUserId ||
+      d.userId || d.targetUserId || target.id || ""
+    );
     const login = String(
       d.banWidgetTargetUsername || d.timeoutTargetUserName || d.timedOutUserName ||
-      d.userName || d.username || d.targetUserName || target.login || "",
+      d.userName || d.username || d.targetUserName || target.login || ""
     ).toLowerCase();
     const display = String(
       d.banWidgetTargetName || d.timeoutTargetUserDisplayName || d.timedOutUser ||
-      d.displayName || d.user || target.name || "",
+      d.displayName || d.user || target.name || ""
     ).toLowerCase();
-    const id = String(
-      d.banWidgetTargetId || d.timeoutTargetUserId || d.timedOutUserId ||
-      d.userId || d.targetUserId || target.id || "",
-    );
 
     const initiatorName = d.timeoutInitiatorName || d.banWidgetInitiatorName ||
       d.createdByDisplayName || d.moderatorDisplayName || d.moderatorName || "";
@@ -77,12 +71,69 @@
     if (display) initiators.set(`name:${display}`, info);
   }
 
+  function isBanWidgetData(data) {
+    const d = flatten(data);
+    if (!d || typeof d !== "object") return false;
+    const action = String(d.banWidgetAction || "").toLowerCase();
+    const eventType = String(d.banWidgetEventType || "").toLowerCase();
+    return action === "timeout" || eventType === "twitchusertimedout" ||
+      Boolean(d.timeoutInitiatorName || d.banWidgetInitiatorName);
+  }
+
+  function handleMessage(raw) {
+    try {
+      const message = flatten(raw);
+      applySettings(message);
+
+      // Streamer.bot custom events may put the variables directly on the
+      // websocket payload, under data, args, payload, or one level deeper.
+      const candidates = [message, message?.data, message?.args, message?.payload];
+      for (const candidate of candidates) {
+        const d = flatten(candidate);
+        if (isBanWidgetData(d)) {
+          applySettings(d);
+          remember(d);
+        }
+      }
+
+      // Also retain the previous event-based compatibility path.
+      const source = String(message?.event?.source || "").toLowerCase();
+      const type = String(message?.event?.type || "").toLowerCase();
+      if (source === "twitchusertimedout" || type === "usertimedout") {
+        remember(message?.data || message);
+      }
+    } catch {
+      // Ignore non-JSON websocket messages.
+    }
+  }
+
+  if (originalWebSocket) {
+    class KeyWebSocket extends originalWebSocket {
+      set onmessage(handler) {
+        if (typeof handler !== "function") {
+          super.onmessage = handler;
+          return;
+        }
+        super.onmessage = (event) => {
+          handleMessage(event.data);
+          addPendingKeys();
+          handler(event);
+        };
+      }
+    }
+
+    KeyWebSocket.CONNECTING = originalWebSocket.CONNECTING;
+    KeyWebSocket.OPEN = originalWebSocket.OPEN;
+    KeyWebSocket.CLOSING = originalWebSocket.CLOSING;
+    KeyWebSocket.CLOSED = originalWebSocket.CLOSED;
+    window.WebSocket = KeyWebSocket;
+  }
+
   function findInitiator(cell) {
     const name = String(cell.querySelector(".nameplate span")?.textContent || "").toLowerCase();
-    const id = cell.dataset.userId || "";
-    const direct = id && initiators.get(`id:${id}`);
-    if (direct) return direct;
-    if (name) return initiators.get(`name:${name}`) || null;
+    const id = String(cell.dataset.userId || "");
+    if (id && initiators.has(`id:${id}`)) return initiators.get(`id:${id}`);
+    if (name && initiators.has(`name:${name}`)) return initiators.get(`name:${name}`);
     return null;
   }
 
@@ -123,43 +174,6 @@
     stage.querySelectorAll(".cell:not([data-timeout-key-added])").forEach(addKey);
   }
 
-  if (originalWebSocket) {
-    class KeyWebSocket extends originalWebSocket {
-      set onmessage(handler) {
-        if (typeof handler !== "function") {
-          super.onmessage = handler;
-          return;
-        }
-        super.onmessage = (event) => {
-          try {
-            const message = JSON.parse(event.data);
-            const payload = flatten(message.data || message);
-            applySettings(payload);
-            const source = String(message?.event?.source || "").toLowerCase();
-            const type = String(message?.event?.type || "").toLowerCase();
-            if (source === "twitchusertimedout" || type === "usertimedout") remember(payload);
-            if (source === "custom" && type === "event") {
-              const d = flatten(message.data || {});
-              applySettings(d);
-              const action = String(d.actionName || d.name || "").toLowerCase();
-              if (action.includes("timeout") || d.timeoutInitiatorName || d.createdByUsername) remember(d);
-              addPendingKeys();
-            }
-          } catch {
-            // Ignore non-JSON websocket messages.
-          }
-          handler(event);
-        };
-      }
-    }
-
-    KeyWebSocket.CONNECTING = originalWebSocket.CONNECTING;
-    KeyWebSocket.OPEN = originalWebSocket.OPEN;
-    KeyWebSocket.CLOSING = originalWebSocket.CLOSING;
-    KeyWebSocket.CLOSED = originalWebSocket.CLOSED;
-    window.WebSocket = KeyWebSocket;
-  }
-
   function observe() {
     const stage = document.getElementById("stage");
     if (!stage) {
@@ -170,9 +184,6 @@
     const observer = new MutationObserver(() => addPendingKeys());
     observer.observe(stage, { childList: true, subtree: true });
     addPendingKeys();
-
-    // The timeout cell and initiator event arrive over separate WebSockets.
-    // Retry briefly so their arrival order cannot prevent the key animation.
     setInterval(addPendingKeys, 100);
 
     setInterval(() => {
