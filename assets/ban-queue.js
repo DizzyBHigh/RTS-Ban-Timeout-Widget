@@ -21,7 +21,7 @@
 
       const eventName = String(data.eventName || data.triggerCustomEventName || "").toLowerCase();
       const action = String(data.banWidgetAction || data.action || "").toLowerCase();
-      if (eventName && eventName !== "RTS-BanWidget") return null;
+      if (eventName && eventName !== "banwidget") return null;
       if (action !== "ban") return null;
 
       return { message, data };

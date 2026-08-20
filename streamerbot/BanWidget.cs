@@ -131,7 +131,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetInitiatorAvatar", initiatorAvatar ?? "");
         CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration", "banDuration") ?? "");
         CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "banReason", "message") ?? "");
-        CPH.TriggerEvent("RTS-BanWidget", true);
+        CPH.TriggerEvent("BanWidget", true);
         return true;
     }
 

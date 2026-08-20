@@ -58,11 +58,11 @@
   // Keep the normal CustomEvent listener, but also expose a direct hook for
   // script.js and wrap dispatchEvent so the handoff is robust during startup.
   window.__banWidgetTimeoutKey = remember;
-  window.addEventListener("RTS-BanWidget", event => remember(event.detail));
+  window.addEventListener("BanWidget", event => remember(event.detail));
 
   const originalDispatchEvent = window.dispatchEvent.bind(window);
   window.dispatchEvent = function (event) {
-    if (event && event.type === "RTS-BanWidget") {
+    if (event && event.type === "BanWidget") {
       try { remember(event.detail); } catch (err) { console.warn("BanWidget key handoff error", err); }
     }
     return originalDispatchEvent(event);

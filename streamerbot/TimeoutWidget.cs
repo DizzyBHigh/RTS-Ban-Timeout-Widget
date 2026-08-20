@@ -225,7 +225,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration") ?? "");
         CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "message") ?? "");
 
-        CPH.TriggerEvent("RTS-BanWidget", true);
+        CPH.TriggerEvent("BanWidget", true);
         return true;
     }
 
