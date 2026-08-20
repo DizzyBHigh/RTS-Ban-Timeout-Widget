@@ -143,11 +143,15 @@ jobs:
         shell: bash
         run: |
           VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          PRODUCT=$(python -c "import json; print(json.load(open('RTS-release.json'))['product'])")
+          SLUG=$(python -c "import json; print(json.load(open('RTS-release.json'))['slug'])")
           SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
           IMPORT_SOURCE=$(python -c "import json; print(json.load(open('RTS-release.json'))['streamerBotImport']['file'])")
           IMPORT_NAME="RTS Ban Timeout Widget v${VERSION} - Import Code.txt"
           echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           echo "import_source=$IMPORT_SOURCE" >> "$GITHUB_OUTPUT"
           echo "import_name=$IMPORT_NAME" >> "$GITHUB_OUTPUT"
 
@@ -178,11 +182,28 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+          release = json.loads(Path('RTS-release.json').read_text())
+          site = release.get('site', {})
           payload = {
-              'version': '${{ steps.metadata.outputs.version }}',
+              'product': release['product'],
+              'slug': release['slug'],
+              'version': release['version'],
+              'type': site.get('type', ''),
+              'status': site.get('status', 'RELEASED'),
+              'description': site.get('description', ''),
+              'tags': site.get('tags', []),
+              'footerLabel': site.get('footerLabel', ''),
+              'url': f"/extensions/{release['slug']}/",
+              'overlayUrl': release['overlay']['sitePath'],
+              'importFilename': '${{ steps.metadata.outputs.import_name }}'
+          }
+          Path('website/_data/rts_ban_timeout.json').write_text(json.dumps(payload, indent=2) + '\n')
+
+          import_payload = {
+              'version': release['version'],
               'filename': '${{ steps.metadata.outputs.import_name }}'
           }
-          Path('website/_data/rts_ban_timeout_import.json').write_text(json.dumps(payload, indent=2) + '\n')
+          Path('website/_data/rts_ban_timeout_import.json').write_text(json.dumps(import_payload, indent=2) + '\n')
           PY
 
       - name: Commit website update
@@ -192,7 +213,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add extensions/rts-ban-timeout-widget _data/rts_ban_timeout_import.json
+          git add extensions/rts-ban-timeout-widget _data/rts_ban_timeout.json _data/rts_ban_timeout_import.json
           if git diff --cached --quiet; then
             echo "No website changes to commit."
             exit 0
