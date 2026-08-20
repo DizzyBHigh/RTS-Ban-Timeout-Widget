@@ -56,40 +56,10 @@ public class CPHInline
         CPH.SetArgument("banWidgetEventType", eventTypeName);
         CPH.SetArgument("banWidgetAction", "timeout");
 
-        string targetId = FirstArg(
-            "banWidgetTargetId",
-            "userId",
-            "targetUserId",
-            "timeoutTargetUserId",
-            "timedOutUserId"
-        );
-        string targetUsername = FirstArg(
-            "banWidgetTargetUsername",
-            "userName",
-            "targetUserName",
-            "username",
-            "login",
-            "timeoutTargetUserName",
-            "timedOutUserName"
-        );
-        string targetDisplayName = FirstArg(
-            "banWidgetTargetName",
-            "user",
-            "targetUser",
-            "displayName",
-            "userName",
-            "username",
-            "login",
-            "timeoutTargetUserDisplayName",
-            "timedOutUser"
-        );
-        string targetAvatar = FirstArg(
-            "banWidgetTargetAvatar",
-            "targetUserProfileImageUrl",
-            "profileImageUrl",
-            "avatar",
-            "userProfileImageUrl"
-        );
+        string targetId = FirstArg("banWidgetTargetId", "userId", "targetUserId", "timeoutTargetUserId", "timedOutUserId");
+        string targetUsername = FirstArg("banWidgetTargetUsername", "userName", "targetUserName", "username", "login", "timeoutTargetUserName", "timedOutUserName");
+        string targetDisplayName = FirstArg("banWidgetTargetName", "user", "targetUser", "displayName", "userName", "username", "login", "timeoutTargetUserDisplayName", "timedOutUser");
+        string targetAvatar = FirstArg("banWidgetTargetAvatar", "targetUserProfileImageUrl", "profileImageUrl", "avatar", "userProfileImageUrl");
 
         if (string.IsNullOrWhiteSpace(targetAvatar) && !string.IsNullOrWhiteSpace(targetId))
         {
@@ -99,10 +69,8 @@ public class CPHInline
                 if (target != null)
                 {
                     targetAvatar = target.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(targetUsername))
-                        targetUsername = target.UserName;
-                    if (string.IsNullOrWhiteSpace(targetDisplayName))
-                        targetDisplayName = target.UserName;
+                    if (string.IsNullOrWhiteSpace(targetUsername)) targetUsername = target.UserName;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
                 }
             }
             catch (Exception ex)
@@ -119,10 +87,8 @@ public class CPHInline
                 if (target != null)
                 {
                     targetAvatar = target.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(targetId))
-                        targetId = target.UserId;
-                    if (string.IsNullOrWhiteSpace(targetDisplayName))
-                        targetDisplayName = target.UserName;
+                    if (string.IsNullOrWhiteSpace(targetId)) targetId = target.UserId;
+                    if (string.IsNullOrWhiteSpace(targetDisplayName)) targetDisplayName = target.UserName;
                 }
             }
             catch (Exception ex)
@@ -136,54 +102,22 @@ public class CPHInline
         CPH.SetArgument("banWidgetTargetName", targetDisplayName ?? "");
         CPH.SetArgument("banWidgetTargetAvatar", targetAvatar ?? "");
 
-        string initiatorName = FirstArg(
-            "timeoutInitiatorName",
-            "createdByDisplayName",
-            "moderatorDisplayName",
-            "moderatorName",
-            "initiatorName",
-            "performedByName",
-            "senderName"
-        );
-        string initiatorUsername = FirstArg(
-            "timeoutInitiatorUsername",
-            "createdByUsername",
-            "moderatorUsername",
-            "moderatorLogin",
-            "initiatorUsername"
-        );
-        string initiatorId = FirstArg(
-            "timeoutInitiatorId",
-            "createdById",
-            "moderatorId",
-            "initiatorId"
-        );
-        string initiatorAvatar = FirstArg(
-            "timeoutInitiatorAvatar",
-            "initiatorAvatar",
-            "moderatorAvatar",
-            "moderatorProfileImageUrl",
-            "performedByAvatar",
-            "senderAvatar"
-        );
+        string initiatorName = FirstArg("timeoutInitiatorName", "createdByDisplayName", "moderatorDisplayName", "moderatorName", "initiatorName", "performedByName", "senderName");
+        string initiatorUsername = FirstArg("timeoutInitiatorUsername", "createdByUsername", "moderatorUsername", "moderatorLogin", "initiatorUsername");
+        string initiatorId = FirstArg("timeoutInitiatorId", "createdById", "moderatorId", "initiatorId");
+        string initiatorAvatar = FirstArg("timeoutInitiatorAvatar", "initiatorAvatar", "moderatorAvatar", "moderatorProfileImageUrl", "performedByAvatar", "senderAvatar");
 
         if (string.IsNullOrWhiteSpace(initiatorAvatar))
         {
             try
             {
-                var initiator = !string.IsNullOrWhiteSpace(initiatorId)
-                    ? CPH.TwitchGetExtendedUserInfoById(initiatorId)
-                    : null;
-
+                var initiator = !string.IsNullOrWhiteSpace(initiatorId) ? CPH.TwitchGetExtendedUserInfoById(initiatorId) : null;
                 if (initiator != null)
                 {
                     initiatorAvatar = initiator.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(initiatorName))
-                        initiatorName = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorUsername))
-                        initiatorUsername = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorId))
-                        initiatorId = initiator.UserId;
+                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorUsername)) initiatorUsername = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
                 }
             }
             catch (Exception ex)
@@ -200,10 +134,8 @@ public class CPHInline
                 if (initiator != null)
                 {
                     initiatorAvatar = initiator.ProfileImageUrl;
-                    if (string.IsNullOrWhiteSpace(initiatorName))
-                        initiatorName = initiator.UserName;
-                    if (string.IsNullOrWhiteSpace(initiatorId))
-                        initiatorId = initiator.UserId;
+                    if (string.IsNullOrWhiteSpace(initiatorName)) initiatorName = initiator.UserName;
+                    if (string.IsNullOrWhiteSpace(initiatorId)) initiatorId = initiator.UserId;
                 }
             }
             catch (Exception ex)
@@ -225,19 +157,15 @@ public class CPHInline
         CPH.SetArgument("banWidgetDuration", FirstArg("duration", "timeoutDuration") ?? "");
         CPH.SetArgument("banWidgetReason", FirstArg("reason", "timeoutReason", "message") ?? "");
 
-        CPH.TriggerEvent("BanWidget", true);
+        CPH.TriggerEvent("RTS-BanWidget", true);
         return true;
     }
 
     private static string NormalizePlatform(string source)
     {
-        if (string.Equals(source, "Twitch", StringComparison.OrdinalIgnoreCase))
-            return "twitch";
-        if (string.Equals(source, "Kick", StringComparison.OrdinalIgnoreCase))
-            return "kick";
-        if (string.Equals(source, "YouTube", StringComparison.OrdinalIgnoreCase))
-            return "youtube";
-
+        if (string.Equals(source, "Twitch", StringComparison.OrdinalIgnoreCase)) return "twitch";
+        if (string.Equals(source, "Kick", StringComparison.OrdinalIgnoreCase)) return "kick";
+        if (string.Equals(source, "YouTube", StringComparison.OrdinalIgnoreCase)) return "youtube";
         return (source ?? "").Trim().ToLowerInvariant();
     }
 
@@ -245,10 +173,8 @@ public class CPHInline
     {
         foreach (string name in names)
         {
-            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value))
-                return value;
+            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value)) return value;
         }
-
         return null;
     }
 }
