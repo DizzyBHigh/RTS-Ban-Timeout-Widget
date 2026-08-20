@@ -89,6 +89,10 @@ jobs:
           Path('build/RTS-release.json').write_text(json.dumps(data, indent=2) + '\n')
           PY
 
+      - name: Prepare versioned import code
+        shell: bash
+        run: cp "${{ steps.metadata.outputs.import_source }}" "build/${{ steps.metadata.outputs.import_name }}"
+
       - name: Create GitHub release and tag
         uses: softprops/action-gh-release@v2
         with:
@@ -99,19 +103,10 @@ jobs:
           files: |
             build/${{ steps.metadata.outputs.zip_name }}
             build/RTS-release.json
-
-      - name: Prepare versioned import code
-        shell: bash
-        run: cp "${{ steps.metadata.outputs.import_source }}" "build/${{ steps.metadata.outputs.import_name }}"
-
-      - name: Attach versioned import code to release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.metadata.outputs.version }}
-          files: build/${{ steps.metadata.outputs.import_name }}
+            build/${{ steps.metadata.outputs.import_name }}
 
   publish-site:
-    name: Publish public overlay to RTS website
+    name: Publish public overlay and import to RTS website
     needs: [detect-release, release]
     if: needs.detect-release.outputs.release == 'true'
     runs-on: ubuntu-latest
@@ -156,7 +151,7 @@ jobs:
           token: ${{ secrets.RTS_WEBSITE_TOKEN }}
           path: website
 
-      - name: Publish online overlay and release files
+      - name: Publish online overlay, import file and page data
         if: steps.token.outputs.configured == 'true'
         shell: bash
         run: |
@@ -171,6 +166,21 @@ jobs:
           cp RTS-release.json "$PRODUCT_DIR/RTS-release.json"
           cp "${{ steps.metadata.outputs.import_source }}" "$PRODUCT_DIR/${{ steps.metadata.outputs.import_name }}"
 
+          mkdir -p website/_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          version = '${{ steps.metadata.outputs.version }}'
+          filename = '${{ steps.metadata.outputs.import_name }}'
+          source = Path('${{ steps.metadata.outputs.import_source }}').read_text()
+          payload = {
+              'version': version,
+              'filename': filename,
+              'code': source
+          }
+          Path('website/_data/rts_ban_timeout_import.json').write_text(json.dumps(payload, indent=2) + '\n')
+          PY
+
       - name: Commit website update
         if: steps.token.outputs.configured == 'true'
         shell: bash
@@ -178,7 +188,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add extensions/rts-ban-timeout-widget
+          git add extensions/rts-ban-timeout-widget _data/rts_ban_timeout_import.json
           if git diff --cached --quiet; then
             echo "No website changes to commit."
             exit 0
