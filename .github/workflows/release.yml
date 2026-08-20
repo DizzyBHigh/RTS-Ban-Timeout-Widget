@@ -61,16 +61,28 @@ jobs:
   publish-site:
     name: Publish public overlay to RTS website
     needs: release
-    if: ${{ env.WEBSITE_TOKEN != '' }}
     runs-on: ubuntu-latest
     env:
       WEBSITE_TOKEN: ${{ secrets.RTS_WEBSITE_TOKEN }}
 
     steps:
+      - name: Check whether website publishing is configured
+        id: token
+        shell: bash
+        run: |
+          if [ -n "$WEBSITE_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "RTS_WEBSITE_TOKEN is not configured; website publishing will be skipped."
+          fi
+
       - name: Check out extension
+        if: ${{ steps.token.outputs.configured == 'true' }}
         uses: actions/checkout@v4
 
       - name: Read release metadata
+        if: ${{ steps.token.outputs.configured == 'true' }}
         id: metadata
         shell: bash
         run: |
@@ -80,6 +92,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check out public website
+        if: ${{ steps.token.outputs.configured == 'true' }}
         uses: actions/checkout@v4
         with:
           repository: DizzyBHigh/road-to-somewhere
@@ -87,6 +100,7 @@ jobs:
           path: website
 
       - name: Publish online overlay
+        if: ${{ steps.token.outputs.configured == 'true' }}
         shell: bash
         run: |
           DEST="website${{ steps.metadata.outputs.site_path }}"
@@ -96,10 +110,12 @@ jobs:
           cp -R assets "$DEST/assets"
 
           PRODUCT_DIR="website/extensions/rts-ban-timeout-widget"
+          mkdir -p "$PRODUCT_DIR"
           cp RTS-release.json "$PRODUCT_DIR/RTS-release.json"
           cp "SB Import Code.txt" "$PRODUCT_DIR/streamerbot-import.txt"
 
       - name: Commit website update
+        if: ${{ steps.token.outputs.configured == 'true' }}
         shell: bash
         working-directory: website
         run: |
