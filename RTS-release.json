@@ -9,11 +9,10 @@
   },
   "overlay": {
     "source": "./",
-    "sitePath": "/extensions/rts-ban-timeout-widget/overlay/",
-    "zipName": "RTS-Ban-Timeout-Widget-v1.0.0-Overlay.zip"
+    "sitePath": "/extensions/rts-ban-timeout-widget/overlay/"
   },
   "streamerBotImport": {
     "providedManually": true,
-    "file": "SB Import Code.txt"
+    "file": "RTS Ban Timeout Widget - Import Code.txt"
   }
 }
