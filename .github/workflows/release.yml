@@ -1,0 +1,65 @@
+name: Build and Release Overlay
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package overlay and create release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Read release metadata
+        id: metadata
+        shell: bash
+        run: |
+          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          PRODUCT=$(python -c "import json; print(json.load(open('RTS-release.json'))['product'])")
+          ZIP_NAME=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['zipName'])")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Validate tag matches release metadata
+        shell: bash
+        run: |
+          EXPECTED="v${{ steps.metadata.outputs.version }}"
+          if [ "$GITHUB_REF_NAME" != "$EXPECTED" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match RTS-release.json version $EXPECTED"
+            exit 1
+          fi
+
+      - name: Build overlay package
+        shell: bash
+        run: |
+          mkdir -p build/overlay
+          cp index.html build/overlay/
+          cp -R assets build/overlay/assets
+          cd build
+          zip -r "${{ steps.metadata.outputs.zip_name }}" overlay >/dev/null
+
+      - name: Create release manifest
+        shell: bash
+        run: |
+          mkdir -p build/release
+          cp RTS-release.json build/release/RTS-release.json
+          cp "SB Import Code.txt" build/release/"SB Import Code.txt"
+          cp build/"${{ steps.metadata.outputs.zip_name }}" build/release/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.metadata.outputs.product }} v${{ steps.metadata.outputs.version }}"
+          generate_release_notes: true
+          files: |
+            build/${{ steps.metadata.outputs.zip_name }}
+            build/release/RTS-release.json
+            build/release/SB Import Code.txt
