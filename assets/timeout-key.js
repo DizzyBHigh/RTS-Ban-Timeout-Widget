@@ -1,6 +1,5 @@
 (() => {
-  // The BanWidget custom event is the canonical source for timeout data.
-  // script.js receives it and forwards the same payload to this component.
+  // Consume the canonical BanWidget custom event from script.js.
   const initiators = new Map();
   let showKeyAnimation = true;
 
@@ -23,29 +22,25 @@
     const d = flatten(data);
     if (!d || typeof d !== "object") return;
     if (d.banWidgetShowKeyAnimation !== undefined) {
-      showKeyAnimation = d.banWidgetShowKeyAnimation === true ||
-        String(d.banWidgetShowKeyAnimation).toLowerCase() === "true";
+      showKeyAnimation = d.banWidgetShowKeyAnimation === true || String(d.banWidgetShowKeyAnimation).toLowerCase() === "true";
     }
   }
 
   function remember(data) {
     const d = flatten(data);
     if (!d || typeof d !== "object") return;
-
-    const action = String(d.banWidgetAction || d.action || "").toLowerCase();
+    const action = String(d.banWidgetAction || "").toLowerCase();
     if (action !== "timeout") return;
 
     const id = String(d.banWidgetTargetId || "");
     const login = String(d.banWidgetTargetUsername || "").toLowerCase();
     const display = String(d.banWidgetTargetName || "").toLowerCase();
-
-    const initiatorName = d.banWidgetInitiatorName || d.timeoutInitiatorName || "";
+    const initiatorName = d.banWidgetInitiatorName || d.timeoutInitiatorName || d.createdByDisplayName || "";
     const initiatorAvatar = d.banWidgetInitiatorAvatar || d.timeoutInitiatorAvatar || "";
-    const initiatorId = d.banWidgetInitiatorId || d.timeoutInitiatorId || "";
-    const initiatorUsername = d.banWidgetInitiatorUsername || d.timeoutInitiatorUsername || "";
+    const initiatorId = d.banWidgetInitiatorId || d.timeoutInitiatorId || d.createdById || "";
+    const initiatorUsername = d.banWidgetInitiatorUsername || d.timeoutInitiatorUsername || d.createdByUsername || "";
 
     if (!initiatorName && !initiatorAvatar) return;
-
     const info = {
       name: String(initiatorName || initiatorUsername),
       username: String(initiatorUsername || ""),
@@ -57,7 +52,6 @@
     if (id) initiators.set(`id:${id}`, info);
     if (login) initiators.set(`name:${login}`, info);
     if (display) initiators.set(`name:${display}`, info);
-
     applySettings(d);
     addPendingKeys();
   }
@@ -73,18 +67,12 @@
   function addKey(cell) {
     if (!showKeyAnimation) return false;
     if (!cell || !cell.classList.contains("cell") || cell.querySelector(".timeout-key")) return true;
-
     const initiator = findInitiator(cell);
     if (!initiator) return false;
 
     const key = document.createElement("div");
     key.className = "timeout-key";
-    key.innerHTML =
-      '<div class="timeout-key-head"><img alt=""></div>' +
-      '<div class="timeout-key-shaft"></div>' +
-      '<div class="timeout-key-tooth"></div>' +
-      '<div class="timeout-key-label"></div>';
-
+    key.innerHTML = '<div class="timeout-key-head"><img alt=""></div><div class="timeout-key-shaft"></div><div class="timeout-key-tooth"></div><div class="timeout-key-label"></div>';
     const image = key.querySelector("img");
     const label = key.querySelector(".timeout-key-label");
     image.src = initiator.avatar || "";
@@ -92,7 +80,6 @@
     image.onerror = () => (image.style.opacity = "0.15");
     label.textContent = initiator.name || "";
     if (!initiator.name) label.hidden = true;
-
     cell.appendChild(key);
     cell.dataset.timeoutInitiatorName = initiator.name;
     cell.dataset.timeoutInitiatorId = initiator.id;
@@ -109,22 +96,13 @@
 
   function observe() {
     const stage = document.getElementById("stage");
-    if (!stage) {
-      requestAnimationFrame(observe);
-      return;
-    }
-
-    const observer = new MutationObserver(() => addPendingKeys());
-    observer.observe(stage, { childList: true, subtree: true });
+    if (!stage) return requestAnimationFrame(observe);
+    new MutationObserver(addPendingKeys).observe(stage, { childList: true, subtree: true });
     addPendingKeys();
-
     setInterval(addPendingKeys, 100);
-
     setInterval(() => {
       const now = Date.now();
-      for (const [key, value] of initiators) {
-        if (value.expires < now) initiators.delete(key);
-      }
+      for (const [key, value] of initiators) if (value.expires < now) initiators.delete(key);
     }, 5000);
   }
 
