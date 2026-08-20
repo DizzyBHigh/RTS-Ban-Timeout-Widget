@@ -24,9 +24,11 @@ jobs:
           VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
           PRODUCT=$(python -c "import json; print(json.load(open('RTS-release.json'))['product'])")
           ZIP_NAME=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['zipName'])")
+          SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
           echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+          echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Validate tag matches release metadata
         shell: bash
@@ -46,14 +48,6 @@ jobs:
           cd build
           zip -r "${{ steps.metadata.outputs.zip_name }}" overlay >/dev/null
 
-      - name: Create release manifest
-        shell: bash
-        run: |
-          mkdir -p build/release
-          cp RTS-release.json build/release/RTS-release.json
-          cp "SB Import Code.txt" build/release/"SB Import Code.txt"
-          cp build/"${{ steps.metadata.outputs.zip_name }}" build/release/
-
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -61,5 +55,60 @@ jobs:
           generate_release_notes: true
           files: |
             build/${{ steps.metadata.outputs.zip_name }}
-            build/release/RTS-release.json
-            build/release/SB Import Code.txt
+            RTS-release.json
+            SB Import Code.txt
+
+  publish-site:
+    name: Publish public overlay to RTS website
+    needs: release
+    if: ${{ env.WEBSITE_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    env:
+      WEBSITE_TOKEN: ${{ secrets.RTS_WEBSITE_TOKEN }}
+
+    steps:
+      - name: Check out extension
+        uses: actions/checkout@v4
+
+      - name: Read release metadata
+        id: metadata
+        shell: bash
+        run: |
+          SITE_PATH=$(python -c "import json; print(json.load(open('RTS-release.json'))['overlay']['sitePath'])")
+          VERSION=$(python -c "import json; print(json.load(open('RTS-release.json'))['version'])")
+          echo "site_path=$SITE_PATH" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check out public website
+        uses: actions/checkout@v4
+        with:
+          repository: DizzyBHigh/road-to-somewhere
+          token: ${{ secrets.RTS_WEBSITE_TOKEN }}
+          path: website
+
+      - name: Publish online overlay
+        shell: bash
+        run: |
+          DEST="website${{ steps.metadata.outputs.site_path }}"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          cp index.html "$DEST/"
+          cp -R assets "$DEST/assets"
+
+          PRODUCT_DIR="website/extensions/rts-ban-timeout-widget"
+          cp RTS-release.json "$PRODUCT_DIR/RTS-release.json"
+          cp "SB Import Code.txt" "$PRODUCT_DIR/streamerbot-import.txt"
+
+      - name: Commit website update
+        shell: bash
+        working-directory: website
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add extensions/rts-ban-timeout-widget
+          if git diff --cached --quiet; then
+            echo "No website changes to commit."
+            exit 0
+          fi
+          git commit -m "Publish RTS Ban / Timeout Widget v${{ steps.metadata.outputs.version }}"
+          git push
