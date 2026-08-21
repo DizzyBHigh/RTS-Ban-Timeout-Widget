@@ -5,8 +5,8 @@
   const DESIGN_HEIGHT = 1080;
   const DESIGN_VAN_HEIGHT = 320;
   const TRAIL_HEIGHT = 92;
-  const TRAIL_OFFSET = 279;
-  const MESSAGE_GAP = 16;
+  const SKID_BOTTOM_OFFSET = 44;
+  const MESSAGE_GAP = 0;
   const vanScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messageScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messagePositionModes = new Set(["Below Van", "Above Van", "Manual"]);
@@ -51,21 +51,23 @@
     const messageHeight = 32 * messageScale;
     const vanHeight = DESIGN_VAN_HEIGHT * vanScale;
     const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
-    const trailTop = vanTop + TRAIL_OFFSET;
+    const trailTop = vanTop + 279;
 
     let messageTop;
 
     if (mode === "Above Van") {
-      // The truck is scaled around its bottom edge. Therefore its visual top
-      // is lower than its CSS top by the unscaled-to-scaled height difference.
+      // The truck is scaled around its bottom edge. With the transparent
+      // padding trimmed from the truck artwork, the scaled image bounds now
+      // represent the visible truck bounds directly.
       const visualTruckTop = vanTop + DESIGN_VAN_HEIGHT - vanHeight;
       messageTop = visualTruckTop - messageHeight - MESSAGE_GAP;
     } else if (mode === "Manual") {
       messageTop = (DESIGN_HEIGHT - messageHeight) * (clampPercent(Number(root.dataset.banMessagePosition ?? 50)) / 100);
     } else {
-      // The skid marks live 22px/40px inside the 92px trail. Keep the message
-      // just below the complete trail area so it remains attached at every van size.
-      messageTop = trailTop + TRAIL_HEIGHT + MESSAGE_GAP;
+      // The two skid marks occupy the upper 44px of the 92px trail container:
+      // first mark at 22px, second at 40px. Align the TOP of the message
+      // directly with the BOTTOM of the lower skid mark (44px).
+      messageTop = trailTop + SKID_BOTTOM_OFFSET + MESSAGE_GAP;
     }
 
     const top = Math.round(messageTop);
@@ -78,7 +80,7 @@
     const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
     const vanHeight = DESIGN_VAN_HEIGHT * vanScale;
     const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
-    const trailTop = vanTop + TRAIL_OFFSET;
+    const trailTop = vanTop + 279;
 
     root.style.setProperty("--ban-van-top", `${Math.round(vanTop)}px`);
     root.style.setProperty("--ban-trail-top", `${Math.round(trailTop)}px`);
