@@ -1,9 +1,9 @@
 (() => {
   const root = document.documentElement;
+  const banStage = document.getElementById("ban-stage");
   const originalApplySettings = window.applyOverlaySettings;
   const DESIGN_HEIGHT = 1080;
   const MESSAGE_GAP = 16;
-  const TRAIL_MESSAGE_OFFSET = -19;
   const vanScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messageScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messagePositionModes = new Set(["Below Van", "Above Van", "Manual"]);
@@ -32,35 +32,59 @@
     return Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
   }
 
+  function designScale(scene) {
+    const rect = scene.getBoundingClientRect();
+    return rect.width > 0 ? rect.width / 1920 : 1;
+  }
+
+  function localTop(scene, screenTop) {
+    const sceneRect = scene.getBoundingClientRect();
+    const scale = designScale(scene);
+    return (screenTop - sceneRect.top) / scale;
+  }
+
+  function positionMessageLayer(scene) {
+    if (!scene?.isConnected) return;
+    const layer = scene.querySelector(".ban-message-layer");
+    const truck = scene.querySelector(".truck");
+    const trail = scene.querySelector(".ban-trail");
+    if (!layer || !truck || !trail) return;
+
+    const mode = root.dataset.banMessagePositionMode || "Below Van";
+    const messageRect = layer.getBoundingClientRect();
+    let messageTop;
+
+    if (mode === "Above Van") {
+      // Anchor to the actual rendered top of the scaled truck.
+      messageTop = localTop(scene, truck.getBoundingClientRect().top) - (messageRect.height / designScale(scene)) - MESSAGE_GAP;
+    } else if (mode === "Manual") {
+      const messageHeight = messageRect.height / designScale(scene);
+      const messagePosition = clampPercent(Number(root.dataset.banMessagePosition ?? 50));
+      messageTop = (DESIGN_HEIGHT - messageHeight) * (messagePosition / 100);
+    } else {
+      // Anchor just below the actual rendered skid-mark/trail area.
+      messageTop = localTop(scene, trail.getBoundingClientRect().bottom) + MESSAGE_GAP;
+    }
+
+    root.style.setProperty("--ban-message-top", `${Math.round(messageTop)}px`);
+  }
+
   function updateVerticalPositions() {
     const vanPosition = clampPercent(Number(root.dataset.banVanPosition ?? 50));
-    const messagePosition = clampPercent(Number(root.dataset.banMessagePosition ?? 50));
-    const mode = root.dataset.banMessagePositionMode || "Below Van";
     const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
-    const messageScale = Number(root.style.getPropertyValue("--ban-message-scale")) || 1;
-
-    // The truck's CSS transform uses left-bottom as its transform origin.
-    // Therefore the visual top is different from the unscaled CSS top.
     const vanHeight = 320 * vanScale;
     const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
     const trailTop = vanTop + 279;
-    const messageHeight = 32 * messageScale;
-
-    let messageTop;
-    if (mode === "Above Van") {
-      const visualVanTop = vanTop + 320 - vanHeight;
-      messageTop = visualVanTop - messageHeight - MESSAGE_GAP;
-    } else if (mode === "Manual") {
-      messageTop = (DESIGN_HEIGHT - messageHeight) * (messagePosition / 100);
-    } else {
-      // Below Van: keep the message in the existing skid-mark/message lane,
-      // but derive it from the van position so it follows every van size.
-      messageTop = trailTop + TRAIL_MESSAGE_OFFSET;
-    }
 
     root.style.setProperty("--ban-van-top", `${Math.round(vanTop)}px`);
     root.style.setProperty("--ban-trail-top", `${Math.round(trailTop)}px`);
-    root.style.setProperty("--ban-message-top", `${Math.round(messageTop)}px`);
+
+    // The message layer is created by ban-message-lifecycle.js after the scene
+    // enters the DOM. Position existing layers now and newly-created layers below.
+    if (banStage) {
+      banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer);
+      requestAnimationFrame(() => banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer));
+    }
   }
 
   function applySettings(d) {
@@ -85,6 +109,24 @@
 
   if (typeof originalApplySettings === "function") {
     window.applyOverlaySettings = (d) => { originalApplySettings(d); applySettings(d); };
+  }
+
+  if (banStage) {
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.classList.contains("ban-scene")) {
+            requestAnimationFrame(() => positionMessageLayer(node));
+          }
+          node.querySelectorAll?.(".ban-scene").forEach(scene => requestAnimationFrame(() => positionMessageLayer(scene)));
+        }
+      }
+    });
+    observer.observe(banStage, { childList: true, subtree: true });
+    window.addEventListener("resize", () => {
+      requestAnimationFrame(() => banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer));
+    }, { passive: true });
   }
 
   applyVanSize("Large");
