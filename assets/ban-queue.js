@@ -1,6 +1,7 @@
 (() => {
   const NativeWebSocket = window.WebSocket;
   const stage = document.getElementById("stage");
+  const banStage = document.getElementById("ban-stage") || stage;
   const connections = new Set();
   const banQueue = [];
   let banActive = false;
@@ -50,7 +51,7 @@
   }
 
   function applyQueuedBanSettings(data) {
-    const scenes = stage ? [...stage.querySelectorAll(".ban-scene")] : [];
+    const scenes = banStage ? [...banStage.querySelectorAll(".ban-scene")] : [];
     const scene = scenes[scenes.length - 1];
     if (!scene) return;
 
@@ -108,7 +109,7 @@
   queuedWebSocket.prototype = NativeWebSocket.prototype;
   window.WebSocket = queuedWebSocket;
 
-  if (stage) {
+  if (banStage) {
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.removedNodes) {
@@ -120,6 +121,6 @@
         }
       }
     });
-    observer.observe(stage, { childList: true });
+    observer.observe(banStage, { childList: true });
   }
 })();

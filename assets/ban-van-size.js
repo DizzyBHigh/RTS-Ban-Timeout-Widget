@@ -1,6 +1,7 @@
 (() => {
   const root = document.documentElement;
   const originalApplySettings = window.applyOverlaySettings;
+  const DESIGN_HEIGHT = 1080;
   const vanScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messageScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
 
@@ -27,21 +28,14 @@
     const messagePosition = clampPercent(Number(root.dataset.banMessagePosition ?? 50));
     const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
     const messageScale = Number(root.style.getPropertyValue("--ban-message-scale")) || 1;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
 
-    // Position the van's transformed visual box from top (0) to bottom (100).
+    // The ban animation lives in a fixed 1920x1080 design stage. The
+    // responsive stage scales that complete canvas to the browser viewport.
     const vanHeight = 320 * vanScale;
-    const vanTop = (viewportHeight - vanHeight) * (vanPosition / 100);
-
-    // The skid trail is anchored to the van's untransformed bottom edge.
-    // The truck uses transform-origin: left bottom, so its CSS bottom is
-    // vanTop + 320px regardless of scale. The calibrated skid lines sit
-    // 279px below the truck's CSS top and therefore stay aligned at every size.
+    const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
     const trailTop = vanTop + 279;
-
-    // Position the message's own lane from top (0) to bottom (100).
     const messageHeight = 32 * messageScale;
-    const messageTop = (viewportHeight - messageHeight) * (messagePosition / 100);
+    const messageTop = (DESIGN_HEIGHT - messageHeight) * (messagePosition / 100);
 
     root.style.setProperty("--ban-van-top", `${Math.round(vanTop)}px`);
     root.style.setProperty("--ban-trail-top", `${Math.round(trailTop)}px`);
@@ -75,5 +69,4 @@
   root.dataset.banMessagePosition = "50";
   root.dataset.banMessageVisibility = "Visible";
   updateVerticalPositions();
-  window.addEventListener("resize", updateVerticalPositions);
 })();
