@@ -3,6 +3,9 @@
   const banStage = document.getElementById("ban-stage");
   const originalApplySettings = window.applyOverlaySettings;
   const DESIGN_HEIGHT = 1080;
+  const DESIGN_VAN_HEIGHT = 320;
+  const TRAIL_HEIGHT = 92;
+  const TRAIL_OFFSET = 279;
   const MESSAGE_GAP = 16;
   const vanScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
   const messageScales = { "Large": 1, "Medium": 0.85, "Small": 0.70, "Extra Small": 0.60 };
@@ -32,64 +35,68 @@
     return Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
   }
 
-  function designScale(scene) {
-    const rect = scene.getBoundingClientRect();
-    return rect.width > 0 ? rect.width / 1920 : 1;
-  }
-
-  function localTop(scene, screenTop) {
-    const sceneRect = scene.getBoundingClientRect();
-    const scale = designScale(scene);
-    return (screenTop - sceneRect.top) / scale;
+  function getMessageScale() {
+    return Number(root.style.getPropertyValue("--ban-message-scale")) || 1;
   }
 
   function positionMessageLayer(scene) {
     if (!scene?.isConnected) return;
     const layer = scene.querySelector(".ban-message-layer");
-    const truck = scene.querySelector(".truck");
-    const trail = scene.querySelector(".ban-trail");
-    if (!layer || !truck || !trail) return;
+    if (!layer) return;
 
     const mode = root.dataset.banMessagePositionMode || "Below Van";
-    const messageRect = layer.getBoundingClientRect();
+    const vanPosition = clampPercent(Number(root.dataset.banVanPosition ?? 50));
+    const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
+    const messageScale = getMessageScale();
+    const messageHeight = 32 * messageScale;
+    const vanHeight = DESIGN_VAN_HEIGHT * vanScale;
+    const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
+    const trailTop = vanTop + TRAIL_OFFSET;
+
     let messageTop;
 
     if (mode === "Above Van") {
-      // Anchor to the actual rendered top of the scaled truck.
-      messageTop = localTop(scene, truck.getBoundingClientRect().top) - (messageRect.height / designScale(scene)) - MESSAGE_GAP;
+      // The truck is scaled around its bottom edge. Therefore its visual top
+      // is lower than its CSS top by the unscaled-to-scaled height difference.
+      const visualTruckTop = vanTop + DESIGN_VAN_HEIGHT - vanHeight;
+      messageTop = visualTruckTop - messageHeight - MESSAGE_GAP;
     } else if (mode === "Manual") {
-      const messageHeight = messageRect.height / designScale(scene);
-      const messagePosition = clampPercent(Number(root.dataset.banMessagePosition ?? 50));
-      messageTop = (DESIGN_HEIGHT - messageHeight) * (messagePosition / 100);
+      messageTop = (DESIGN_HEIGHT - messageHeight) * (clampPercent(Number(root.dataset.banMessagePosition ?? 50)) / 100);
     } else {
-      // Anchor just below the actual rendered skid-mark/trail area.
-      messageTop = localTop(scene, trail.getBoundingClientRect().bottom) + MESSAGE_GAP;
+      // The skid marks live 22px/40px inside the 92px trail. Keep the message
+      // just below the complete trail area so it remains attached at every van size.
+      messageTop = trailTop + TRAIL_HEIGHT + MESSAGE_GAP;
     }
 
-    root.style.setProperty("--ban-message-top", `${Math.round(messageTop)}px`);
+    const top = Math.round(messageTop);
+    layer.style.setProperty("--ban-message-top", `${top}px`);
+    layer.style.top = `${top}px`;
   }
 
   function updateVerticalPositions() {
     const vanPosition = clampPercent(Number(root.dataset.banVanPosition ?? 50));
     const vanScale = Number(root.style.getPropertyValue("--ban-van-scale")) || 1;
-    const vanHeight = 320 * vanScale;
+    const vanHeight = DESIGN_VAN_HEIGHT * vanScale;
     const vanTop = (DESIGN_HEIGHT - vanHeight) * (vanPosition / 100);
-    const trailTop = vanTop + 279;
+    const trailTop = vanTop + TRAIL_OFFSET;
 
     root.style.setProperty("--ban-van-top", `${Math.round(vanTop)}px`);
     root.style.setProperty("--ban-trail-top", `${Math.round(trailTop)}px`);
 
-    // The message layer is created by ban-message-lifecycle.js after the scene
-    // enters the DOM. Position existing layers now and newly-created layers below.
     if (banStage) {
       banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer);
       requestAnimationFrame(() => banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer));
+      requestAnimationFrame(() => requestAnimationFrame(() => banStage.querySelectorAll(".ban-scene").forEach(positionMessageLayer)));
     }
   }
 
   function applySettings(d) {
     if (!d || typeof d !== "object") return;
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVanSize")) applyVanSize(String(d.banWidgetBanVanSize));
+    if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVerticalPosition")) {
+      root.dataset.banVanPosition = clampPercent(Number(d.banWidgetBanVerticalPosition));
+      updateVerticalPositions();
+    }
     if (Object.prototype.hasOwnProperty.call(d, "banWidgetBanVanVerticalPosition")) {
       root.dataset.banVanPosition = clampPercent(Number(d.banWidgetBanVanVerticalPosition));
       updateVerticalPositions();
@@ -118,8 +125,16 @@
           if (!(node instanceof HTMLElement)) continue;
           if (node.classList.contains("ban-scene")) {
             requestAnimationFrame(() => positionMessageLayer(node));
+            requestAnimationFrame(() => requestAnimationFrame(() => positionMessageLayer(node)));
           }
-          node.querySelectorAll?.(".ban-scene").forEach(scene => requestAnimationFrame(() => positionMessageLayer(scene)));
+          node.querySelectorAll?.(".ban-scene").forEach(scene => {
+            requestAnimationFrame(() => positionMessageLayer(scene));
+            requestAnimationFrame(() => requestAnimationFrame(() => positionMessageLayer(scene)));
+          });
+          if (node.classList.contains("ban-message-layer")) {
+            const scene = node.closest(".ban-scene");
+            if (scene) requestAnimationFrame(() => positionMessageLayer(scene));
+          }
         }
       }
     });
