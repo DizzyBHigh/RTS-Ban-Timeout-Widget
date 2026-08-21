@@ -16,7 +16,7 @@
   },
   "dll": {
     "name": "The Road to Somewhere UI DLL",
-    "minimumVersion": "1.0.0",
+    "minimumVersion": "0.1.0",
     "url": "https://dizzybhigh.github.io/road-to-somewhere/dll/"
   },
   "overlay": {
