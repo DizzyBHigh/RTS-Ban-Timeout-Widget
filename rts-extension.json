@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "rts-ban-timeout-widget",
+  "name": "RTS — Ban / Timeout Widget",
+  "slug": "rts-ban-timeout-widget",
+  "version": "1.0.0",
+  "status": "released",
+  "description": "Turn moderation into an event with a cinematic ban animation, independent timeout cells, configurable positioning, sizing, messages, and a proper event queue.",
+  "repository": "https://github.com/DizzyBHigh/RTS-Ban-Timeout-Widget",
+  "runtime": {
+    "platform": "Streamer.bot + OBS",
+    "overlay": {
+      "type": "browser-source",
+      "path": "./",
+      "websitePath": "/extensions/rts-ban-timeout-widget/overlay/"
+    },
+    "streamerBot": {
+      "importFile": "RTS Ban Timeout Widget - Import Code.txt"
+    }
+  },
+  "dependencies": {
+    "rtsUiDll": {
+      "name": "RTS UI DLL",
+      "minimumVersion": "0.1.0",
+      "page": "https://dizzybhigh.github.io/road-to-somewhere/dll/"
+    }
+  },
+  "cards": {
+    "settings": true,
+    "commands": true,
+    "variables": true,
+    "faq": true,
+    "changelog": true
+  }
+}
