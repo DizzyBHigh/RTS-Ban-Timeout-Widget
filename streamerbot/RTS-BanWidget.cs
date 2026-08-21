@@ -16,6 +16,7 @@ public class CPHInline
     private const string BanVanVerticalPositionKey = "duhbuh.banwidget.banVanVerticalPosition";
     private const string BanMessageVisibilityKey = "duhbuh.banwidget.banMessageVisibility";
     private const string BanMessageSizeKey = "duhbuh.banwidget.banMessageSize";
+    private const string BanMessagePositionModeKey = "duhbuh.banwidget.banMessagePositionMode";
     private const string BanMessageVerticalPositionKey = "duhbuh.banwidget.banMessageVerticalPosition";
 
     public bool PrepareTimeout() => PrepareBanWidget("timeout");
@@ -37,6 +38,7 @@ public class CPHInline
         int banVanVerticalPosition = CPH.GetGlobalVar<int?>(BanVanVerticalPositionKey, true) ?? 50;
         string banMessageVisibility = CPH.GetGlobalVar<string>(BanMessageVisibilityKey, true) ?? "Visible";
         string banMessageSize = CPH.GetGlobalVar<string>(BanMessageSizeKey, true) ?? "Large";
+        string banMessagePositionMode = CPH.GetGlobalVar<string>(BanMessagePositionModeKey, true) ?? "Below Van";
         int banMessageVerticalPosition = CPH.GetGlobalVar<int?>(BanMessageVerticalPositionKey, true) ?? 50;
 
         if (!string.Equals(banMessageAnimationType, "Arrival", StringComparison.OrdinalIgnoreCase)) banMessageAnimationType = "Departure";
@@ -44,6 +46,7 @@ public class CPHInline
         if (!string.Equals(banVanSize, "Medium", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Small", StringComparison.OrdinalIgnoreCase) && !string.Equals(banVanSize, "Extra Small", StringComparison.OrdinalIgnoreCase)) banVanSize = "Large";
         if (!string.Equals(banMessageVisibility, "Hidden", StringComparison.OrdinalIgnoreCase)) banMessageVisibility = "Visible";
         if (!string.Equals(banMessageSize, "Medium", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageSize, "Small", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessageSize, "Extra Small", StringComparison.OrdinalIgnoreCase)) banMessageSize = "Large";
+        if (!string.Equals(banMessagePositionMode, "Above Van", StringComparison.OrdinalIgnoreCase) && !string.Equals(banMessagePositionMode, "Manual", StringComparison.OrdinalIgnoreCase)) banMessagePositionMode = "Below Van";
 
         stackScalePercent = Math.Max(10, Math.Min(100, stackScalePercent));
         maxDocked = Math.Max(1, Math.Min(25, maxDocked));
@@ -68,6 +71,7 @@ public class CPHInline
         CPH.SetArgument("banWidgetBanVanVerticalPosition", banVanVerticalPosition);
         CPH.SetArgument("banWidgetBanMessageVisibility", banMessageVisibility);
         CPH.SetArgument("banWidgetBanMessageSize", banMessageSize);
+        CPH.SetArgument("banWidgetBanMessagePositionMode", banMessagePositionMode);
         CPH.SetArgument("banWidgetBanMessageVerticalPosition", banMessageVerticalPosition);
 
         string sourceName = CPH.GetSource().ToString();
