@@ -36,7 +36,22 @@ html[data-ban-van-size="Extra Small"] .ban-scene .truck { --ban-van-scale: 0.60;
 .ban-scene .ban-trail .skid.two { top: 40px; bottom: auto; }
 .ban-scene .ban-trail.revealing .skid { animation: banSkidRevealWithTruck 4.3s linear forwards; }
 
-.ban-scene .ban-reason { left: -8px; right: auto; top: -19px; width: max-content !important; max-width: none; min-height: 30px; padding-left: 0; padding-right: 0; justify-content: flex-start; white-space: nowrap; overflow: visible; z-index: 3; opacity: 0; }
+/* The message is positioned in the same fixed design space as the truck/trail. */
+.ban-scene .ban-reason {
+  left: -8px;
+  right: auto;
+  top: var(--ban-message-top, -19px);
+  width: max-content !important;
+  max-width: none;
+  min-height: 30px;
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: flex-start;
+  white-space: nowrap;
+  overflow: visible;
+  z-index: 3;
+  opacity: 0;
+}
 .ban-scene .ban-reason span { display: inline-block; white-space: nowrap; overflow: visible; max-width: none; }
 .ban-scene .ban-trail.revealing .ban-reason { animation: banReasonAppear .18s ease-out forwards; }
 
