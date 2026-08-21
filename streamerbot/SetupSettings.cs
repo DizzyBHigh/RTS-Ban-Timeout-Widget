@@ -18,6 +18,7 @@ public class CPHInline
     private const string BanVanVerticalPositionKey = "duhbuh.banwidget.banVanVerticalPosition";
     private const string BanMessageVisibilityKey = "duhbuh.banwidget.banMessageVisibility";
     private const string BanMessageSizeKey = "duhbuh.banwidget.banMessageSize";
+    private const string BanMessagePositionModeKey = "duhbuh.banwidget.banMessagePositionMode";
     private const string BanMessageVerticalPositionKey = "duhbuh.banwidget.banMessageVerticalPosition";
 
     public bool Execute()
@@ -39,7 +40,8 @@ public class CPHInline
         ui.AddSlider("Ban Van Vertical Position", "Positions the ban van and skid marks vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanVanVerticalPositionKey, 0, 100, 50);
         ui.AddRadioGroup("Ban Message Visibility", "Show or hide the BANNED message and scrolling reason without affecting the van or skid animation.", "Ban Widget", BanMessageVisibilityKey, new[] { "Visible", "Hidden" }, "Visible");
         ui.AddRadioGroup("Ban Message Size", "Controls the size of BANNED and the scrolling reason independently of the van size.", "Ban Widget", BanMessageSizeKey, new[] { "Large", "Medium", "Small", "Extra Small" }, "Large");
-        ui.AddSlider("Ban Message Vertical Position", "Positions the ban message vertically in the viewport: 0 is the top and 100 is the bottom.", "Ban Widget", BanMessageVerticalPositionKey, 0, 100, 50);
+        ui.AddRadioGroup("Ban Message Position", "Controls how the ban message is positioned. Below Van follows the skid-mark area, Above Van follows the scaled van, and Manual enables the independent vertical position slider.", "Ban Widget", BanMessagePositionModeKey, new[] { "Below Van", "Above Van", "Manual" }, "Below Van");
+        ui.AddSlider("Ban Message Vertical Position", "Manual message position: 0 is the top and 100 is the bottom. Used when Ban Message Position is set to Manual.", "Ban Widget", BanMessageVerticalPositionKey, 0, 100, 50);
         ui.AddRadioGroup("Ban Message Scroll Speed", "Speed the Ban message scrolls.", "Ban Widget", BanMessageScrollSpeedKey, new[] { "Slow", "Medium", "Fast" }, "Medium");
 
         ui.AddTitle("Timeout Settings", "Timeout Widget");
