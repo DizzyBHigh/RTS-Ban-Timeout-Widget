@@ -1,7 +1,6 @@
 (() => {
-  const stage = document.getElementById("stage");
+  const stage = document.getElementById("ban-stage");
   if (!stage) return;
-
   const REVEAL_MS = 4300;
   const DEPART_MS = 4300;
   const FADE_MS = 1200;
@@ -138,8 +137,8 @@
 
     const startDepartureSkids = () => {
       const startWidth = ARRIVAL_REAR_DISTANCE;
-      const visibleDistance = Math.max(1, window.innerWidth - startWidth);
-      const truckDistance = Math.max(1, window.innerWidth + DEPART_TRUCK_DISTANCE_EXTRA);
+      const visibleDistance = Math.max(1, 1920 - startWidth);
+      const truckDistance = Math.max(1, 1920 + DEPART_TRUCK_DISTANCE_EXTRA);
       const truckDuration = animationMs(truck, DEPART_MS);
       const duration = truckDuration * (visibleDistance / truckDistance);
       const endWidth = startWidth + visibleDistance;
