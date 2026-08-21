@@ -1,7 +1,7 @@
 using System;
 
 // Streamer.bot C# action: open the Ban Widget settings window.
-// Requires duhBuhUI.dll to be available as a custom assembly reference.
+// Requires RtsUI.dll to be available as a custom assembly reference.
 public class CPHInline
 {
     private const string StackScalePercentKey = "duhbuh.banwidget.stackScalePercent";
@@ -23,8 +23,8 @@ public class CPHInline
 
     public bool Execute()
     {
-        var ui = new DuhBuhUI(
-            "DuhBuh Ban Widget",
+        var ui = new RtsUI(
+            "RTS Ban / Timeout Widget",
             "1.0.0",
             (key, persisted) => CPH.GetGlobalVar<bool?>(key, persisted),
             (key, persisted) => CPH.GetGlobalVar<int?>(key, persisted),
