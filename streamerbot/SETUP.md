@@ -10,14 +10,38 @@ Recommended:
 - Transparent background
 - Keep the `assets` directory beside `index.html`
 
+## Shared RTS UI DLL
+
+The settings UI uses the shared `RtsUI.dll` library. The DLL must be available in the Streamer.bot `dlls` directory before the settings code is executed.
+
+The imported action set should contain a separate C# action named:
+
+`RTS - UI DLL Check`
+
+Use `streamerbot/RtsUiDllCheck.cs` for that action. **Do not add an `RtsUI.dll` reference to this checker.** It must be able to compile and run when the DLL is missing.
+
+The checker:
+
+1. Resolves the Streamer.bot installation directory.
+2. Checks `dlls/RtsUI.dll`.
+3. Downloads the DLL from the latest RTS-UI-Dll GitHub release when it is missing.
+4. Reads the installed assembly version without loading the DLL into the action.
+5. Checks the latest published RTS UI release and offers to update an older installed DLL.
+6. Leaves the existing DLL untouched if a download or validation fails.
+
+The settings action should run the DLL check before opening the RtsUI settings window. If the check returns `false`, the remaining settings sub-actions must not run.
+
+The checker currently requires **RtsUI.dll 0.1.0 or newer**, matching the first published RTS UI DLL release. When an extension requires a newer API, update `MinimumRtsUiVersion` in `RtsUiDllCheck.cs` and the extension release metadata together.
+
 ## Streamer.bot actions
 
 Use separate actions for the moderation behaviours:
 
-- `duhbuh - Ban - Timeout Widget` → `streamerbot/TimeoutWidget.cs`
-- `duhbuh - Ban - Ban` → existing BanWidget path
-- `duhbuh - Ban - Settings` → `streamerbot/SetupSettings.cs`
-- `duhbuh - Ban - Show Stack` → `streamerbot/ShowStack.cs`
+- `RTS - Ban - Timeout Widget` → `streamerbot/TimeoutWidget.cs`
+- `RTS - Ban - Ban` → existing BanWidget path
+- `RTS - Ban - Settings` → `streamerbot/SetupSettings.cs`
+- `RTS - Ban - Show Stack` → `streamerbot/ShowStack.cs`
+- `RTS - UI DLL Check` → `streamerbot/RtsUiDllCheck.cs`
 
 The `BanWidget` Custom Event remains the browser communication contract. Keep the separate `duhbuh - Ban - Event Trigger` action with its Custom trigger named `BanWidget`; C# code fires it with `CPH.TriggerEvent("BanWidget", true)`.
 
