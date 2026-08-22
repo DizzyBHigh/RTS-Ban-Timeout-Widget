@@ -47,7 +47,7 @@
             "text": "Look above for Action Import, click the [Copy Import ⧉] Button, then paste the import code into Streamer.Bot's Import dialog.",
             "images": [
               {
-                "src": "/assets/images/sb-import-code-copy-screenshot",
+                "src": "/assets/images/sb-import-code-copy-screenshot.png",
                 "alt": "The RTS extension import code with an arrow pointing to the import code button"
               }
             ]
@@ -204,7 +204,6 @@
   },
   "publish": {
     "overlay": "overlay",
-    "importFile": "RTS Ban Timeout Widget - Import Code.txt",
-    "assets": "assets"
+    "importFile": "RTS Ban Timeout Widget - Import Code.txt"
   }
 }
