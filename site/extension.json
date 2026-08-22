@@ -155,11 +155,7 @@
           {
             "number": "04.2",
             "title": "Automatic Installation of the RtsUI.dll",
-            "text": "If you do not have the dll installed, the extension will download and place it your streamer.bot installation directory.",
-            "images": [{
-              "src": "/assets/images/sb-extension-dll-installation-screenshot.png",
-              "alt": ""
-            }]
+            "text": "If you do not have the dll installed, the extension will download and place it your streamer.bot installation directory."
           },
           {
             "number": "04.3",
