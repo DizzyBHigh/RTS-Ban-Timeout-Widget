@@ -34,17 +34,17 @@
   },
   "setup": {
     "title": "Get the extension running.",
-    "intro": "Import the Streamer.bot actions, enable them, add the overlay to OBS, then test the extension.",
+    "intro": "Follow the steps below to import the Streamer.bot actions, enable them, add the overlay to OBS, and configure the extension.\n\nYou can use the [[code:Copy Import Code]] and [[overlay:Copy Overlay URL]] buttons above to save time.",
     "steps": [
       {
         "number": "01",
-        "title": "Import the extension into streamer.bot ",
-        "description": "Open Streamer.bot and use Import to paste the supplied import string, or download the latest import file and import it into Streamer.bot.",
+        "title": "Import the extension into Streamer.bot",
+        "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\nThe quickest method is to use [[code:Copy Import Code]] above, then paste the code into Streamer.bot's Import dialog.",
         "substeps": [
           {
             "number": "01.1",
-            "title": "Copy the import string",
-            "text": "Look above for Action Import, click the [Copy Import ⧉] Button, then paste the import code into Streamer.Bot's Import dialog.",
+            "title": "Copy the import code",
+            "text": "Use [[code:Copy Import Code]] above to copy the complete RTS import code to your clipboard.\n\nThen open Streamer.bot and continue with the Import dialog.",
             "images": [{
               "src": "/assets/images/sb-import-code-copy-screenshot.png",
               "alt": "The RTS extension import code with an arrow pointing to the import code button"
@@ -53,7 +53,7 @@
           {
             "number": "01.2",
             "title": "Open Import",
-            "text": "Select Import from the Streamer.bot toolbar.",
+            "text": "In Streamer.bot, select **Import** from the toolbar.\n\nThis opens the Import dialog where you can paste the RTS import code.",
             "images": [{
               "src": "/assets/images/sb-import-code-screenshot.png",
               "alt": "Streamer.bot import screen showing the RTS extension import code"
@@ -62,7 +62,7 @@
           {
             "number": "01.3",
             "title": "Paste the import code",
-            "text": "Paste the supplied import string into the Import String box, then select Import.",
+            "text": "Paste the code you copied into the **Import String** box, then select **Import**.",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-screenshot.png",
               "alt": "Streamer.bot import confirmation dialog"
@@ -71,7 +71,7 @@
           {
             "number": "01.4",
             "title": "Confirm the import",
-            "text": "Review the actions being imported, then select Import to continue.",
+            "text": "Review the actions being imported.\n\nIf everything looks correct, select **Import** to complete the import.",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-again-screenshot.png",
               "alt": "Streamer.bot second import confirmation dialog"
@@ -82,12 +82,12 @@
       {
         "number": "02",
         "title": "Enable the imported actions",
-        "description": "Enable the imported RTS actions so the extension can respond to events.",
+        "description": "Enable the imported RTS actions so the extension can respond to ban and timeout events.",
         "substeps": [
           {
             "number": "02.1",
             "title": "Enable the extension actions",
-            "text": "Enable the imported RTS actions in Streamer.bot.",
+            "text": "In Streamer.bot, enable the imported RTS actions.\n\nThe actions need to be enabled before the extension can respond to events.",
             "images": [{
               "src": "/assets/images/sb-import-code-enable-actions-screenshot.png",
               "alt": "Streamer.bot imported RTS actions being enabled"
@@ -95,8 +95,8 @@
           },
           {
             "number": "02.2",
-            "title": "Check and Enable the commands",
-            "text": "Confirm the imported extension commands are present and enabled where required.",
+            "title": "Check and enable the commands",
+            "text": "Open the **Commands** section and confirm the imported RTS commands are present.\n\nEnable any commands that you want the extension to use.",
             "images": [{
               "src": "/assets/images/sb-import-code-enable-commands-screenshot.png",
               "alt": "Streamer.bot commands showing the imported RTS extension commands"
@@ -107,12 +107,12 @@
       {
         "number": "03",
         "title": "Add the extension overlay to OBS",
-        "description": "Add the extension's hosted overlay URL as an OBS Browser Source, or use the supplied local overlay files.",
+        "description": "Add the hosted RTS overlay as an OBS Browser Source.\n\nThe hosted overlay is the recommended option because it keeps the overlay files up to date automatically.",
         "substeps": [
           {
             "number": "03.1",
-            "title": "Copy the Overlay Url",
-            "text": "Look above in the Quick Access section and click the [Copy Overlay URL ⧉] Button, This will copy the overlay URL to your clipboard for use in OBS.",
+            "title": "Copy the overlay URL",
+            "text": "Use [[overlay:Copy Overlay URL]] above to copy the hosted browser-source URL to your clipboard.\n\nYou will paste this URL into the OBS Browser Source settings.",
             "images": [{
               "src": "/assets/images/obs-copy-overlay-url-screenshot.png",
               "alt": "RTS copy overlay URL button screenshot"
@@ -121,7 +121,7 @@
           {
             "number": "03.2",
             "title": "Create a browser source",
-            "text": "Add a browser source to an existing or newly created scene in OBS.",
+            "text": "In OBS, add a **Browser** source to an existing scene or create a new scene for the extension overlay.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-screenshot.png",
               "alt": "OBS add a new browser source dialog"
@@ -130,7 +130,7 @@
           {
             "number": "03.3",
             "title": "Configure the browser source",
-            "text": "Paste the Overlay Url you just copied into the URL field, then set the width and height to 1920x1080 or your screen size if its diffirent make sure you dimensions that are 16:9 or the overlay will be distorted, and check Refresh browser when scene becomes active.",
+            "text": "Paste the URL you copied into the **URL** field.\n\nSet the width and height to **1920 × 1080**, or use your screen resolution if different. [[yellow:Keep the same 16:9 aspect ratio]] so the overlay is not distorted.\n\nFinally, enable **Refresh browser when scene becomes active**.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-settings-screenshot.png",
               "alt": "OBS browser source settings dialog"
@@ -140,13 +140,13 @@
       },
       {
         "number": "04",
-        "title": "Configure Settings and Test the extension",
-        "description": "In the Actions Panel look for Extensions Settings Action",
+        "title": "Configure settings and test the extension",
+        "description": "Open the RTS extension settings and run the built-in test trigger before using the extension live.",
         "substeps": [
           {
             "number": "04.1",
             "title": "Open the settings dialog",
-            "text": "In the Actions Panel look for Extensions Settings Action and click to select it, Right click the the trigger called 'Core Test' and click Test Trigger top open the dialog",
+            "text": "In the **Actions** panel, find the **Extensions Settings Action**.\n\nSelect the trigger called **Core Test**, right-click it, then choose **Test Trigger** to open the extension settings dialog.",
             "images": [{
               "src": "/assets/images/sb-settings-trigger-screenshot.png",
               "alt": "Streamer.bot extension settings trigger"
@@ -154,13 +154,13 @@
           },
           {
             "number": "04.2",
-            "title": "Automatic Installation of the RtsUI.dll",
-            "text": "If you do not have the dll installed, the extension will download and place it your streamer.bot installation directory."
+            "title": "Automatic installation of RTS UI DLL",
+            "text": "[[yellow:If the RTS UI DLL is not installed]], the extension can download it and place it in your Streamer.bot installation directory.\n\nFor more information, see the [[DLL:RTS UI DLL installation page]]."
           },
           {
             "number": "04.3",
-            "title": "Automatic Updating of the RtsUI.dll",
-            "text": "If the extension requires an updated version, it will ask you if you want it to download and install the latest version."
+            "title": "Automatic updating of RTS UI DLL",
+            "text": "If the extension requires a newer version of the RTS UI DLL, it will ask whether you want to download and install the latest version.\n\n[[muted:The extension will only request an update when the installed version is below the required version.]]"
           }
         ]
       }
