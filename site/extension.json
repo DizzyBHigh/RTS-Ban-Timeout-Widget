@@ -11,7 +11,7 @@
   "runtime": {
     "platforms": ["Streamer.bot", "OBS", "Meld", "Twitch", "YouTube", "Kick"],
     "streamerBot": {
-      "importFile": "streamerbot/RTS Ban Timeout Widget - Import Code.txt"
+      "importFile": "RTS Ban Timeout Widget - Import Code.txt"
     },
     "overlay": {
       "type": "browser-source",
@@ -65,7 +65,7 @@
   },
   "publish": {
     "overlay": "overlay",
-    "importFile": "streamerbot/RTS Ban Timeout Widget - Import Code.txt",
-    "images": "site/images"
+    "importFile": "RTS Ban Timeout Widget - Import Code.txt",
+    "assets": "assets"
   }
 }
