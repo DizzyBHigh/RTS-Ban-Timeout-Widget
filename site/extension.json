@@ -44,7 +44,7 @@
           {
             "number": "01.1",
             "title": "Copy the import code",
-            "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\nThen open Streamer.bot and continue with the Import dialog.",
+            "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\nYou will paste this code into the Streamer.bot Import dialog.",
             "images": [{
               "src": "/assets/images/sb-import-code-copy-screenshot.png",
               "alt": "The RTS extension import code with an arrow pointing to the import code button"
@@ -53,7 +53,7 @@
           {
             "number": "01.2",
             "title": "Open Import",
-            "text": "In Streamer.bot, select **Import** from the toolbar.\n\nThis opens the Import dialog where you can paste the RTS import code.",
+            "text": "In Streamer.bot, click **Import** from the toolbar.\n\nThis opens the Import dialog where you can paste the RTS import code you copied in the previous step.\n\n[[muted:If you are using Streamer.bot version 1.0.0 or later, you can also select **File > Import** from the menu bar.]]/n/n After pasting in the code CLick the Import Button.\n\n[[muted:If you are using Streamer.bot version 1.0.7 or later, you will be taken to the next step automatically without the need to click the Import button.]]",
             "images": [{
               "src": "/assets/images/sb-import-code-screenshot.png",
               "alt": "Streamer.bot import screen showing the RTS extension import code"
@@ -61,8 +61,8 @@
           },
           {
             "number": "01.3",
-            "title": "Paste the import code",
-            "text": "Paste the code you copied into the **Import String** box, then select **Import**.",
+            "title": "Review The imported actions and commands",
+            "text": "After the import code is pasted, Streamer.bot will show a confirmation dialog with the actions and commands that will be imported.\n\nReview the actions and commands to ensure they are correct.\n\n If everything looks correct, click **Import** to complete the import.",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-screenshot.png",
               "alt": "Streamer.bot import confirmation dialog"
@@ -70,8 +70,8 @@
           },
           {
             "number": "01.4",
-            "title": "Confirm the import",
-            "text": "Review the actions being imported.\n\nIf everything looks correct, select **Import** to complete the import.",
+            "title": "Confirm the import once more!",
+            "text": "Stremer.bot will shope you a warning that the imported actions contain Custom C# code.\n\n Click **Import** to confirm the import once more!",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-again-screenshot.png",
               "alt": "Streamer.bot second import confirmation dialog"
@@ -101,6 +101,17 @@
               "src": "/assets/images/sb-import-code-enable-commands-screenshot.png",
               "alt": "Streamer.bot commands showing the imported RTS extension commands"
             }]
+          },
+          {
+            "number": "02.3",
+            "title": "Set up the Streamer.bot WebSocket Server",
+            "text": "In the left panel select Servers / Clients [[muted:Right down at the bottom of the list]].\n\n Select WebSocket Server, Turn Auto Start on [[muted:So yiou doint have to turn it on each time Streamer.bot starts]]\n\n Set the Port to 8080 [[muted:This is the default port for the extension, but you can change it if needed.]]\n\n Click Start Server [[muted:If you have Auto Start on then this will start automatically each time Streamer.bot starts]]",
+            "images": [
+              {
+                "src": "/assets/images/sb-webswocket-server-settings-screenshot.png",
+                "alt": "Streamer.bot WebSocket Server settings screenshot"
+              }
+            ]
           }
         ]
       },
@@ -121,7 +132,7 @@
           {
             "number": "03.2",
             "title": "Create a browser source",
-            "text": "In OBS, add a **Browser** source to an existing scene or create a new scene for the extension overlay.",
+            "text": "In OBS, add a **Browser** source to an existing scene or create a new scene for the extension overlay.\n\n Depending on your version of OBS, The interface for doing this may differ from the image.\n\n You can either right-click in the **Sources** panel and select **Add > Browser**, or click the **+** button in the **Sources** panel and select **Browser**.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-screenshot.png",
               "alt": "OBS add a new browser source dialog"
@@ -130,7 +141,7 @@
           {
             "number": "03.3",
             "title": "Configure the browser source",
-            "text": "Paste the URL you copied into the **URL** field.\n\nSet the width and height to **1920 × 1080**, or use your screen resolution if different. [[yellow:Keep the same 16:9 aspect ratio]] so the overlay is not distorted.\n\nFinally, enable **Refresh browser when scene becomes active**.",
+            "text": "Paste the URL you copied into the **URL** field.\n\nSet the width and height to [[muted:**1920 × 1080**]], or use your screen resolution if different. [[yellow:Make sure you use a 16:9 aspect ratio]] so the overlay is not distorted.\n\n If you wish to control the volume of the audio via OBS, then check the option.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-settings-screenshot.png",
               "alt": "OBS browser source settings dialog"
@@ -146,7 +157,7 @@
           {
             "number": "04.1",
             "title": "Open the settings dialog",
-            "text": "In the **Actions** panel, find the **Extensions Settings Action**.\n\nSelect the trigger called **Core Test**, right-click it, then choose **Test Trigger** to open the extension settings dialog.",
+            "text": "In the **Actions** panel, find the **Extensions Settings Action**.\n\nSelect the trigger called **Core Test**, right-click it, then choose **Test Trigger** to open the extension settings dialog.\n\n If you have never used an RTS Extension before and have not yet installed the [[dll:RtsUI.dll]] or are using an older version of the [[muted:DLL]]\n\n You will be prompted to have it to Installed or Updated. \n\n Once the settings dialog has loaded then [[muted:Save and Exit]] to close initiate the settings used by the extension.",
             "images": [{
               "src": "/assets/images/sb-settings-trigger-screenshot.png",
               "alt": "Streamer.bot extension settings trigger"
@@ -154,11 +165,33 @@
           },
           {
             "number": "04.2",
+            "title": "Do a Timeout test",
+            "text": "In the **Actions** panel, find the **RTS- Ban / Timeout - Timeout Action**.\n\nSelect the trigger called **Twitch Moderation**,\n\n Right-click it, then choose **Simulate** to simulate a Twitch Timeout.\n\n Look at the overlay to see the user locked up in a cage!!!\n\n [[muted:If you do not see anything then make sure you have set up the Streamer.bot WebSocket Server correctly and it is running]]",
+            "images": [
+              {
+                "src": "assets/images/rts-ban-timeout-widget-timeout-test-trigger-twitch.png",
+                "alt": "Test a simulated Twitch timeout trigger"
+              }
+            ]
+          },
+          {
+            "number": "04.3",
+            "title": "Do a Ban test",
+            "text": "In the **Actions** panel, find the **RTS- Ban / Timeout - Ban Action**.\n\nSelect the trigger called **Twitch Moderation**,\n\n Right-click it, then choose **Simulate** to simulate a Twitch Timeout.\n\n Look at the overlay to see the get driven off to the gulag!!!\n\n [[muted:If you do not see anything then make sure you have set up the Streamer.bot WebSocket Server correctly and it is running]]",
+            "images": [
+              {
+                "src": "assets/images/rts-ban-timeout-widget-ban-test-trigger-twitch.png",
+                "alt": "Test a simulated Twitch ban trigger"
+              }
+            ]
+          },
+          {
+            "number": "04.4",
             "title": "Automatic installation of RTS UI DLL",
             "text": "[[yellow:If the RTS UI DLL is not installed]], the extension can download it and place it in your Streamer.bot installation directory.\n\nFor more information, see the [[DLL:RTS UI DLL installation page]]."
           },
           {
-            "number": "04.3",
+            "number": "04.5",
             "title": "Automatic updating of RTS UI DLL",
             "text": "If the extension requires a newer version of the RTS UI DLL, it will ask whether you want to download and install the latest version.\n\n[[muted:The extension will only request an update when the installed version is below the required version.]]"
           }
