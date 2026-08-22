@@ -34,17 +34,17 @@
   },
   "setup": {
     "title": "Get the extension running.",
-    "intro": "Follow the steps below to import the Streamer.bot actions, enable them, add the overlay to OBS, and configure the extension.\n\nClick [[code:Copy Import Code]] to copy the complete RTS import code, or [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL.",
+    "intro": "Follow the steps below to import the Streamer.bot actions, enable them, add the overlay to OBS, and configure the extension.\n\n Click [[code:Copy Import Code]] to copy the complete RTS import code, or [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL.",
     "steps": [
       {
         "number": "01",
         "title": "Import the extension into Streamer.bot",
-        "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\nThe quickest method is to click [[code:Copy Import Code]] to copy the complete import code, then paste it into Streamer.bot's Import dialog.",
+        "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\n The quickest method is to click [[code:Copy Import Code]] to copy the complete import code, then paste it into Streamer.bot's Import dialog.",
         "substeps": [
           {
             "number": "01.1",
             "title": "Copy the import code",
-            "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\nYou will paste this code into the Streamer.bot Import dialog.",
+            "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\n You will paste this code into the Streamer.bot Import dialog.",
             "images": [{
               "src": "/assets/images/sb-import-code-copy-screenshot.png",
               "alt": "The RTS extension import code with an arrow pointing to the import code button"
@@ -53,7 +53,7 @@
           {
             "number": "01.2",
             "title": "Open Import",
-            "text": "In Streamer.bot, click **Import** from the toolbar.\n\nThis opens the Import dialog where you can paste the RTS import code you copied in the previous step.\n\n[[muted:If you are using Streamer.bot version 1.0.0 or later, you can also select **File > Import** from the menu bar.]]/n/n After pasting in the code CLick the Import Button.\n\n[[muted:If you are using Streamer.bot version 1.0.7 or later, you will be taken to the next step automatically without the need to click the Import button.]]",
+            "text": "In Streamer.bot, click **Import** from the toolbar.\n\n This opens the Import dialog where you can paste the RTS import code you copied in the previous step.\n\n [[muted:If you are using Streamer.bot version 1.0.0 or later, you can also select **File > Import** from the menu bar.]]\n\n  After pasting in the code Click the Import Button.\n\n[[muted:If you are using Streamer.bot version 1.0.7 or later, you will be taken to the next step automatically without the need to click the Import button.]]",
             "images": [{
               "src": "/assets/images/sb-import-code-screenshot.png",
               "alt": "Streamer.bot import screen showing the RTS extension import code"
@@ -62,7 +62,7 @@
           {
             "number": "01.3",
             "title": "Review The imported actions and commands",
-            "text": "After the import code is pasted, Streamer.bot will show a confirmation dialog with the actions and commands that will be imported.\n\nReview the actions and commands to ensure they are correct.\n\n If everything looks correct, click **Import** to complete the import.",
+            "text": "After the import code is pasted, Streamer.bot will show a confirmation dialog with the actions and commands that will be imported.\n\n Review the actions and commands to ensure they are correct.\n\n If everything looks correct, click **Import** to complete the import.",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-screenshot.png",
               "alt": "Streamer.bot import confirmation dialog"
@@ -71,7 +71,7 @@
           {
             "number": "01.4",
             "title": "Confirm the import once more!",
-            "text": "Stremer.bot will shope you a warning that the imported actions contain Custom C# code.\n\n Click **Import** to confirm the import once more!",
+            "text": "Streamer.bot will show you a warning that the imported actions contain Custom C# code.\n\n This is the code that powers RTS Extensions.\n\n Click **Import** to confirm again!",
             "images": [{
               "src": "/assets/images/sb-import-code-confirm-again-screenshot.png",
               "alt": "Streamer.bot second import confirmation dialog"
@@ -87,7 +87,7 @@
           {
             "number": "02.1",
             "title": "Enable the extension actions",
-            "text": "In Streamer.bot, enable the imported RTS actions.\n\nThe actions need to be enabled before the extension can respond to events.",
+            "text": "In Streamer.bot, enable the imported RTS actions.\n\n The actions need to be enabled before the extension can respond to events.",
             "images": [{
               "src": "/assets/images/sb-import-code-enable-actions-screenshot.png",
               "alt": "Streamer.bot imported RTS actions being enabled"
@@ -96,7 +96,7 @@
           {
             "number": "02.2",
             "title": "Check and enable the commands",
-            "text": "Open the **Commands** section and confirm the imported RTS commands are present.\n\nEnable any commands that you want the extension to use.",
+            "text": "Open the **Commands** section and confirm the imported RTS commands are present.\n\n Enable any commands that you want the extension to use.",
             "images": [{
               "src": "/assets/images/sb-import-code-enable-commands-screenshot.png",
               "alt": "Streamer.bot commands showing the imported RTS extension commands"
@@ -105,7 +105,7 @@
           {
             "number": "02.3",
             "title": "Set up the Streamer.bot WebSocket Server",
-            "text": "In the left panel select Servers / Clients [[muted:Right down at the bottom of the list]].\n\n Select WebSocket Server, Turn Auto Start on [[muted:So yiou doint have to turn it on each time Streamer.bot starts]]\n\n Set the Port to 8080 [[muted:This is the default port for the extension, but you can change it if needed.]]\n\n Click Start Server [[muted:If you have Auto Start on then this will start automatically each time Streamer.bot starts]]",
+            "text": "Streamer.bots built in websocket server is what passes events to the overlay, you will need to turn it on so the overlay can respond to events.\n\n In the left panel select Servers / Clients [[muted:Right down at the bottom of the list]].\n\n Select WebSocket Server, Turn Auto Start on [[muted:So you don't have to turn it on each time Streamer.bot starts]]. \n\n Set the Port to 8080 [[muted:This is the default port for the extension, but you can change it if needed]]. \n\n Click Start Server, [[muted:If you have Auto Start on then this will start automatically each time Streamer.bot starts]]",
             "images": [
               {
                 "src": "/assets/images/sb-webswocket-server-settings-screenshot.png",
@@ -118,12 +118,12 @@
       {
         "number": "03",
         "title": "Add the extension overlay to OBS",
-        "description": "Add the hosted RTS overlay as an OBS Browser Source.\n\nThe hosted overlay is the recommended option because it keeps the overlay files up to date automatically.",
+        "description": "Add the hosted RTS overlay as an OBS Browser Source.\n\n The hosted overlay is the recommended option because it keeps the overlay files up to date automatically.",
         "substeps": [
           {
             "number": "03.1",
             "title": "Copy the overlay URL",
-            "text": "Click [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL to your clipboard.\n\nYou will paste this URL into the OBS Browser Source settings.",
+            "text": "Click [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL to your clipboard.\n\n You will paste this URL into the OBS Browser Source settings.",
             "images": [{
               "src": "/assets/images/obs-copy-overlay-url-screenshot.png",
               "alt": "RTS copy overlay URL button screenshot"
@@ -132,7 +132,7 @@
           {
             "number": "03.2",
             "title": "Create a browser source",
-            "text": "In OBS, add a **Browser** source to an existing scene or create a new scene for the extension overlay.\n\n Depending on your version of OBS, The interface for doing this may differ from the image.\n\n You can either right-click in the **Sources** panel and select **Add > Browser**, or click the **+** button in the **Sources** panel and select **Browser**.",
+            "text": "In OBS, add a **Browser** source to an existing scene or create a new scene for the extension overlay.\n\n Depending on your version of OBS, The interface for doing this may differ from the image.\n\n You can either: \n\n right-click in the **Sources** panel and select **Add > Browser** \n\n Or \n\n Click the **+** button in the **Sources** panel and select **Browser**.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-screenshot.png",
               "alt": "OBS add a new browser source dialog"
@@ -141,7 +141,7 @@
           {
             "number": "03.3",
             "title": "Configure the browser source",
-            "text": "Paste the URL you copied into the **URL** field.\n\nSet the width and height to [[muted:**1920 × 1080**]], or use your screen resolution if different. [[yellow:Make sure you use a 16:9 aspect ratio]] so the overlay is not distorted.\n\n If you wish to control the volume of the audio via OBS, then check the option.",
+            "text": "Paste the URL you copied into the **URL** field.\n\n Set the [[muted:width]] and [[muted:height]] to [[yellow:**1920 × 1080**]], or use your screen resolution if different. [[yellow:Make sure you use a 16:9 aspect ratio]] so the overlay is not distorted.\n\n If you wish to control the volume of the audio via OBS, then check the [[muted:Control audio via OBS]] option.",
             "images": [{
               "src": "/assets/images/obs-add-browser-source-settings-screenshot.png",
               "alt": "OBS browser source settings dialog"
