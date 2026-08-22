@@ -65,7 +65,6 @@
   },
   "publish": {
     "overlay": "overlay",
-    "importFile": "RTS Ban Timeout Widget - Import Code.txt",
-    "assets": "assets"
+    "importFile": "RTS Ban Timeout Widget - Import Code.txt"
   }
 }
