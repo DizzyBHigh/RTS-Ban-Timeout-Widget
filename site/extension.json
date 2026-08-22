@@ -45,45 +45,37 @@
             "number": "01.1",
             "title": "Copy the import string",
             "text": "Look above for Action Import, click the [Copy Import ⧉] Button, then paste the import code into Streamer.Bot's Import dialog.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-copy-screenshot.png",
-                "alt": "The RTS extension import code with an arrow pointing to the import code button"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-copy-screenshot.png",
+              "alt": "The RTS extension import code with an arrow pointing to the import code button"
+            }]
           },
           {
             "number": "01.2",
             "title": "Open Import",
             "text": "Select Import from the Streamer.bot toolbar.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-screenshot.png",
-                "alt": "Streamer.bot import screen showing the RTS extension import code"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-screenshot.png",
+              "alt": "Streamer.bot import screen showing the RTS extension import code"
+            }]
           },
           {
             "number": "01.3",
             "title": "Paste the import code",
             "text": "Paste the supplied import string into the Import String box, then select Import.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-confirm-screenshot.png",
-                "alt": "Streamer.bot import confirmation dialog"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-confirm-screenshot.png",
+              "alt": "Streamer.bot import confirmation dialog"
+            }]
           },
           {
             "number": "01.4",
             "title": "Confirm the import",
             "text": "Review the actions being imported, then select Import to continue.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-confirm-again-screenshot.png",
-                "alt": "Streamer.bot second import confirmation dialog"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-confirm-again-screenshot.png",
+              "alt": "Streamer.bot second import confirmation dialog"
+            }]
           }
         ]
       },
@@ -96,23 +88,19 @@
             "number": "02.1",
             "title": "Enable the extension actions",
             "text": "Enable the imported RTS actions in Streamer.bot.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-enable-actions-screenshot.png",
-                "alt": "Streamer.bot imported RTS actions being enabled"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-enable-actions-screenshot.png",
+              "alt": "Streamer.bot imported RTS actions being enabled"
+            }]
           },
           {
             "number": "02.2",
             "title": "Check and Enable the commands",
             "text": "Confirm the imported extension commands are present and enabled where required.",
-            "images": [
-              {
-                "src": "/assets/images/sb-import-code-enable-commands-screenshot.png",
-                "alt": "Streamer.bot commands showing the imported RTS extension commands"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-import-code-enable-commands-screenshot.png",
+              "alt": "Streamer.bot commands showing the imported RTS extension commands"
+            }]
           }
         ]
       },
@@ -125,34 +113,28 @@
             "number": "03.1",
             "title": "Copy the Overlay Url",
             "text": "Look above in the Quick Access section and click the [Copy Overlay URL ⧉] Button, This will copy the overlay URL to your clipboard for use in OBS.",
-            "images": [
-              {
-                "src": "/assets/images/obs-copy-overlay-url-screenshot.png",
-                "alt": "RTS copy overlay URL button screenshot"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/obs-copy-overlay-url-screenshot.png",
+              "alt": "RTS copy overlay URL button screenshot"
+            }]
           },
           {
             "number": "03.2",
             "title": "Create a browser source",
             "text": "Add a browser source to an existing or newly created scene in OBS.",
-            "images": [
-              {
-                "src": "/assets/images/obs-add-browser-source-screenshot.png",
-                "alt": "OBS add a new browser source dialog"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/obs-add-browser-source-screenshot.png",
+              "alt": "OBS add a new browser source dialog"
+            }]
           },
           {
             "number": "03.3",
             "title": "Configure the browser source",
             "text": "Paste the Overlay Url you just copied into the URL field, then set the width and height to 1920x1080 or your screen size if its diffirent make sure you dimensions that are 16:9 or the overlay will be distorted, and check Refresh browser when scene becomes active.",
-            "images": [
-              {
-                "src": "/assets/images/obs-add-browser-source-settings-screenshot.png",
-                "alt": "OBS browser source settings dialog"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/obs-add-browser-source-settings-screenshot.png",
+              "alt": "OBS browser source settings dialog"
+            }]
           }
         ]
       },
@@ -165,34 +147,24 @@
             "number": "04.1",
             "title": "Open the settings dialog",
             "text": "In the Actions Panel look for Extensions Settings Action and click to select it, Right click the the trigger called 'Core Test' and click Test Trigger top open the dialog",
-            "images": [
-              {
-                "src": "/assets/images/sb-settings-trigger-screenshot.png",
-                "alt": "Streamer.bot extension settings trigger"
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-settings-trigger-screenshot.png",
+              "alt": "Streamer.bot extension settings trigger"
+            }]
           },
           {
             "number": "04.2",
             "title": "Automatic Installation of the RtsUI.dll",
             "text": "If you do not have the dll installed, the extension will download and place it your streamer.bot installation directory.",
-            "images": [
-              {
-                "src": "/assets/images/sb-extension-dll-installation-screenshot.png",
-                "alt": ""
-              }
-            ]
+            "images": [{
+              "src": "/assets/images/sb-extension-dll-installation-screenshot.png",
+              "alt": ""
+            }]
           },
           {
             "number": "04.3",
             "title": "Automatic Updating of the RtsUI.dll",
-            "text": "If the extension requires an updated version, it will ask you if you want it to download and install the latest version.",
-            "images": [
-              {
-                "src": "",
-                "alt": ""
-              }
-            ]
+            "text": "If the extension requires an updated version, it will ask you if you want it to download and install the latest version."
           }
         ]
       }
@@ -204,6 +176,7 @@
   },
   "publish": {
     "overlay": "overlay",
-    "importFile": "RTS Ban Timeout Widget - Import Code.txt"
+    "importFile": "RTS Ban Timeout Widget - Import Code.txt",
+    "assets": "assets"
   }
 }
