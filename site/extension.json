@@ -47,7 +47,7 @@
             "text": "Look above for Action Import, click the [Copy Import ⧉] Button, then paste the import code into Streamer.Bot's Import dialog.",
             "images": [
               {
-                "src": "/assets/images/sb-import-code-copy-screenshot",
+                "src": "/assets/images/sb-import-code-copy-screenshot.png",
                 "alt": "The RTS extension import code with an arrow pointing to the import code button"
               }
             ]
@@ -98,7 +98,7 @@
             "text": "Enable the imported RTS actions in Streamer.bot.",
             "images": [
               {
-                "src": "/assets/images/SB-Import-code-Enable-Actions-screenshot.png",
+                "src": "/assets/images/sb-import-code-enable-actions-screenshot.png",
                 "alt": "Streamer.bot imported RTS actions being enabled"
               }
             ]
