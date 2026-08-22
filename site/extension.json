@@ -34,17 +34,17 @@
   },
   "setup": {
     "title": "Get the extension running.",
-    "intro": "Follow the steps below to import the Streamer.bot actions, enable them, add the overlay to OBS, and configure the extension.\n\nYou can use the [[code:Copy Import Code]] and [[overlay:Copy Overlay URL]] buttons above to save time.",
+    "intro": "Follow the steps below to import the Streamer.bot actions, enable them, add the overlay to OBS, and configure the extension.\n\nClick [[code:Copy Import Code]] to copy the complete RTS import code, or [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL.",
     "steps": [
       {
         "number": "01",
         "title": "Import the extension into Streamer.bot",
-        "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\nThe quickest method is to use [[code:Copy Import Code]] above, then paste the code into Streamer.bot's Import dialog.",
+        "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\nThe quickest method is to click [[code:Copy Import Code]] to copy the complete import code, then paste it into Streamer.bot's Import dialog.",
         "substeps": [
           {
             "number": "01.1",
             "title": "Copy the import code",
-            "text": "Use [[code:Copy Import Code]] above to copy the complete RTS import code to your clipboard.\n\nThen open Streamer.bot and continue with the Import dialog.",
+            "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\nThen open Streamer.bot and continue with the Import dialog.",
             "images": [{
               "src": "/assets/images/sb-import-code-copy-screenshot.png",
               "alt": "The RTS extension import code with an arrow pointing to the import code button"
@@ -112,7 +112,7 @@
           {
             "number": "03.1",
             "title": "Copy the overlay URL",
-            "text": "Use [[overlay:Copy Overlay URL]] above to copy the hosted browser-source URL to your clipboard.\n\nYou will paste this URL into the OBS Browser Source settings.",
+            "text": "Click [[overlay:Copy Overlay URL]] to copy the hosted browser-source URL to your clipboard.\n\nYou will paste this URL into the OBS Browser Source settings.",
             "images": [{
               "src": "/assets/images/obs-copy-overlay-url-screenshot.png",
               "alt": "RTS copy overlay URL button screenshot"
