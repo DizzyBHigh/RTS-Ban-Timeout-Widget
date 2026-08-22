@@ -42,6 +42,16 @@
         "description": "Start by importing the supplied RTS actions into Streamer.bot.\n\n The quickest method is to click [[code:Copy Import Code]] to copy the complete import code, then paste it into Streamer.bot's Import dialog.",
         "substeps": [
           {
+            "number": "00.0",
+            "title": "Test Formats",
+            "text": "This is normal text.\\n\\nThis is **bold text** on its own.\\n\\n[[blue:This is RTS Blue text on its own.]]\\n\\n[[yellow:This is yellow text on its own.]]\\n\\n[[muted:This is muted text on its own.]]\\n\\n[[code:Copy Import Code]]\\n\\n[[overlay:Copy Overlay URL]]\\n\\n[[DLL:RTS UI DLL Download]]\\n\\n[[link:https://example.com|Normal external link]]\\n\\n[[rts-ban-timeout-widget:Ban / Timeout Extension Page]]\\n\\nThis tests **bold text** mixed with [[blue:RTS Blue text]] and [[yellow:yellow text]] in the same paragraph.\\n\\nThis tests [[muted:muted text containing **bold text** inside it]].\\n\\nThis tests [[blue:blue text containing **bold text** inside it]].\\n\\nThis tests [[yellow:yellow text containing **bold text** inside it]].\\n\\n[[muted:This is muted text containing [[blue:blue nested text]] and **bold text**.]]\\n\\n[[blue:This is blue text containing [[yellow:yellow nested text]] and **bold text**.]]\\n\\n[[yellow:This is yellow text containing [[muted:muted nested text]] and **bold text**.]]\\n\\nClick [[code:Copy Import Code]] to copy the **complete import code**.\\n\\nClick [[overlay:Copy Overlay URL]] to copy the **hosted browser-source URL**.\\n\\n[[muted:Click [[code:Copy Import Code]] to copy the **complete RTS import code**.\\n\\nThis is a second line inside the muted block.]]\\n\\n[[yellow:Important: click [[overlay:Copy Overlay URL]] before adding the Browser Source.]]\\n\\nThis paragraph contains **bold**, [[blue:blue]], [[yellow:yellow]], [[muted:muted]], [[DLL:DLL link]], [[rts-ban-timeout-widget:extension link]], and [[link:https://example.com|external link]] all together.\\n\\nFirst line.\\n\\nSecond line after two escaped newlines.\\nThird line after one escaped newline.\\n\\n[[muted:First muted line.\\n\\nSecond muted paragraph with **bold** and [[blue:blue nested text]].]]",
+            "images": [
+              {
+                "src": "/assets/images/sb-import-code-copy-screenshot.png",
+                "alt": "The RTS extension import code with an arrow pointing to the import code button"
+              }
+            ]
+          },{
             "number": "01.1",
             "title": "Copy the import code",
             "text": "Click [[code:Copy Import Code]] to copy the complete RTS import code to your clipboard.\n\n You will paste this code into the Streamer.bot Import dialog.",
