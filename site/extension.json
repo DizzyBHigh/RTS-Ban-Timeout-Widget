@@ -58,7 +58,7 @@
       {"number": "03", "title": "Add the extension overlay to OBS", "description": "Add the extension's hosted overlay URL as an OBS Browser Source, or use the supplied local overlay files.", "substeps": []},
       {"number": "04", "title": "Test the extension", "description": "Run a test event and confirm the overlay responds correctly before putting it live.", "substeps": []}
     ],
-    "dllInformation": {"title": "DLL information", "text": "This extension requires RTS UI DLL 0.1.0 or newer.", "dependencyId": "rts-ui-dll"}
+    "dllInformation": {"title": "DLL information", "dependencyId": "rts-ui-dll"}
   },
   "website": {
     "footerLabel": "The first road is open."
